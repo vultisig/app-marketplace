@@ -1,4 +1,4 @@
-import { Table, TableProps } from "antd";
+import { Empty, Table, TableProps } from "antd";
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import { useTheme } from "styled-components";
@@ -110,6 +110,8 @@ export const TransactionsPage = () => {
       key: "statusOnchain",
       title: "Status",
       render: (_, { statusOnchain }) => {
+        if (!statusOnchain) return "-";
+
         const color =
           statusOnchain === "SUCCESS"
             ? colors.success
@@ -224,6 +226,7 @@ export const TransactionsPage = () => {
           columns={columns}
           dataSource={transactions}
           loading={loading}
+          locale={{ emptyText: <Empty description="No Data" /> }}
           pagination={{
             current,
             onChange: (page) => fetchTransactions((page - 1) * defaultPageSize),

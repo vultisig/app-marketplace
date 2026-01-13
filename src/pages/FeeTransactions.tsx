@@ -1,4 +1,4 @@
-import { Table, TableProps } from "antd";
+import { Empty, Table, TableProps } from "antd";
 import dayjs from "dayjs";
 import { useCallback, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
@@ -77,7 +77,8 @@ export const FeeTransactionsPage = () => {
       dataIndex: "status",
       key: "status",
       title: "Status",
-      render: (_, { status }) => camelCaseToTitle(status.toLowerCase()),
+      render: (_, { status }) =>
+        status ? camelCaseToTitle(status.toLowerCase()) : "-",
     },
     {
       align: "center",
@@ -174,6 +175,7 @@ export const FeeTransactionsPage = () => {
             columns={columns}
             dataSource={transactions}
             loading={loading}
+            locale={{ emptyText: <Empty description="No Data" /> }}
             pagination={{
               current,
               onChange: (page) =>
