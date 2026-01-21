@@ -108,7 +108,7 @@ export const AppPage = () => {
 
       messageAPI.open({
         type: "error",
-        content: "App installation failed",
+        content: "Plugin installation failed",
       });
     }
   };
@@ -325,7 +325,7 @@ export const AppPage = () => {
                       }}
                     >
                       {isFree ? (
-                        <Stack as="span">This app is free</Stack>
+                        <Stack as="span">This plugin is free</Stack>
                       ) : (
                         app.pricing.map(
                           ({ amount, frequency, type }, index) => (
@@ -511,7 +511,7 @@ export const AppPage = () => {
                     value: (
                       <>
                         {isFree
-                          ? "This app is free"
+                          ? "This plugin is free"
                           : app.pricing.map(
                               ({ amount, frequency, type }, index) => (
                                 <Stack as="span" key={index}>
@@ -601,7 +601,7 @@ export const AppPage = () => {
                         as="span"
                         $style={{ fontSize: "16px", lineHeight: "24px" }}
                       >
-                        App Permissions
+                        Plugin Permissions
                       </Stack>
                       {permissions.map(({ id, label, description }) => (
                         <HStack
@@ -700,7 +700,7 @@ export const AppPage = () => {
               lineHeight: "18px",
             }}
           >
-            {`${app.title} app was successfully installed.`}
+            {`${app.title} plugin was successfully installed.`}
           </Stack>
           <Stack
             as="span"
@@ -709,7 +709,7 @@ export const AppPage = () => {
               lineHeight: "18px",
             }}
           >
-            You can now create app automations.
+            You can now create plugin automations.
           </Stack>
         </VStack>
         <HStack $style={{ gap: "12px", marginTop: "12px" }}>
@@ -730,7 +730,7 @@ export const AppPage = () => {
             }}
             kind="secondary"
           >
-            My apps
+            My plugins
           </Button>
         </HStack>
       </StatusModal>

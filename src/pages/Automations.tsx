@@ -42,7 +42,7 @@ export const AutomationsPage = () => {
 
   const handleUninstall = () => {
     modalAPI.confirm({
-      title: "Are you sure you want to uninstall this app?",
+      title: "Are you sure you want to uninstall this plugin?",
       okText: "Yes",
       okType: "danger",
       cancelText: "No",
@@ -53,7 +53,7 @@ export const AutomationsPage = () => {
           .then(() => {
             messageAPI.open({
               type: "success",
-              content: "App successfully uninstalled",
+              content: "Plugin successfully uninstalled",
             });
 
             navigate(routeTree.myApps.path, { replace: true });
@@ -61,7 +61,7 @@ export const AutomationsPage = () => {
           .catch(() => {
             messageAPI.open({
               type: "error",
-              content: "App uninstallation failed",
+              content: "Plugin uninstallation failed",
             });
 
             setState((prev) => ({ ...prev, loading: false }));
@@ -146,7 +146,7 @@ export const AutomationsPage = () => {
                 kind="danger"
                 onClick={handleUninstall}
               >
-                Uninstall App
+                Uninstall Plugin
               </Button>
             </HStack>
           </VStack>

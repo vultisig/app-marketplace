@@ -151,7 +151,7 @@ export const DefaultLayout = () => {
           width: "264px",
         }}
       >
-        The Vultisig App Store is currently only available on desktop.
+        The Vultisig Plugin Marketplace is currently only available on desktop.
       </Stack>
     </VStack>
   ) : (
@@ -219,7 +219,7 @@ export const DefaultLayout = () => {
               />
             </HStack>
             <Stack $style={{ fontSize: "22px", lineHeight: "40px" }}>
-              App Store
+              Plugin Marketplace
             </Stack>
           </HStack>
           <HStack $style={{ gap: "48px", lineHeight: "20px" }}>
@@ -236,7 +236,7 @@ export const DefaultLayout = () => {
                 to={routeTree.myApps.path}
                 $hover={{ color: colors.accentThree.toHex() }}
               >
-                My Apps
+                My Plugins
               </Stack>
             )}
             <Stack

@@ -118,7 +118,7 @@ export const CoreProvider: FC<{ children: ReactNode }> = ({ children }) => {
                       ).toISOString();
 
                       const message = JSON.stringify({
-                        message: "Sign into Vultisig App Store",
+                        message: "Sign into Vultisig Plugin Marketplace",
                         nonce: nonce,
                         expiresAt: expiryTime,
                         address,

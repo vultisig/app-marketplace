@@ -43,7 +43,7 @@ export const BillingPage = () => {
     {
       dataIndex: "pluginId",
       key: "pluginId",
-      title: "App Name",
+      title: "Plugin Name",
       render: (_, { appName, pluginId }) => {
         const app = apps.find(({ id }) => id === pluginId);
 

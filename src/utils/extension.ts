@@ -46,7 +46,7 @@ export const getVault = async () => {
       throw new Error("Missing required vault data");
 
     if (!vault.isFastVault)
-      throw new Error("Only Fast Vaults can connect to the App Store");
+      throw new Error("Only Fast Vaults can connect to the Plugin Marketplace");
 
     return vault;
   } else {

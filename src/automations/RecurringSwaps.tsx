@@ -393,7 +393,7 @@ export const RecurringSwapsForm: FC<AutomationFormProps> = ({
               .catch(() => {
                 setState((prev) => ({ ...prev, submitting: false }));
 
-                messageAPI.error("Failed to get suggestion from app");
+                messageAPI.error("Failed to get suggestion from plugin");
               });
           }
         })
