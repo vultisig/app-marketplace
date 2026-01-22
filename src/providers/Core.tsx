@@ -14,7 +14,12 @@ import { useLocalStorageWatcher } from "@/storage/hooks/useLocalStorageWatcher";
 import { getTheme, setTheme as setThemeStorage } from "@/storage/theme";
 import { delToken, getToken, setToken } from "@/storage/token";
 import { delVaultId, getVaultId, setVaultId } from "@/storage/vaultId";
-import { getAuthToken, getBaseValue, getFeeAppStatus } from "@/utils/api";
+import {
+  getAuthToken,
+  getBaseValue,
+  getFeeAppStatus,
+  setUnauthorizedHandler,
+} from "@/utils/api";
 import { feeAppId } from "@/utils/constants";
 import { Currency } from "@/utils/currency";
 import {
@@ -114,7 +119,7 @@ export const CoreProvider: FC<{ children: ReactNode }> = ({ children }) => {
                     } else {
                       const nonce = hexlify(randomBytes(16));
                       const expiryTime = new Date(
-                        Date.now() + 15 * 60 * 1000
+                        Date.now() + 15 * 60 * 1000,
                       ).toISOString();
 
                       const message = JSON.stringify({
@@ -146,17 +151,17 @@ export const CoreProvider: FC<{ children: ReactNode }> = ({ children }) => {
                             })
                             .catch(() => {
                               messageAPI.error("Authentication failed!");
-                            })
+                            }),
                       );
                     }
-                  })
-                )
+                  }),
+                ),
             );
           })
           .catch((error: Error) => {
             messageAPI.error(error.message);
             clear();
-          })
+          }),
       )
       .catch((error: Error) => messageAPI.error(error.message));
   }, [clear, messageAPI]);
@@ -200,6 +205,10 @@ export const CoreProvider: FC<{ children: ReactNode }> = ({ children }) => {
   useLocalStorageWatcher(storageKeys.theme, () => {
     setTheme(getTheme(), true);
   });
+  
+  useEffect(() => {
+    setUnauthorizedHandler(clear);
+  }, [clear]);
 
   useEffect(() => {
     updateFeeAppStatus();
@@ -207,7 +216,7 @@ export const CoreProvider: FC<{ children: ReactNode }> = ({ children }) => {
 
   useEffect(() => {
     getBaseValue(currency).then((baseValue) =>
-      setState((prevState) => ({ ...prevState, baseValue }))
+      setState((prevState) => ({ ...prevState, baseValue })),
     );
   }, [currency]);
 
