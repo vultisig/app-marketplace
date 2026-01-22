@@ -8,7 +8,7 @@ import {
 } from "@/proto/policy_pb";
 import { getToken } from "@/storage/token";
 import { getVaultId } from "@/storage/vaultId";
-import { chains, EvmChain, evmChainInfo } from "@/utils/chain";
+import { chains, EvmChain, evmChainInfo, evmChains } from "@/utils/chain";
 import {
   defaultPageSize,
   feeAppId,
@@ -365,7 +365,7 @@ export const getOneInchTokens = async (chain: EvmChain): Promise<Token[]> => {
     tokens: Record<string, OneInchToken>;
   }>(`${vultiApiUrl}/1inch/swap/v6.0/${evmChainInfo[chain].id}/tokens`);
 
-  return Object.values(tokens).map((token) => ({
+  const tokenList = Object.values(tokens).map((token) => ({
     chain,
     decimals: token.decimals,
     id: token.address,
@@ -373,6 +373,20 @@ export const getOneInchTokens = async (chain: EvmChain): Promise<Token[]> => {
     name: token.name,
     ticker: token.symbol,
   }));
+
+  // Add VULT token for Ethereum chain
+  if (chain === evmChains.Ethereum) {
+    tokenList.push({
+      chain,
+      decimals: 18,
+      id: "0xb788144df611029c60b859df47e79b7726c4deba",
+      logo: "https://s2.coinmarketcap.com/static/img/coins/64x64/33502.png",
+      name: "Vultisig Token",
+      ticker: "VULT",
+    });
+  }
+
+  return tokenList;
 };
 
 export const getAutomations = async ({
