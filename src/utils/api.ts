@@ -314,7 +314,7 @@ export const getOneInchTokens = async (chain: EvmChain): Promise<Token[]> => {
     tokens: Record<string, OneInchToken>;
   }>(`${vultiApiUrl}/1inch/swap/v6.0/${evmChainInfo[chain].id}/tokens`);
 
-  return Object.values(tokens).map((token) => ({
+  const tokenList = Object.values(tokens).map((token) => ({
     chain,
     decimals: token.decimals,
     id: token.address,
