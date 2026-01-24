@@ -1,12 +1,14 @@
 import { fromJson, JsonObject } from "@bufbuild/protobuf";
 import axios, { AxiosRequestConfig } from "axios";
+import dayjs from "dayjs";
+import { jwtDecode } from "jwt-decode";
 
 import {
   PolicySuggest,
   PolicySuggestJson,
   PolicySuggestSchema,
 } from "@/proto/policy_pb";
-import { getToken } from "@/storage/token";
+import { getToken, setToken } from "@/storage/token";
 import { getVaultId } from "@/storage/vaultId";
 import { chains, EvmChain, evmChainInfo, evmChains } from "@/utils/chain";
 import {
@@ -40,8 +42,6 @@ import {
   Token,
   Transaction,
 } from "@/utils/types";
-import { jwtDecode } from "jwt-decode";
-import dayjs from "dayjs";
 
 class TokenManager {
   private refreshPromise: Promise<string> | null = null;
@@ -99,11 +99,13 @@ api.interceptors.request.use(
       if (token) {
         const newToken = await tokenManager.check(token).catch(() => null);
 
+        if (!newToken) return config;
+
+        setToken(publicKey, newToken);
+
         return {
           ...config,
-          headers: config.headers.setAuthorization(
-            newToken ? `Bearer ${newToken}` : null,
-          ),
+          headers: config.headers.setAuthorization(`Bearer ${newToken}`),
         };
       }
     }
