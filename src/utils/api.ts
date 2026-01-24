@@ -1,12 +1,14 @@
 import { fromJson, JsonObject } from "@bufbuild/protobuf";
 import axios, { AxiosRequestConfig } from "axios";
+import dayjs from "dayjs";
+import { jwtDecode } from "jwt-decode";
 
 import {
   PolicySuggest,
   PolicySuggestJson,
   PolicySuggestSchema,
 } from "@/proto/policy_pb";
-import { delToken, getToken } from "@/storage/token";
+import { getToken, setToken } from "@/storage/token";
 import { getVaultId } from "@/storage/vaultId";
 import { chains, EvmChain, evmChainInfo, evmChains } from "@/utils/chain";
 import {
@@ -41,45 +43,92 @@ import {
   Transaction,
 } from "@/utils/types";
 
+class TokenManager {
+  private refreshPromise: Promise<string> | null = null;
+
+  async check(token: string): Promise<string> {
+    const now = dayjs().unix();
+
+    try {
+      const { exp } = jwtDecode<{ exp: number }>(token);
+
+      if (exp < now) return this.refresh(token);
+
+      return token;
+    } catch {
+      throw new Error();
+    }
+  }
+
+  async refresh(token: string): Promise<string> {
+    // If a refresh is already happening, wait for it
+    if (this.refreshPromise) return this.refreshPromise;
+
+    // Start a new refresh
+    this.refreshPromise = axios
+      .post<APIResponse<{ token: string }>>(
+        `${storeApiUrl}/auth/refresh`,
+        { token },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            accept: "application/json",
+          },
+        },
+      )
+      .then((res) => res.data.data.token)
+      .finally(() => {
+        // Reset so future refreshes can happen
+        this.refreshPromise = null;
+      });
+
+    return this.refreshPromise;
+  }
+}
+
 const api = axios.create({ headers: { "Content-Type": "application/json" } });
+const tokenManager = new TokenManager();
+let onUnauthorized: (() => void) | null = null;
 
 api.interceptors.request.use(
-  (config) => {
+  async (config) => {
     if (config.url?.startsWith(storeApiUrl)) {
       const publicKey = getVaultId();
       const token = getToken(publicKey);
 
-      return {
-        ...config,
-        headers: config.headers.setAuthorization(
-          token ? `Bearer ${token}` : null
-        ),
-      };
+      if (token) {
+        const newToken = await tokenManager.check(token).catch(() => null);
+
+        if (!newToken) return config;
+
+        setToken(publicKey, newToken);
+
+        return {
+          ...config,
+          headers: config.headers.setAuthorization(`Bearer ${newToken}`),
+        };
+      }
     }
 
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => Promise.reject(error),
 );
 
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      const publicKey = getVaultId();
-
-      if (publicKey) delToken(publicKey);
-    }
+    if (error.response?.status === 401 && onUnauthorized) onUnauthorized();
 
     return Promise.reject(
-      new Error(error.response?.data?.error?.message || error.message)
+      new Error(error.response?.data?.error?.message || error.message),
     );
-  }
+  },
 );
 
 const externalGet = async <T>(
   url: string,
-  config?: AxiosRequestConfig
+  config?: AxiosRequestConfig,
 ): Promise<T> => {
   return await api.get<T>(url, config).then(({ data }) => toCamelCase(data));
 };
@@ -99,7 +148,7 @@ const get = async <T>(url: string, config?: AxiosRequestConfig): Promise<T> => {
 const post = async <T>(
   url: string,
   data?: Record<string, unknown>,
-  config?: AxiosRequestConfig
+  config?: AxiosRequestConfig,
 ): Promise<T> => {
   return api
     .post<APIResponse<T>>(url, data, config)
@@ -116,23 +165,27 @@ const post = async <T>(
 //     .then(({ data }) => toCamelCase(data.data));
 // };
 
+export const setUnauthorizedHandler = (fn: () => void) => {
+  onUnauthorized = fn;
+};
+
 export const addAutomation = async (data: AppAutomation): Promise<void> => {
   return post<void>(`${storeApiUrl}/plugin/policy`, toSnakeCase(data));
 };
 
 export const addReview = async (
   appId: string,
-  data: ReviewForm
+  data: ReviewForm,
 ): Promise<void> => {
   return post<void>(
     `${storeApiUrl}/plugins/${appId}/reviews`,
-    toSnakeCase(data)
+    toSnakeCase(data),
   );
 };
 
 export const delAutomation = async (
   id: string,
-  signature: string
+  signature: string,
 ): Promise<void> => {
   return del<void>(`${storeApiUrl}/plugin/policy/${id}`, {
     data: { signature },
@@ -142,7 +195,7 @@ export const delAutomation = async (
 export const getAuthToken = async (data: AuthToken): Promise<string> => {
   const { token } = await post<{ token: string }>(
     `${storeApiUrl}/auth`,
-    toSnakeCase(data)
+    toSnakeCase(data),
   );
   return token;
 };
@@ -194,7 +247,7 @@ export const getBaseValue = async (currency: Currency): Promise<number> => {
         [id: string]: { quote: { [currency: string]: { price: number } } };
       };
     }>(
-      `${vultiApiUrl}/cmc/v2/cryptocurrency/quotes/latest?id=825&skip_invalid=true&aux=is_active&convert=${currency}`
+      `${vultiApiUrl}/cmc/v2/cryptocurrency/quotes/latest?id=825&skip_invalid=true&aux=is_active&convert=${currency}`,
     );
 
     const quote = data?.[825]?.quote?.[modifiedCurrency];
@@ -287,14 +340,14 @@ export const getMyApps = async ({
 
 export const getOneInchToken = async (
   chain: EvmChain,
-  id: string
+  id: string,
 ): Promise<Token> => {
   const tokens = await externalGet<OneInchToken[]>(
-    `${vultiApiUrl}/1inch/token/v1.2/${evmChainInfo[chain].id}/search?query=${id}`
+    `${vultiApiUrl}/1inch/token/v1.2/${evmChainInfo[chain].id}/search?query=${id}`,
   );
 
   const token = tokens.find(
-    (token) => token.address.toLowerCase() === id.toLowerCase()
+    (token) => token.address.toLowerCase() === id.toLowerCase(),
   );
 
   if (!token) throw new Error();
@@ -364,10 +417,10 @@ export const getAutomations = async ({
 };
 
 export const getRecipeSpecification = async (
-  appId: string
+  appId: string,
 ): Promise<RecipeSchema> => {
   const { configurationExample, ...rest } = await get<RecipeSchema>(
-    `${storeApiUrl}/plugins/${appId}/recipe-specification`
+    `${storeApiUrl}/plugins/${appId}/recipe-specification`,
   );
 
   if (appId !== recurringSwapsAppId) return rest as RecipeSchema;
@@ -377,11 +430,11 @@ export const getRecipeSpecification = async (
 
 export const getRecipeSuggestion = async (
   appId: string,
-  configuration: JsonObject
+  configuration: JsonObject,
 ): Promise<PolicySuggest> => {
   const suggest = await post<PolicySuggestJson>(
     `${storeApiUrl}/plugins/${appId}/recipe-specification/suggest`,
-    { configuration }
+    { configuration },
   );
 
   return fromJson(PolicySuggestSchema, suggest);
@@ -433,7 +486,7 @@ export const getTransactions = async ({
 
 export const getJupiterToken = async (id: string): Promise<Token> => {
   const [jupiterToken] = await externalGet<JupiterToken[]>(
-    `${vultiApiUrl}/jup/tokens/v2/search?query=${id}`
+    `${vultiApiUrl}/jup/tokens/v2/search?query=${id}`,
   );
 
   if (!jupiterToken) throw new Error();
@@ -450,7 +503,7 @@ export const getJupiterToken = async (id: string): Promise<Token> => {
 
 export const getJupiterTokens = async (): Promise<Token[]> => {
   const jupiterTokens = await externalGet<JupiterToken[]>(
-    `${vultiApiUrl}/jup/tokens/v2/tag?query=verified`
+    `${vultiApiUrl}/jup/tokens/v2/tag?query=verified`,
   );
 
   return jupiterTokens.map((token) => ({
