@@ -1,6 +1,7 @@
 import { MemoryStorage, VaultBase, Vultisig } from "@vultisig/sdk";
 import { message as Message, Modal } from "antd";
 import { hexlify, randomBytes } from "ethers";
+import { jwtDecode } from "jwt-decode";
 import { FC, ReactNode, useCallback, useEffect, useState } from "react";
 
 import { CoreContext, CoreContextProps } from "@/context/Core";
@@ -15,6 +16,7 @@ import { getTheme, setTheme as setThemeStorage } from "@/storage/theme";
 import { delToken, getToken, setToken } from "@/storage/token";
 import { delVaultId, getVaultId, setVaultId } from "@/storage/vaultId";
 import {
+  delAuthToken,
   getAuthToken,
   getBaseValue,
   getFeeAppStatus,
@@ -173,7 +175,15 @@ export const CoreProvider: FC<{ children: ReactNode }> = ({ children }) => {
       okType: "default",
       cancelText: "No",
       onOk() {
-        clear();
+        const token = getToken(getVaultId());
+
+        try {
+          const { token_id } = jwtDecode<{ token_id: string }>(token);
+
+          delAuthToken(token_id).finally(clear);
+        } catch {
+          clear();
+        }
       },
     });
   };
@@ -205,7 +215,7 @@ export const CoreProvider: FC<{ children: ReactNode }> = ({ children }) => {
   useLocalStorageWatcher(storageKeys.theme, () => {
     setTheme(getTheme(), true);
   });
-  
+
   useEffect(() => {
     setUnauthorizedHandler(clear);
   }, [clear]);
