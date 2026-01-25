@@ -183,6 +183,10 @@ export const addReview = async (
   );
 };
 
+export const delAuthToken = async (tokenId: string): Promise<void> => {
+  return del(`${storeApiUrl}/auth/tokens/${tokenId}`);
+};
+
 export const delAutomation = async (
   id: string,
   signature: string,

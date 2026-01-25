@@ -15,6 +15,7 @@ import { getTheme, setTheme as setThemeStorage } from "@/storage/theme";
 import { delToken, getToken, setToken } from "@/storage/token";
 import { delVaultId, getVaultId, setVaultId } from "@/storage/vaultId";
 import {
+  delAuthToken,
   getAuthToken,
   getBaseValue,
   getFeeAppStatus,
@@ -29,6 +30,7 @@ import {
   personalSign,
 } from "@/utils/extension";
 import { Theme } from "@/utils/theme";
+import { jwtDecode } from "jwt-decode";
 
 type StateProps = Pick<
   CoreContextProps,
@@ -173,7 +175,15 @@ export const CoreProvider: FC<{ children: ReactNode }> = ({ children }) => {
       okType: "default",
       cancelText: "No",
       onOk() {
-        clear();
+        const token = getToken(getVaultId());
+
+        try {
+          const { token_id } = jwtDecode<{ token_id: string }>(token);
+
+          delAuthToken(token_id).finally(clear);
+        } catch {
+          clear();
+        }
       },
     });
   };
@@ -205,7 +215,7 @@ export const CoreProvider: FC<{ children: ReactNode }> = ({ children }) => {
   useLocalStorageWatcher(storageKeys.theme, () => {
     setTheme(getTheme(), true);
   });
-  
+
   useEffect(() => {
     setUnauthorizedHandler(clear);
   }, [clear]);
