@@ -1,6 +1,7 @@
 import { MemoryStorage, VaultBase, Vultisig } from "@vultisig/sdk";
 import { message as Message, Modal } from "antd";
 import { hexlify, randomBytes } from "ethers";
+import { jwtDecode } from "jwt-decode";
 import { FC, ReactNode, useCallback, useEffect, useState } from "react";
 
 import { CoreContext, CoreContextProps } from "@/context/Core";
@@ -30,7 +31,6 @@ import {
   personalSign,
 } from "@/utils/extension";
 import { Theme } from "@/utils/theme";
-import { jwtDecode } from "jwt-decode";
 
 type StateProps = Pick<
   CoreContextProps,
