@@ -86,9 +86,13 @@ export const FeeTransactionsPage = () => {
       key: "amount",
       title: "Amount",
       render: (_, { amount }) => {
-        if (!amount) return "-";
-        
-        return toValueFormat(Number(amount) * baseValue, currency);
+        if (amount == null) return "-";
+
+        const amountNum = Number(amount);
+        //TODO: Fetch fee token and decimals dynamically from backend
+        const decimals = 1e-6;
+
+        return toValueFormat(amountNum * decimals * baseValue, currency);
       },
     },
   ];
