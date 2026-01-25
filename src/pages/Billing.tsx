@@ -124,7 +124,7 @@ export const BillingPage = () => {
       key: "totalFees",
       title: "Total Fees",
       render: (_, { totalFees }) =>
-        toValueFormat(Number(totalFees) * baseValue, currency),
+        toValueFormat(Number(totalFees) * 1e-6 * baseValue, currency),
     },
   ];
 

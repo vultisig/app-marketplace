@@ -5,6 +5,7 @@ import {
   Form,
   Input,
   Modal,
+  Progress,
   Select,
   Table,
   TableProps,
@@ -52,7 +53,7 @@ import {
 import { nativeTokens } from "@/utils/chain";
 import { defaultPageSize, modalHash } from "@/utils/constants";
 import { personalSign } from "@/utils/extension";
-import { frequencies } from "@/utils/frequencies";
+import { frequencies, Frequency } from "@/utils/frequencies";
 import {
   getConfiguration,
   getFeePolicies,
@@ -69,7 +70,7 @@ type CustomAppAutomation = AppAutomation & {
 
 type DataProps = {
   endDate: number;
-  frequency: string;
+  frequency: Frequency;
   from: AssetProps;
   fromAmount: string;
   name: string;
@@ -129,7 +130,6 @@ export const RecurringSwapsForm: FC<AutomationFormProps> = ({
   const values = Form.useWatch([], form);
   const goBack = useGoBack();
   const colors = useTheme();
-
   const supportedChains = requirements?.supportedChains || [];
   const visible = hash === modalHash.automation;
 
@@ -138,6 +138,7 @@ export const RecurringSwapsForm: FC<AutomationFormProps> = ({
       dataIndex: "name",
       key: "name",
       title: "Name",
+      render: (value) => value || "-",
     },
     {
       align: "center",
@@ -208,6 +209,65 @@ export const RecurringSwapsForm: FC<AutomationFormProps> = ({
     },
     {
       align: "center",
+      dataIndex: "configuration",
+      key: "completion",
+      render: ({ endDate, frequency, startDate }: DataProps) => {
+        let percent = 0;
+
+        if (startDate) {
+          const now = dayjs().unix();
+          const start = dayjs(startDate).unix();
+
+          if (frequency === "one-time") {
+            if (now > start) percent = 100;
+          } else if (endDate) {
+            const end = dayjs(endDate).unix();
+
+            if (now > end) {
+              percent = 100;
+            } else if (now > start) {
+              let step = 60;
+
+              switch (frequency) {
+                case "hourly":
+                  step = 60 * 60;
+                  break;
+                case "daily":
+                  step = 60 * 60 * 24;
+                  break;
+                case "weekly":
+                  step = 60 * 60 * 24 * 7;
+                  break;
+                case "bi-weekly":
+                  step = 60 * 60 * 24 * 14;
+                  break;
+                case "monthly":
+                  step = 60 * 60 * 24 * 30;
+                  break;
+                default:
+                  break;
+              }
+
+              const totalSteps = Math.floor((end - start) / step);
+              const completedSteps = Math.floor((now - start) / step);
+
+              percent = Math.floor((completedSteps / totalSteps) * 100);
+            }
+          }
+        }
+
+        return (
+          <Progress
+            percent={percent}
+            percentPosition={{ align: "center" }}
+            size="small"
+          />
+        );
+      },
+      title: "Completion",
+    },
+    {
+      align: "center",
       dataIndex: "id",
       key: "action",
       render: (_, { id, signature }) => {
@@ -242,7 +302,7 @@ export const RecurringSwapsForm: FC<AutomationFormProps> = ({
                 const decoded = base64Decode(automation.recipe);
                 const { configuration, name } = fromBinary(
                   PolicySchema,
-                  decoded
+                  decoded,
                 );
 
                 if (!configuration) return { ...automation, name };
@@ -265,7 +325,7 @@ export const RecurringSwapsForm: FC<AutomationFormProps> = ({
           setState((prev) => ({ ...prev, loading: false }));
         });
     },
-    [appId]
+    [appId],
   );
 
   const handleBack = () => {
@@ -330,10 +390,10 @@ export const RecurringSwapsForm: FC<AutomationFormProps> = ({
                 ...values,
                 fromAmount: parseUnits(
                   Number(values.fromAmount).toFixed(values.from.decimals),
-                  values.from.decimals
+                  values.from.decimals,
                 ).toString(),
               }),
-              configuration.definitions
+              configuration.definitions,
             );
 
             getRecipeSuggestion(id, configurationData)
@@ -469,8 +529,8 @@ export const RecurringSwapsForm: FC<AutomationFormProps> = ({
                 {step > 2
                   ? "Submit"
                   : step > 1
-                  ? "Continue"
-                  : "Create your own automations"}
+                    ? "Continue"
+                    : "Create your own automations"}
               </Button>
             </HStack>
           </>

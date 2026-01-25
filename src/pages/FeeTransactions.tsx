@@ -87,8 +87,8 @@ export const FeeTransactionsPage = () => {
       title: "Amount",
       render: (_, { amount }) => {
         if (!amount) return "-";
-        
-        return toValueFormat(Number(amount) * baseValue, currency);
+
+        return toValueFormat(Number(amount) * 1e-6 * baseValue, currency);
       },
     },
   ];
@@ -111,7 +111,7 @@ export const FeeTransactionsPage = () => {
           setState((prevState) => ({ ...prevState, loading: false }));
         });
     },
-    [appId]
+    [appId],
   );
 
   useEffect(() => {
