@@ -123,8 +123,15 @@ export const BillingPage = () => {
       dataIndex: "totalFees",
       key: "totalFees",
       title: "Total Fees",
-      render: (_, { totalFees }) =>
-        toValueFormat(Number(totalFees) * baseValue, currency),
+      render: (_, { totalFees }) => {
+        if (totalFees == null) return "-";
+
+        const amount = Number(totalFees);
+        // TODO: Fetch fee token and decimals dynamically
+        const decimals = 1e-6;
+
+        return toValueFormat(amount * decimals * baseValue, currency);
+      },
     },
   ];
 
