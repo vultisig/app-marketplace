@@ -124,7 +124,7 @@ export const BillingPage = () => {
       key: "totalFees",
       title: "Total Fees",
       render: (_, { totalFees }) => {
-        if (totalFees == null) return "-";
+        if (!totalFees) return "-";
 
         const amount = Number(totalFees);
         // TODO: Fetch fee token and decimals dynamically

@@ -5,6 +5,7 @@ import {
   Form,
   Input,
   Modal,
+  Progress,
   Select,
   Table,
   TableProps,
@@ -188,6 +189,67 @@ export const RecurringSendsForm: FC<AutomationFormProps> = ({
     },
     {
       align: "center",
+      dataIndex: "configuration",
+      key: "completion",
+      render: ({ endDate, frequency, startDate }: DataProps) => {
+        let percent = 0;
+
+        if (startDate) {
+          const now = dayjs().unix();
+          const start = dayjs(startDate).unix();
+
+          if (frequency === "one-time") {
+            if (now > start) percent = 100;
+          } else if (endDate) {
+            const end = dayjs(endDate).unix();
+
+            if (now > end) {
+              percent = 100;
+            } else if (now > start) {
+              let step = 60;
+
+              switch (frequency) {
+                case "hourly":
+                  step = 60 * 60;
+                  break;
+                case "daily":
+                  step = 60 * 60 * 24;
+                  break;
+                case "weekly":
+                  step = 60 * 60 * 24 * 7;
+                  break;
+                case "bi-weekly":
+                  step = 60 * 60 * 24 * 14;
+                  break;
+                case "monthly":
+                  step = 60 * 60 * 24 * 30;
+                  break;
+                default:
+                  break;
+              }
+
+              const totalSteps = Math.floor((end - start) / step);
+              const completedSteps = Math.floor((now - start) / step);
+
+              percent = completedSteps && totalSteps
+                ? Math.floor((completedSteps / totalSteps) * 100)
+                : 0;
+            }
+          }
+        }
+
+        return (
+          <Progress
+            percent={percent}
+            percentPosition={{ align: "center" }}
+            size="small"
+          />
+        );
+      },
+      title: "Completion",
+    },
+    {
+      align: "center",
       dataIndex: "id",
       key: "action",
       render: (_, { id, signature }) => {
@@ -222,7 +284,7 @@ export const RecurringSendsForm: FC<AutomationFormProps> = ({
                 const decoded = base64Decode(automation.recipe);
                 const { configuration, name } = fromBinary(
                   PolicySchema,
-                  decoded
+                  decoded,
                 );
 
                 if (!configuration) return { ...automation, name };
@@ -245,7 +307,7 @@ export const RecurringSendsForm: FC<AutomationFormProps> = ({
           setState((prev) => ({ ...prev, loading: false }));
         });
     },
-    [appId]
+    [appId],
   );
 
   const handleBack = () => {
@@ -309,11 +371,11 @@ export const RecurringSendsForm: FC<AutomationFormProps> = ({
             ...recipient,
             amount: parseUnits(
               Number(recipient.amount).toFixed(values.asset.decimals),
-              values.asset.decimals
+              values.asset.decimals,
             ).toString(),
           })),
         }),
-        configuration.definitions
+        configuration.definitions,
       );
 
       getRecipeSuggestion(id, configurationData)

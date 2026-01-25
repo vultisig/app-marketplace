@@ -86,7 +86,7 @@ export const FeeTransactionsPage = () => {
       key: "amount",
       title: "Amount",
       render: (_, { amount }) => {
-        if (amount == null) return "-";
+        if (!amount) return "-";
 
         const amountNum = Number(amount);
         //TODO: Fetch fee token and decimals dynamically from backend
@@ -115,7 +115,7 @@ export const FeeTransactionsPage = () => {
           setState((prevState) => ({ ...prevState, loading: false }));
         });
     },
-    [appId]
+    [appId],
   );
 
   useEffect(() => {
