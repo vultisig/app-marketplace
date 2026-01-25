@@ -231,7 +231,9 @@ export const RecurringSendsForm: FC<AutomationFormProps> = ({
               const totalSteps = Math.floor((end - start) / step);
               const completedSteps = Math.floor((now - start) / step);
 
-              percent = Math.floor((completedSteps / totalSteps) * 100);
+              percent = completedSteps && totalSteps
+                ? Math.floor((completedSteps / totalSteps) * 100)
+                : 0;
             }
           }
         }
