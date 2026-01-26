@@ -152,6 +152,10 @@ export type RecipeSchema = Omit<
   };
 };
 
+export type ReportForm = {
+  reason: string;
+};
+
 export type ReshareForm = {
   email: string;
   hexChainCode: string;

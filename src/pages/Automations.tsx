@@ -5,9 +5,11 @@ import { useTheme } from "styled-components";
 import { AutomationForm } from "@/automations/Default";
 import { RecurringSendsForm } from "@/automations/RecurringSends";
 import { RecurringSwapsForm } from "@/automations/RecurringSwaps";
+import { AppReportModal } from "@/components/AppReportModal";
 import { useAntd } from "@/hooks/useAntd";
 import { useGoBack } from "@/hooks/useGoBack";
 import { useQueries } from "@/hooks/useQueries";
+import { BubbleAlertIcon } from "@/icons/BubbleAlertIcon";
 import { ChevronLeftIcon } from "@/icons/ChevronLeftIcon";
 import { CirclePlusIcon } from "@/icons/CirclePlusIcon";
 import { TrashIcon } from "@/icons/TrashIcon";
@@ -129,7 +131,7 @@ export const AutomationsPage = () => {
             >
               Quick actions
             </Stack>
-            <HStack $style={{ alignItems: "center", gap: "16px" }}>
+            <HStack $style={{ gap: "16px" }}>
               <Button
                 disabled={loading}
                 href={modalHash.automation}
@@ -148,6 +150,16 @@ export const AutomationsPage = () => {
               >
                 Uninstall App
               </Button>
+              <Divider vertical />
+              <Button
+                disabled={loading}
+                icon={<BubbleAlertIcon />}
+                loading={loading}
+                kind="warning"
+                onClick={() => navigate(modalHash.report)}
+              >
+                Report
+              </Button>
             </HStack>
           </VStack>
 
@@ -160,6 +172,8 @@ export const AutomationsPage = () => {
           )}
         </VStack>
       </VStack>
+
+      <AppReportModal />
     </>
   );
 };
