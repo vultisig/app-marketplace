@@ -4,8 +4,8 @@ import { formatUnits } from "viem";
 import { useQueries } from "@/hooks/useQueries";
 import { Spin } from "@/toolkits/Spin";
 import { Chain, nativeTokens } from "@/utils/chain";
-import { Token } from "@/utils/types";
 import { toNumberFormat } from "@/utils/functions";
+import { Token } from "@/utils/types";
 
 export const AutomationAmount: FC<{
   amount: string;
