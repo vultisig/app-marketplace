@@ -5,6 +5,7 @@ import { useQueries } from "@/hooks/useQueries";
 import { Spin } from "@/toolkits/Spin";
 import { Chain, nativeTokens } from "@/utils/chain";
 import { Token } from "@/utils/types";
+import { toNumberFormat } from "@/utils/functions";
 
 export const AutomationAmount: FC<{
   amount: string;
@@ -34,5 +35,5 @@ export const AutomationAmount: FC<{
 
   if (!token) return <Spin size="small" />;
 
-  return formatUnits(BigInt(amount), token.decimals);
+  return toNumberFormat(formatUnits(BigInt(amount), token.decimals));
 };

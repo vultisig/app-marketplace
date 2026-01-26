@@ -143,6 +143,7 @@ export const RecurringSendsForm: FC<AutomationFormProps> = ({
       dataIndex: "name",
       key: "name",
       title: "Name",
+      render: (value) => value || "-",
     },
     {
       align: "center",
