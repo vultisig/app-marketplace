@@ -9,7 +9,7 @@ import { AppReportModal } from "@/components/AppReportModal";
 import { useAntd } from "@/hooks/useAntd";
 import { useGoBack } from "@/hooks/useGoBack";
 import { useQueries } from "@/hooks/useQueries";
-import { BubbleAlertIcon } from "@/icons/BubbleAlertIcon";
+import { TriangleExclamationIcon } from "@/icons/TriangleExclamationIcon";
 import { ChevronLeftIcon } from "@/icons/ChevronLeftIcon";
 import { CirclePlusIcon } from "@/icons/CirclePlusIcon";
 import { TrashIcon } from "@/icons/TrashIcon";
@@ -25,6 +25,8 @@ import {
 } from "@/utils/constants";
 import { routeTree } from "@/utils/routes";
 import { App, RecipeSchema } from "@/utils/types";
+import { Dropdown, MenuProps } from "antd";
+import { DotGridVerticalIcon } from "@/icons/DotGridVerticalIcon";
 
 type StateProps = {
   app?: App;
@@ -41,6 +43,21 @@ export const AutomationsPage = () => {
   const navigate = useNavigate();
   const goBack = useGoBack();
   const colors = useTheme();
+
+  const items: MenuProps["items"] = [
+    {
+      icon: <TriangleExclamationIcon stroke={colors.error.toHex()} />,
+      key: "1",
+      label: (
+        <HStack as="span" $style={{ color: colors.error.toHex() }}>
+          Report Plugin
+        </HStack>
+      ),
+      onClick: () => {
+        navigate(modalHash.report, { state: true });
+      },
+    },
+  ];
 
   const handleUninstall = () => {
     modalAPI.confirm({
@@ -112,16 +129,32 @@ export const AutomationsPage = () => {
             <ChevronLeftIcon fontSize={16} />
             Go back
           </HStack>
-          <HStack $style={{ alignItems: "center", gap: "12px" }}>
-            <Stack
-              as="img"
-              alt={app.title}
-              src={app.logoUrl}
-              $style={{ borderRadius: "12px", height: "32px", width: "32px" }}
-            />
-            <Stack as="span" $style={{ fontSize: "22px" }}>
-              {app.title}
-            </Stack>
+          <HStack $style={{ gap: "32px", justifyContent: "space-between" }}>
+            <HStack $style={{ alignItems: "center", gap: "12px" }}>
+              <Stack
+                as="img"
+                alt={app.title}
+                src={app.logoUrl}
+                $style={{ borderRadius: "12px", height: "32px", width: "32px" }}
+              />
+              <Stack as="span" $style={{ fontSize: "22px" }}>
+                {app.title}
+              </Stack>
+            </HStack>
+            <Dropdown menu={{ items }} placement="bottomRight">
+              <HStack
+                as="span"
+                $style={{
+                  backgroundColor: colors.bgTertiary.toHex(),
+                  borderRadius: "50%",
+                  cursor: "pointer",
+                  fontSize: "16px",
+                  padding: "12px",
+                }}
+              >
+                <DotGridVerticalIcon />
+              </HStack>
+            </Dropdown>
           </HStack>
           <Divider light />
           <VStack $style={{ alignItems: "flex-start", gap: "16px" }}>
@@ -149,16 +182,6 @@ export const AutomationsPage = () => {
                 onClick={handleUninstall}
               >
                 Uninstall App
-              </Button>
-              <Divider vertical />
-              <Button
-                disabled={loading}
-                icon={<BubbleAlertIcon />}
-                loading={loading}
-                kind="warning"
-                onClick={() => navigate(modalHash.report)}
-              >
-                Report
               </Button>
             </HStack>
           </VStack>

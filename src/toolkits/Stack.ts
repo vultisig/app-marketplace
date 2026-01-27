@@ -55,18 +55,18 @@ export const Stack = styled.div<StackProps>`
 `;
 
 export const HStack = styled.div<StackProps>`
-  ${({ $style, ...props }) =>
+  ${({ $style = {}, ...props }) =>
     stackPropertiesToString({
       ...props,
-      $style: { ...($style || {}), display: "flex", flexDirection: "row" },
+      $style: { display: "flex", flexDirection: "row", ...$style },
     })}
 `;
 
 export const VStack = styled.div<StackProps>`
-  ${({ $style, ...props }) =>
+  ${({ $style = {}, ...props }) =>
     stackPropertiesToString({
       ...props,
-      $style: { ...($style || {}), display: "flex", flexDirection: "column" },
+      $style: { display: "flex", flexDirection: "column", ...$style },
     })}
 `;
 

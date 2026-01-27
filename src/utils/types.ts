@@ -154,6 +154,7 @@ export type RecipeSchema = Omit<
 
 export type ReportForm = {
   reason: string;
+  details?: string;
 };
 
 export type ReshareForm = {
