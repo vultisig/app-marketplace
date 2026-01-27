@@ -87,8 +87,12 @@ export const FeeTransactionsPage = () => {
       title: "Amount",
       render: (_, { amount }) => {
         if (!amount) return "-";
-        
-        return toValueFormat(Number(amount) * baseValue, currency);
+
+        const amountNum = Number(amount);
+        //TODO: Fetch fee token and decimals dynamically from backend
+        const decimals = 1e-6;
+
+        return toValueFormat(amountNum * decimals * baseValue, currency);
       },
     },
   ];
@@ -111,7 +115,7 @@ export const FeeTransactionsPage = () => {
           setState((prevState) => ({ ...prevState, loading: false }));
         });
     },
-    [appId]
+    [appId],
   );
 
   useEffect(() => {

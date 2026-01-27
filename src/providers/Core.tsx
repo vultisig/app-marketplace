@@ -1,6 +1,7 @@
 import { MemoryStorage, VaultBase, Vultisig } from "@vultisig/sdk";
 import { message as Message, Modal } from "antd";
 import { hexlify, randomBytes } from "ethers";
+import { jwtDecode } from "jwt-decode";
 import { FC, ReactNode, useCallback, useEffect, useState } from "react";
 
 import { CoreContext, CoreContextProps } from "@/context/Core";
@@ -14,7 +15,13 @@ import { useLocalStorageWatcher } from "@/storage/hooks/useLocalStorageWatcher";
 import { getTheme, setTheme as setThemeStorage } from "@/storage/theme";
 import { delToken, getToken, setToken } from "@/storage/token";
 import { delVaultId, getVaultId, setVaultId } from "@/storage/vaultId";
-import { getAuthToken, getBaseValue, getFeeAppStatus } from "@/utils/api";
+import {
+  delAuthToken,
+  getAuthToken,
+  getBaseValue,
+  getFeeAppStatus,
+  setUnauthorizedHandler,
+} from "@/utils/api";
 import { feeAppId } from "@/utils/constants";
 import { Currency } from "@/utils/currency";
 import {
@@ -114,7 +121,7 @@ export const CoreProvider: FC<{ children: ReactNode }> = ({ children }) => {
                     } else {
                       const nonce = hexlify(randomBytes(16));
                       const expiryTime = new Date(
-                        Date.now() + 15 * 60 * 1000
+                        Date.now() + 15 * 60 * 1000,
                       ).toISOString();
 
                       const message = JSON.stringify({
@@ -146,17 +153,17 @@ export const CoreProvider: FC<{ children: ReactNode }> = ({ children }) => {
                             })
                             .catch(() => {
                               messageAPI.error("Authentication failed!");
-                            })
+                            }),
                       );
                     }
-                  })
-                )
+                  }),
+                ),
             );
           })
           .catch((error: Error) => {
             messageAPI.error(error.message);
             clear();
-          })
+          }),
       )
       .catch((error: Error) => messageAPI.error(error.message));
   }, [clear, messageAPI]);
@@ -168,7 +175,15 @@ export const CoreProvider: FC<{ children: ReactNode }> = ({ children }) => {
       okType: "default",
       cancelText: "No",
       onOk() {
-        clear();
+        const token = getToken(getVaultId());
+
+        try {
+          const { token_id } = jwtDecode<{ token_id: string }>(token);
+
+          delAuthToken(token_id).finally(clear);
+        } catch {
+          clear();
+        }
       },
     });
   };
@@ -202,12 +217,16 @@ export const CoreProvider: FC<{ children: ReactNode }> = ({ children }) => {
   });
 
   useEffect(() => {
+    setUnauthorizedHandler(clear);
+  }, [clear]);
+
+  useEffect(() => {
     updateFeeAppStatus();
   }, [updateFeeAppStatus]);
 
   useEffect(() => {
     getBaseValue(currency).then((baseValue) =>
-      setState((prevState) => ({ ...prevState, baseValue }))
+      setState((prevState) => ({ ...prevState, baseValue })),
     );
   }, [currency]);
 
