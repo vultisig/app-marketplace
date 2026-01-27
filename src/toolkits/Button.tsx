@@ -111,7 +111,7 @@ const StyledButton = styled.div<{
             `,
             warning: () => css`
               background-color: ${theme.warning.toHex()};
-              color: ${theme.buttonText.toHex()};
+              color: ${theme.neutral800.toHex()};
             `,
           })}
 

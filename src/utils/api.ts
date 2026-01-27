@@ -36,6 +36,7 @@ import {
   ListFilters,
   OneInchToken,
   RecipeSchema,
+  ReportForm,
   ReshareForm,
   Review,
   ReviewForm,
@@ -181,6 +182,13 @@ export const addReview = async (
     `${storeApiUrl}/plugins/${appId}/reviews`,
     toSnakeCase(data),
   );
+};
+
+export const appReport = async (
+  appId: string,
+  data: ReportForm,
+): Promise<void> => {
+  return post<void>(`${storeApiUrl}/plugins/${appId}/report`, toSnakeCase(data));
 };
 
 export const delAuthToken = async (tokenId: string): Promise<void> => {
