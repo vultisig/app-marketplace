@@ -4,6 +4,7 @@ import { formatUnits } from "viem";
 import { useQueries } from "@/hooks/useQueries";
 import { Spin } from "@/toolkits/Spin";
 import { Chain, nativeTokens } from "@/utils/chain";
+import { toNumberFormat } from "@/utils/functions";
 import { Token } from "@/utils/types";
 
 export const AutomationAmount: FC<{
@@ -34,5 +35,8 @@ export const AutomationAmount: FC<{
 
   if (!token) return <Spin size="small" />;
 
-  return formatUnits(BigInt(amount), token.decimals);
+  return toNumberFormat(
+    formatUnits(BigInt(amount), token.decimals),
+    token.decimals,
+  );
 };
