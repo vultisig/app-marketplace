@@ -35,5 +35,8 @@ export const AutomationAmount: FC<{
 
   if (!token) return <Spin size="small" />;
 
-  return toNumberFormat(formatUnits(BigInt(amount), token.decimals));
+  return toNumberFormat(
+    formatUnits(BigInt(amount), token.decimals),
+    token.decimals,
+  );
 };
