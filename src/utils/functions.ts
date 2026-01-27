@@ -64,7 +64,7 @@ export const cssPropertiesToString = (styles: CSSProperties) => {
 export const getConfiguration = (
   configuration: Configuration,
   values: JsonObject,
-  definitions?: Definitions
+  definitions?: Definitions,
 ): JsonObject => {
   return Object.fromEntries(
     Object.entries(configuration.properties).flatMap(([key, field]) => {
@@ -83,14 +83,14 @@ export const getConfiguration = (
       }
 
       return [[key, value]];
-    })
+    }),
   );
 };
 
 export const getExplorerUrl = (
   chain: Chain,
   entity: "address" | "tx",
-  value: string
+  value: string,
 ): string => {
   const baseUrl = explorerBaseUrl[chain];
 
@@ -240,7 +240,7 @@ export const kebabCaseToTitle = (input: string) => {
 
 export const match = <T extends string | number | symbol, V>(
   value: T,
-  handlers: { [key in T]: () => V }
+  handlers: { [key in T]: () => V },
 ): V => {
   const handler = handlers[value];
 
@@ -369,16 +369,20 @@ export const toCamelCase = <T>(obj: T): T => {
 // };
 
 export const toNumberFormat = (value: number | string, decimal = 20) => {
-  const formatter = new Intl.NumberFormat("en-US", {
-    style: "decimal",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: decimal,
-    useGrouping: true,
-  });
+  const str = String(value).trim();
 
-  const num = typeof value === "string" ? Number(value.trim()) : value;
+  // If not a valid number string, return as-is
+  if (!/^-?\d+(\.\d+)?$/.test(str)) return str;
 
-  return isNaN(num) ? value.toString() : formatter.format(num);
+  const [intPartRaw, decPartRaw = ""] = str.split(".");
+
+  // Format integer part with commas
+  const intPart = intPartRaw.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+  // Trim or pad decimals
+  const decPart = decPartRaw.slice(0, decimal);
+
+  return decPart.length > 0 ? `${intPart}.${decPart}` : intPart;
 };
 
 export const toSnakeCase = <T>(obj: T): T => {
@@ -401,7 +405,7 @@ export const toSnakeCase = <T>(obj: T): T => {
 export const toValueFormat = (
   value: number | string,
   currency: Currency,
-  decimal = 2
+  decimal = 2,
 ): string => {
   return `${currencySymbols[currency]}${toNumberFormat(value, decimal)}`;
 };
