@@ -5,10 +5,10 @@ import { useTheme } from "styled-components";
 
 import { useGoBack } from "@/hooks/useGoBack";
 import { Button } from "@/toolkits/Button";
+import { Stack, VStack } from "@/toolkits/Stack";
 import { appReport } from "@/utils/api";
 import { modalHash } from "@/utils/constants";
 import { ReportForm } from "@/utils/types";
-import { Stack, VStack } from "@/toolkits/Stack";
 
 export const AppReportModal = () => {
   const [submitting, setSubmitting] = useState(false);
