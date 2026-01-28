@@ -45,6 +45,7 @@ export const BillingPage = () => {
       key: "pluginId",
       title: "App Name",
       render: (_, { appName, pluginId }) => {
+        // Todo: Add appLogoUrl to billings api response
         const app = apps.find(({ id }) => id === pluginId);
 
         if (!app) return appName;
