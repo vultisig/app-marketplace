@@ -42,7 +42,6 @@ export const TransactionsPage = () => {
       key: "pluginId",
       title: "App Name",
       render: (_, { appName, pluginId }) => {
-        // Todo: Add appLogoUrl to transactions api response
         const app = apps.find(({ id }) => id === pluginId);
 
         if (!app) return appName;
@@ -117,8 +116,8 @@ export const TransactionsPage = () => {
           statusOnchain === "SUCCESS"
             ? colors.success
             : statusOnchain === "PENDING"
-            ? colors.warning
-            : colors.error;
+              ? colors.warning
+              : colors.error;
 
         return (
           <HStack $style={{ justifyContent: "center" }}>
@@ -181,6 +180,7 @@ export const TransactionsPage = () => {
   };
 
   useEffect(() => {
+    // TODO: Update transactions API to include app icon and remove getApps API call
     getApps({}).then(({ apps }) => {
       setState((prevState) => ({ ...prevState, apps }));
     });

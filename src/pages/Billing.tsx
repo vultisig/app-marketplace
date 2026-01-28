@@ -45,7 +45,6 @@ export const BillingPage = () => {
       key: "pluginId",
       title: "App Name",
       render: (_, { appName, pluginId }) => {
-        // Todo: Add appLogoUrl to billings api response
         const app = apps.find(({ id }) => id === pluginId);
 
         if (!app) return appName;
@@ -155,6 +154,7 @@ export const BillingPage = () => {
   };
 
   useEffect(() => {
+    // TODO: Update billings API to include app icon and remove getApps API call
     getApps({}).then(({ apps }) => {
       setState((prev) => ({ ...prev, apps }));
     });

@@ -279,6 +279,7 @@ export const AppPage = () => {
                         Checking
                       </Button>
                     ) : !isFree && !isFeeAppInstalled ? (
+                      // TODO: Replace hard‑coded "Get · Free" with dynamic pricing
                       <Button href={modalHash.payment} loading={loading}>
                         Get
                         <Stack
@@ -338,7 +339,7 @@ export const AppPage = () => {
                                 type,
                               })}
                             </Stack>
-                          )
+                          ),
                         )
                       )}
                     </VStack>
@@ -523,7 +524,7 @@ export const AppPage = () => {
                                     type,
                                   })}
                                 </Stack>
-                              )
+                              ),
                             )}
                       </>
                     ),
