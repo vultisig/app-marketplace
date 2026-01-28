@@ -1,13 +1,13 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { Address, createPublicClient, erc20Abi, http } from "viem";
 
+import { getApp } from "@/api/store";
 import {
-  getApp,
   getJupiterToken,
   getJupiterTokens,
   getOneInchToken,
   getOneInchTokens,
-} from "@/utils/api";
+} from "@/api/third-party/crypto";
 import {
   Chain,
   chains,
@@ -76,7 +76,7 @@ export const useQueries = () => {
               };
 
               return token;
-            }
+            },
           );
         } else if (chain === chains.Solana) {
           return await getJupiterToken(id);

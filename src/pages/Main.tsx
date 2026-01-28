@@ -3,13 +3,13 @@ import { debounce } from "lodash-es";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTheme } from "styled-components";
 
+import { getApps, getCategories } from "@/api/store";
 import { AppItem } from "@/components/AppItem";
 import { FreeTrialBanner } from "@/components/FreeTrialBanner";
 import { useFilterParams } from "@/hooks/useFilterParams";
 import { Divider } from "@/toolkits/Divider";
 import { Spin } from "@/toolkits/Spin";
 import { HStack, Stack, VStack } from "@/toolkits/Stack";
-import { getApps, getCategories } from "@/utils/api";
 import { App, AppFilters, Category } from "@/utils/types";
 
 type StateProps = {

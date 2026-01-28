@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useTheme } from "styled-components";
 
+import { getRecipeSpecification, uninstallApp } from "@/api/store";
 import { AutomationForm } from "@/automations/Default";
 import { RecurringSendsForm } from "@/automations/RecurringSends";
 import { RecurringSwapsForm } from "@/automations/RecurringSwaps";
@@ -19,7 +20,6 @@ import { Button } from "@/toolkits/Button";
 import { Divider } from "@/toolkits/Divider";
 import { Spin } from "@/toolkits/Spin";
 import { HStack, Stack, VStack } from "@/toolkits/Stack";
-import { getRecipeSpecification, uninstallApp } from "@/utils/api";
 import {
   modalHash,
   recurringSendsAppId,

@@ -4,6 +4,7 @@ import { Fragment, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "styled-components";
 
+import { getApps, getBillings } from "@/api/store";
 import { useCore } from "@/hooks/useCore";
 import { useGoBack } from "@/hooks/useGoBack";
 import { ChevronLeftIcon } from "@/icons/ChevronLeftIcon";
@@ -11,7 +12,6 @@ import { Button } from "@/toolkits/Button";
 import { Divider } from "@/toolkits/Divider";
 import { Spin } from "@/toolkits/Spin";
 import { HStack, Stack, VStack } from "@/toolkits/Stack";
-import { getApps, getBillings } from "@/utils/api";
 import { defaultPageSize, modalHash } from "@/utils/constants";
 import { toValueFormat } from "@/utils/functions";
 import { routeTree } from "@/utils/routes";

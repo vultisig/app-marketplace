@@ -1,14 +1,43 @@
 import { VaultBase } from "@vultisig/sdk";
 import { randomBytes } from "crypto";
 
-import { reshareVault } from "@/utils/api";
+import { reshareVault } from "@/api/store";
 import { vultiApiUrl } from "@/utils/constants";
+
+type VultisigProviderItem = {
+  request: <T>(params: { method: string; params?: unknown[] }) => Promise<T>;
+};
+
+type VultisigProvider = {
+  ethereum: VultisigProviderItem;
+  bitcoin: VultisigProviderItem;
+  solana: VultisigProviderItem;
+  ripple: VultisigProviderItem;
+  zcash: VultisigProviderItem;
+  plugin: VultisigProviderItem;
+  getVault: () => Promise<{
+    hexChainCode: string;
+    isFastVault: boolean;
+    localPartyId: string;
+    name: string;
+    parties: string[];
+    publicKeyEcdsa: string;
+    publicKeyEddsa: string;
+    uid: string;
+  }>;
+};
+
+declare global {
+  interface Window {
+    vultisig: VultisigProvider;
+  }
+}
 
 export const connect = async () => {
   await isAvailable();
 
   try {
-    const [account]: string[] = await window.vultisig.ethereum.request({
+    const [account] = await window.vultisig.ethereum.request<string[]>({
       method: "eth_requestAccounts",
       params: [{ preselectFastVault: true }],
     });
@@ -30,16 +59,7 @@ export const disconnect = async () => {
 export const getVault = async () => {
   await isAvailable();
 
-  const vault: {
-    hexChainCode: string;
-    isFastVault: boolean;
-    localPartyId: string;
-    name: string;
-    parties: string[];
-    publicKeyEcdsa: string;
-    publicKeyEddsa: string;
-    uid: string;
-  } = await window.vultisig.getVault();
+  const vault = await window.vultisig.getVault();
 
   if (vault) {
     if (!vault.hexChainCode || !vault.publicKeyEcdsa)
@@ -64,7 +84,7 @@ export const personalSign = async (
   address: string,
   message: string,
   type: "connect" | "policy",
-  pluginId?: string
+  pluginId?: string,
 ) => {
   await isAvailable();
 
@@ -83,14 +103,14 @@ export const personalSign = async (
 
 export const startReshareSession = async (
   pluginId: string,
-  vaultData: VaultBase["data"]
+  vaultData: VaultBase["data"],
 ) => {
   await isAvailable();
 
   try {
     // fetch first party id that does not start with Server
     const extensionParty = vaultData.signers.find(
-      (party) => !party.toLocaleLowerCase().startsWith("server")
+      (party) => !party.toLocaleLowerCase().startsWith("server"),
     );
 
     if (!extensionParty) throw new Error("Extension party not found in vault");
@@ -136,7 +156,7 @@ export const startReshareSession = async (
 
         try {
           const response = await fetch(
-            `${vultiApiUrl}/router/${dAppSessionId}`
+            `${vultiApiUrl}/router/${dAppSessionId}`,
           );
 
           const peers: string[] = await response.json();

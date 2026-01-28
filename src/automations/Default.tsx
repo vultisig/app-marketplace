@@ -15,6 +15,12 @@ import { useLocation, useParams } from "react-router-dom";
 import { useTheme } from "styled-components";
 import { v4 as uuidv4 } from "uuid";
 
+import {
+  addAutomation,
+  delAutomation,
+  getAutomations,
+  getRecipeSuggestion,
+} from "@/api/store";
 import { AutomationFormConfiguration } from "@/automations/components/FormConfiguration";
 import { AutomationFormSidebar } from "@/automations/components/FormSidebar";
 import { AutomationFormSuccess } from "@/automations/components/FormSuccess";
@@ -37,12 +43,6 @@ import { getVaultId } from "@/storage/vaultId";
 import { Button } from "@/toolkits/Button";
 import { Divider } from "@/toolkits/Divider";
 import { HStack, Stack, VStack } from "@/toolkits/Stack";
-import {
-  addAutomation,
-  delAutomation,
-  getAutomations,
-  getRecipeSuggestion,
-} from "@/utils/api";
 import { defaultPageSize, modalHash } from "@/utils/constants";
 import { personalSign } from "@/utils/extension";
 import {

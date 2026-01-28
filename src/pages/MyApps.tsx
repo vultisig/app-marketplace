@@ -3,10 +3,10 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useTheme } from "styled-components";
 
+import { getMyApps } from "@/api/store";
 import { ChevronRightIcon } from "@/icons/ChevronRightIcon";
 import { Spin } from "@/toolkits/Spin";
 import { HStack, Stack, VStack } from "@/toolkits/Stack";
-import { getMyApps } from "@/utils/api";
 import { routeTree } from "@/utils/routes";
 import { App } from "@/utils/types";
 

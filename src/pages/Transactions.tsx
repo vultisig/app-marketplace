@@ -3,6 +3,7 @@ import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import { useTheme } from "styled-components";
 
+import { getApps, getTransactions } from "@/api/store";
 import { AutomationAmount } from "@/automations/components/Amount";
 import { AutomationToken } from "@/automations/components/Token";
 import { useGoBack } from "@/hooks/useGoBack";
@@ -10,7 +11,6 @@ import { ChevronLeftIcon } from "@/icons/ChevronLeftIcon";
 import { EyeOpenIcon } from "@/icons/EyeOpenIcon";
 import { Button } from "@/toolkits/Button";
 import { HStack, Stack, VStack } from "@/toolkits/Stack";
-import { getApps, getTransactions } from "@/utils/api";
 import { defaultPageSize } from "@/utils/constants";
 import { camelCaseToTitle, getExplorerUrl } from "@/utils/functions";
 import { routeTree } from "@/utils/routes";

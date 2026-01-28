@@ -1,5 +1,5 @@
 {
-  "entry": ["src/main.tsx", "src/global.d.ts", "src/styled.d.ts"],
+  "entry": ["src/main.tsx", "src/styled.d.ts"],
   "ignore": ["src/proto/*"],
   "ignoreDependencies": [
     "@bufbuild/buf",
