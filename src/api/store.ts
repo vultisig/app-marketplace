@@ -99,10 +99,10 @@ export const getApps = async ({
 
     if (!totalCount) return { apps: [], totalCount: 0 };
 
-    return {
-      apps: plugins.filter(({ id }) => id !== feeAppId).map(normalizeApp),
-      totalCount,
-    };
+    // Todo: Remove feeAppId filter when fee app filtering is handled server-side
+    const apps = plugins.filter(({ id }) => id !== feeAppId).map(normalizeApp);
+
+    return { apps, totalCount };
   } catch {
     return { apps: [], totalCount: 0 };
   }
@@ -171,10 +171,10 @@ export const getMyApps = async ({
 
     if (!totalCount) return { apps: [], totalCount: 0 };
 
-    return {
-      apps: plugins.filter(({ id }) => id !== feeAppId).map(normalizeApp),
-      totalCount,
-    };
+    // Todo: Remove feeAppId filter when fee app filtering is handled server-side
+    const apps = plugins.filter(({ id }) => id !== feeAppId).map(normalizeApp);
+
+    return { apps, totalCount };
   } catch {
     return { apps: [], totalCount: 0 };
   }

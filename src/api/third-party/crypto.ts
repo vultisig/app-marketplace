@@ -38,7 +38,7 @@ export const getOneInchToken = async (
     (token) => token.address.toLowerCase() === id.toLowerCase(),
   );
 
-  if (!token) throw new Error();
+  if (!token) throw new Error("Token not found");
 
   return {
     chain,
@@ -84,7 +84,7 @@ export const getJupiterToken = async (id: string): Promise<Token> => {
     `${vultiApiUrl}/jup/tokens/v2/search?query=${id}`,
   );
 
-  if (!jupiterToken) throw new Error();
+  if (!jupiterToken) throw new Error("Token not found");
 
   return {
     chain: chains.Solana,

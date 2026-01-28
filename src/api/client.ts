@@ -21,7 +21,7 @@ class TokenManager {
 
       return token;
     } catch {
-      throw new Error();
+      throw new Error("Invalid token");
     }
   }
 
