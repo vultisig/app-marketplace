@@ -3,6 +3,7 @@ import dayjs from "dayjs";
 import { useCallback, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useTheme } from "styled-components";
+import { formatUnits } from "viem";
 
 import { useCore } from "@/hooks/useCore";
 import { useGoBack } from "@/hooks/useGoBack";
@@ -85,14 +86,13 @@ export const FeeTransactionsPage = () => {
       dataIndex: "amount",
       key: "amount",
       title: "Amount",
-      render: (_, { amount }) => {
+      render: (_, { amount, feeAsset }) => {
         if (!amount) return "-";
 
-        const amountNum = Number(amount);
-        //TODO: Fetch fee token and decimals dynamically from backend
-        const decimals = 1e-6;
-
-        return toValueFormat(amountNum * decimals * baseValue, currency);
+        return toValueFormat(
+          formatUnits(BigInt(Number(amount) * baseValue), feeAsset.decimals),
+          currency,
+        );
       },
     },
   ];

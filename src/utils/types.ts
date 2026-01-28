@@ -53,11 +53,13 @@ export type AppAutomation = {
 
 export type AppPricing = {
   amount: number;
+  asset: string;
   createdAt: string;
   frequency: string;
   id: string;
   metric: string;
-  type: string;
+  pluginId: string;
+  type: "once" | "recurring" | "per-tx";
   updatedAt: string;
 };
 
@@ -105,6 +107,12 @@ export type FeeTransaction = {
   amount: string;
   appName: string;
   createdAt: string;
+  feeAsset: {
+    addr: string;
+    decimals: number;
+    network: string;
+    symbol: string;
+  };
   id: string;
   pluginId: string;
   policyId: string;

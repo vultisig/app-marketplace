@@ -1,6 +1,7 @@
 import { create, JsonObject } from "@bufbuild/protobuf";
 import { TimestampSchema } from "@bufbuild/protobuf/wkt";
 import { v4 as uuidv4 } from "uuid";
+import { formatUnits } from "viem";
 
 import { BillingFrequency, FeePolicySchema, FeeType } from "@/proto/policy_pb";
 import { Chain, chains, explorerBaseUrl } from "@/utils/chain";
@@ -311,15 +312,19 @@ export const pricingText = ({
   baseValue: number;
   currency: Currency;
 }) => {
-  const value = toValueFormat((amount / 1e6) * baseValue, currency, 8);
+  const value = toValueFormat(
+    formatUnits(BigInt(amount * baseValue), 6),
+    currency,
+    8,
+  );
 
   switch (type) {
     case "once":
       return `${value} one time installation`;
-    case "recurring":
-      return `${value} ${frequency} recurring`;
     case "per-tx":
       return `${value} per transaction`;
+    case "recurring":
+      return `${value} ${frequency} recurring`;
     default:
       return "Unknown pricing type";
   }
