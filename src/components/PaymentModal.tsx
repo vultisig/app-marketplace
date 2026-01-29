@@ -28,17 +28,17 @@ export const PaymentModal = () => {
       id: "transaction_signing",
       label: "Access to transaction signing",
       description:
-        "The app can initiate transactions to send assets in your Vault",
+        "The plugin can initiate transactions to send assets in your Vault",
     },
     {
       id: "fee_deduction",
       label: "Fee deduction authorization",
-      description: "The app can automatically deduct incurred fees.",
+      description: "The plugin can automatically deduct incurred fees.",
     },
     {
       id: "balance_visibility",
       label: "Vault balance visibility",
-      description: "The app can view Vault balances",
+      description: "The plugin can view Vault balances",
     },
   ];
 
@@ -78,7 +78,7 @@ export const PaymentModal = () => {
               lineHeight: "18px",
             }}
           >
-            {`${feeApp.title} app was successfully installed.`}
+            {`${feeApp.title} plugin was successfully installed.`}
           </Stack>
           <Stack
             as="span"
@@ -87,7 +87,7 @@ export const PaymentModal = () => {
               lineHeight: "18px",
             }}
           >
-            You can now install other apps.
+            You can now install other plugins.
           </Stack>
         </VStack>
       </StatusModal>
@@ -163,7 +163,7 @@ export const PaymentModal = () => {
                   as="span"
                   $style={{ fontSize: "17px", lineHeight: "20px" }}
                 >
-                  Allow app access to
+                  Allow plugin access to
                 </Stack>
                 <VStack
                   $style={{

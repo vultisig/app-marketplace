@@ -191,6 +191,7 @@ export const RecurringSendsForm: FC<AutomationFormProps> = ({
     {
       align: "center",
       dataIndex: "configuration",
+      hidden: true,
       key: "completion",
       render: ({ endDate, frequency, startDate }: DataProps) => {
         let percent = 0;
@@ -437,7 +438,7 @@ export const RecurringSendsForm: FC<AutomationFormProps> = ({
         .catch(() => {
           setState((prev) => ({ ...prev, submitting: false }));
 
-          messageAPI.error("Failed to get suggestion from app");
+          messageAPI.error("Failed to get suggestion from plugin");
         });
     } else if (step === 2 && !recipients.length) {
       form.setFieldValue("recipient", { alias: "", amount: "", toAddress: "" });
