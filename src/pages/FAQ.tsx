@@ -21,7 +21,7 @@ const data = [
           <p>Users can install plugins and delegate access to them. Each plugin consists of a proposing side and a validating side, ensuring that each transaction is validated against the user's set rules.</p>
           <p>These rules can be deleted or changed, ensuring that no transaction is sent without pre-existing approval and giving users complete control over their installed plugins and automations.</p>
           <br />
-          <p>Read more in our <a href="https://docs.vultisig.com/vultisig-ecosystem/marketplace" target="_blank" rel="noopener noreferrer">documentation</a>.</p>
+          <p>Read more in our <a href="https://docs.vultisig.com/ecosystem/marketplace" target="_blank" rel="noopener noreferrer">documentation</a>.</p>
         `,
         question: "How does it work?",
       },
@@ -48,13 +48,13 @@ const data = [
         question: "What are Plugins?",
       },
       {
-        answer: `To create one, please follow the documentation <a href="https://docs.vultisig.com/developer-docs/app-store/ai-agents" target="_blank" rel="noopener noreferrer">here</a>.`,
+        answer: `To create one, please follow the documentation <a href="https://docs.vultisig.com/developer-docs/marketplace/build-your-plugin" target="_blank" rel="noopener noreferrer">here</a>.`,
         question: "How can I create one?",
       },
       {
         answer: `
           <p>Plugins can be monetized in different ways, including one-time payment or recurring payments, such as subscriptions.</p>
-          <p>For more information, please refer to the latest monetization option <a href="https://docs.vultisig.com/developer-docs/app-store/infrastructure-overview/revenue" target="_blank" rel="noopener noreferrer">documentation</a>.</p>
+          <p>For more information, please refer to the latest monetization option <a href="https://docs.vultisig.com/developer-docs/marketplace/infrastructure" target="_blank" rel="noopener noreferrer">documentation</a>.</p>
         `,
         question: "Can I monetize my plugin?",
       },
