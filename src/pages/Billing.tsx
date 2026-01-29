@@ -3,6 +3,7 @@ import dayjs from "dayjs";
 import { Fragment, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "styled-components";
+import { formatUnits } from "viem";
 
 import { useCore } from "@/hooks/useCore";
 import { useGoBack } from "@/hooks/useGoBack";
@@ -126,11 +127,11 @@ export const BillingPage = () => {
       render: (_, { totalFees }) => {
         if (!totalFees) return "-";
 
-        const amount = Number(totalFees);
         // TODO: Fetch fee token and decimals dynamically
-        const decimals = 1e-6;
-
-        return toValueFormat(amount * decimals * baseValue, currency);
+        return toValueFormat(
+          formatUnits(BigInt(Number(totalFees) * baseValue), 6),
+          currency,
+        );
       },
     },
   ];
