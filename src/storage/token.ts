@@ -1,8 +1,9 @@
 import { storageKeys } from "@/storage/constants";
 import { getState } from "@/storage/state/get";
 import { setState } from "@/storage/state/set";
+import { AuthToken } from "@/utils/types";
 
-const initialTokens: Record<string, string> = {};
+const initialTokens: Record<string, AuthToken> = {};
 
 const getTokens = () => {
   return getState(storageKeys.token, initialTokens);
@@ -19,7 +20,7 @@ export const getToken = (key: string) => {
   return tokens[key];
 };
 
-export const setToken = (key: string, token: string) => {
+export const setToken = (key: string, token: AuthToken) => {
   const tokens = getTokens();
   tokens[key] = token;
   setState(storageKeys.token, tokens);

@@ -178,7 +178,9 @@ export const CoreProvider: FC<{ children: ReactNode }> = ({ children }) => {
         const token = getToken(getVaultId());
 
         try {
-          const { token_id } = jwtDecode<{ token_id: string }>(token);
+          const { token_id } = jwtDecode<{ token_id: string }>(
+            token?.accessToken,
+          );
 
           delAuthToken(token_id).finally(clear);
         } catch {

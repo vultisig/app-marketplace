@@ -62,10 +62,8 @@ export type AppPricing = {
 };
 
 export type AuthToken = {
-  chainCodeHex: string;
-  message: string;
-  publicKey: string;
-  signature: string;
+  accessToken: string;
+  refreshToken: string;
 };
 
 export type Billing = {
