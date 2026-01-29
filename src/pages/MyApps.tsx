@@ -41,7 +41,7 @@ export const MyAppsPage = () => {
           as="span"
           $style={{ fontSize: "22px", gap: "8px", lineHeight: "24px" }}
         >
-          <Stack as="span">Installed Apps</Stack>
+          <Stack as="span">Installed Plugins</Stack>
           <Stack
             as="span"
             $style={{ color: colors.textTertiary.toHex() }}
@@ -123,7 +123,7 @@ export const MyAppsPage = () => {
             }}
             $hover={{ color: colors.accentFour.toHex() }}
           >
-            Discover more apps
+            Discover more plugins
           </Stack>
         </VStack>
       </VStack>

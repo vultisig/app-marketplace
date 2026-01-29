@@ -64,7 +64,7 @@ export const FreeTrialBanner = () => {
           to={modalHash.payment}
           $style={{ fontWeight: "500", textDecoration: "underline" }}
         >
-          {`${feeApp.title} App`}
+          {`${feeApp.title} Plugin`}
         </Stack>
         {`to continue${trialRemaining ? " after the trial" : ""}`}
       </HStack>
