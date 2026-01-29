@@ -191,6 +191,7 @@ export const RecurringSendsForm: FC<AutomationFormProps> = ({
     {
       align: "center",
       dataIndex: "configuration",
+      hidden: true,
       key: "completion",
       render: ({ endDate, frequency, startDate }: DataProps) => {
         let percent = 0;
