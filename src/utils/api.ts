@@ -45,13 +45,13 @@ import {
 } from "@/utils/types";
 
 class TokenManager {
-  private refreshPromise: Promise<string> | null = null;
+  private refreshPromise: Promise<AuthToken> | null = null;
 
-  async check(token: string): Promise<string> {
+  async check(token: AuthToken): Promise<AuthToken> {
     const now = dayjs().unix();
 
     try {
-      const { exp } = jwtDecode<{ exp: number }>(token);
+      const { exp } = jwtDecode<{ exp: number }>(token.accessToken);
 
       if (exp < now) return this.refresh(token);
 
@@ -61,23 +61,18 @@ class TokenManager {
     }
   }
 
-  async refresh(token: string): Promise<string> {
+  async refresh({ refreshToken }: AuthToken): Promise<AuthToken> {
     // If a refresh is already happening, wait for it
     if (this.refreshPromise) return this.refreshPromise;
 
     // Start a new refresh
     this.refreshPromise = axios
-      .post<APIResponse<{ token: string }>>(
+      .post<APIResponse<AuthToken>>(
         `${storeApiUrl}/auth/refresh`,
-        { token },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            accept: "application/json",
-          },
-        },
+        toSnakeCase({ refreshToken }),
+        { headers: { accept: "application/json" } },
       )
-      .then((res) => res.data.data.token)
+      .then((res) => toCamelCase(res.data.data))
       .finally(() => {
         // Reset so future refreshes can happen
         this.refreshPromise = null;
@@ -106,7 +101,9 @@ api.interceptors.request.use(
 
         return {
           ...config,
-          headers: config.headers.setAuthorization(`Bearer ${newToken}`),
+          headers: config.headers.setAuthorization(
+            `Bearer ${newToken.accessToken}`,
+          ),
         };
       }
     }
@@ -188,7 +185,10 @@ export const appReport = async (
   appId: string,
   data: ReportForm,
 ): Promise<void> => {
-  return post<void>(`${storeApiUrl}/plugins/${appId}/report`, toSnakeCase(data));
+  return post<void>(
+    `${storeApiUrl}/plugins/${appId}/report`,
+    toSnakeCase(data),
+  );
 };
 
 export const delAuthToken = async (tokenId: string): Promise<void> => {
@@ -204,12 +204,13 @@ export const delAutomation = async (
   });
 };
 
-export const getAuthToken = async (data: AuthToken): Promise<string> => {
-  const { token } = await post<{ token: string }>(
-    `${storeApiUrl}/auth`,
-    toSnakeCase(data),
-  );
-  return token;
+export const getAuthToken = async (data: {
+  chainCodeHex: string;
+  message: string;
+  publicKey: string;
+  signature: string;
+}): Promise<AuthToken> => {
+  return post<AuthToken>(`${storeApiUrl}/auth`, toSnakeCase(data));
 };
 
 export const getApp = async (id: string): Promise<App> => {
@@ -529,12 +530,9 @@ export const getJupiterTokens = async (): Promise<Token[]> => {
 };
 
 export const isAppInstalled = async (id: string): Promise<boolean> => {
-  try {
-    await get(`${storeApiUrl}/vault/exist/${id}/${getVaultId()}`);
-    return true;
-  } catch {
-    return false;
-  }
+  return get(`${storeApiUrl}/vault/exist/${id}/${getVaultId()}`)
+    .then(() => true)
+    .catch(() => false);
 };
 
 export const reshareVault = async (data: ReshareForm): Promise<void> => {
