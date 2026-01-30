@@ -1,7 +1,7 @@
-# Vultisig App Marketplace
+# Vultisig Plugin Marketplace
 
 <p align="center">
-  <img src="public/images/banner.jpg" alt="Vultisig Logo"/>
+  <img src="public/images/mainbanner.jpg" alt="Vultisig Logo"/>
 </p>
 
 <p align="center">

@@ -69,7 +69,7 @@ export const MainPage = () => {
           <FreeTrialBanner />
           <Stack
             $style={{
-              backgroundImage: "url(/images/banner.jpg)",
+              backgroundImage: "url(/images/mainbanner.jpg)",
               backgroundPosition: "center center",
               backgroundSize: "cover",
               borderRadius: "16px",
