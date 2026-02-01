@@ -410,7 +410,6 @@ export const RecurringSendsForm: FC<AutomationFormProps> = ({
   };
 
   const handleContinue = () => {
-    console.log("handleContinue", step);
     if (step === 1) {
       form
         .validateFields([["asset", "chain"]])
