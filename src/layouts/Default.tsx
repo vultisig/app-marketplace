@@ -5,6 +5,7 @@ import { Link, Outlet, useNavigate } from "react-router-dom";
 import { createGlobalStyle, useTheme } from "styled-components";
 
 import { CurrencyModal } from "@/components/CurrencyModal";
+import { OnboardingModal } from "@/components/OnboardingModal";
 import { PaymentModal } from "@/components/PaymentModal";
 import { useCore } from "@/hooks/useCore";
 import { useExtension } from "@/hooks/useExtension";
@@ -299,6 +300,7 @@ export const DefaultLayout = () => {
 
       <Outlet />
       <CurrencyModal />
+      <OnboardingModal />
       <PaymentModal />
 
       {extensionHolder}
