@@ -410,8 +410,14 @@ export const RecurringSendsForm: FC<AutomationFormProps> = ({
   };
 
   const handleContinue = () => {
+    console.log("handleContinue", step);
     if (step === 1) {
-      setState((prev) => ({ ...prev, step: prev.step + 1 }));
+      form
+        .validateFields([["asset", "chain"]])
+        .then(() => {
+          setState((prev) => ({ ...prev, step: prev.step + 1 }));
+        })
+        .catch(() => {});
     } else if (step === 2) {
       if (!recipients.length) {
         messageAPI.error("Please add at least one recipient");
