@@ -359,6 +359,54 @@ export const RecurringSendsForm: FC<AutomationFormProps> = ({
     }));
   };
 
+  const handleAddRecipient = () => {
+    form
+      .validateFields([
+        ["recipient", "alias"],
+        ["recipient", "toAddress"],
+        ["recipient", "amount"],
+      ])
+      .then((values) => {
+        setState((prev) => ({
+          ...prev,
+          recipients: [...prev.recipients, values.recipient],
+        }));
+        form.setFieldValue("recipient", {
+          alias: "",
+          amount: "",
+          toAddress: "",
+        });
+      })
+      .catch(() => {});
+  };
+
+  const handleContinue = () => {
+    if (step === 1) {
+      setState((prev) => ({ ...prev, step: prev.step + 1 }));
+    } else if (step === 2) {
+      if (!recipients.length) {
+        messageAPI.error("Please add at least one recipient");
+        return;
+      }
+
+      const recipientValues = form.getFieldValue("recipient");
+      if (
+        recipientValues?.alias ||
+        recipientValues?.toAddress ||
+        recipientValues?.amount
+      ) {
+        messageAPI.error(
+          "Please finish adding the current recipient or clear the form",
+        );
+        return;
+      }
+
+      setState((prev) => ({ ...prev, step: prev.step + 1 }));
+    } else {
+      form.submit();
+    }
+  };
+
   const handleStep = (values: DataProps) => {
     if (!configuration) return;
 
@@ -440,13 +488,6 @@ export const RecurringSendsForm: FC<AutomationFormProps> = ({
 
           messageAPI.error("Failed to get suggestion from plugin");
         });
-    } else if (step === 2 && !recipients.length) {
-      form.setFieldValue("recipient", { alias: "", amount: "", toAddress: "" });
-
-      setState((prev) => ({
-        ...prev,
-        recipients: [...prev.recipients, values.recipient],
-      }));
     } else {
       setState((prev) => ({ ...prev, step: prev.step + 1 }));
     }
@@ -510,11 +551,7 @@ export const RecurringSendsForm: FC<AutomationFormProps> = ({
           <>
             <Stack $style={{ flex: "none", width: "218px" }} />
             <HStack $style={{ flexGrow: 1, justifyContent: "center" }}>
-              <Button
-                disabled={step === 2 && !recipients.length}
-                loading={submitting}
-                onClick={() => form.submit()}
-              >
+              <Button loading={submitting} onClick={handleContinue}>
                 {step > 3 ? "Submit" : "Continue"}
               </Button>
             </HStack>
@@ -557,9 +594,6 @@ export const RecurringSendsForm: FC<AutomationFormProps> = ({
             form={form}
             layout="vertical"
             onFinish={handleStep}
-            onFinishFailed={({ values }) => {
-              if (step === 2 && recipients.length > 0) handleStep(values);
-            }}
           >
             <Stack $style={{ display: step === 1 ? "block" : "none" }}>
               <AssetWidget chains={supportedChains} keys={["asset"]} noStyle />
@@ -603,7 +637,7 @@ export const RecurringSendsForm: FC<AutomationFormProps> = ({
                   <Form.Item
                     label="Alias / Name"
                     name={["recipient", "alias"]}
-                    rules={[{ required: step === 2 }]}
+                    rules={[{ required: true, message: "Please enter an alias" }]}
                   >
                     <Input />
                   </Form.Item>
@@ -611,14 +645,14 @@ export const RecurringSendsForm: FC<AutomationFormProps> = ({
                     chain={values?.asset?.chain}
                     label="To Address"
                     name={["recipient", "toAddress"]}
-                    rules={[{ required: step === 2 }]}
+                    rules={[{ required: true, message: "Please enter a recipient address" }]}
                   />
                 </Stack>
                 <AutomationFormAmountInput
                   asset={values?.asset}
                   label="Amount"
                   name={["recipient", "amount"]}
-                  rules={[{ required: step === 2 }]}
+                  rules={[{ required: true, message: "Please enter an amount" }]}
                 />
               </VStack>
               <Stack
@@ -627,7 +661,7 @@ export const RecurringSendsForm: FC<AutomationFormProps> = ({
                   justifyContent: "flex-end",
                 }}
               >
-                <Button onClick={() => form.submit()}>Add Recipient</Button>
+                <Button onClick={handleAddRecipient}>Add Recipient</Button>
               </Stack>
             </Stack>
             <Stack
