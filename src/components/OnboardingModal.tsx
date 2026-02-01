@@ -19,16 +19,16 @@ export const OnboardingModal = () => {
 
   const slides = [
     {
-      text: "Discover apps and automations that work directly from your self-custodial vault. Available via the Vultisig Browser Extension.",
-      title: "Welcome to the Vultisig App Store!",
+      text: "Discover plugins and automations that work directly from your self-custodial vault. Available via the Vultisig Browser Extension.",
+      title: "Welcome to the Vultisig Plugin Marketplace!",
     },
     {
-      text: "Install apps to automate recurring sends, swaps, and more. Your vault powers every app. You stay in full control.",
+      text: "Install plugins to automate recurring sends, swaps, and more. Your vault powers every plugin. You stay in full control.",
       title: "Automate Actions From Your Vault",
     },
     {
-      text: "Apps use your Fast Vault to sign actions securely. Setup takes seconds and keeps everything seedless and protected.",
-      title: "You’ll need a Fast Vault to use apps.",
+      text: "Plugins use your Fast Vault to sign actions securely. Setup takes seconds and keeps everything seedless and protected.",
+      title: "You’ll need a Fast Vault to use plugins.",
     },
   ];
 
