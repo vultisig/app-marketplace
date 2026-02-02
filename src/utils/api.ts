@@ -10,7 +10,13 @@ import {
 } from "@/proto/policy_pb";
 import { getToken, setToken } from "@/storage/token";
 import { getVaultId } from "@/storage/vaultId";
-import { chains, EvmChain, evmChainInfo, evmChains } from "@/utils/chain";
+import {
+  chains,
+  ethL2Chains,
+  EvmChain,
+  evmChainInfo,
+  evmChains,
+} from "@/utils/chain";
 import {
   defaultPageSize,
   feeAppId,
@@ -266,6 +272,51 @@ export const getBaseValue = async (currency: Currency): Promise<number> => {
     const quote = data?.[825]?.quote?.[modifiedCurrency];
 
     return quote?.price ?? 0;
+  } catch {
+    return 0;
+  }
+};
+
+const coinGeckoNetwork: Record<string, string> = {
+  ["arbitrum"]: "arbitrum-one",
+  ["optimism"]: "optimistic-ethereum",
+  ["bsc"]: "binance-smart-chain",
+  ["cronoschain"]: "cronos",
+  ["sei"]: "sei-network",
+  ["polygon"]: "polygon-pos",
+  ["avalanche"]: "avalanche-2",
+  ["mayachain"]: "cacao",
+};
+
+export const getPrice = async (
+  chain: string,
+  contract?: string,
+): Promise<number> => {
+  try {
+    // If chain is an ETH L2 and contract is empty, query for Ethereum
+    const isEthL2 = Object.values(ethL2Chains).includes(chain as any);
+    if (isEthL2 && !contract) {
+      chain = chains.Ethereum;
+    }
+
+    chain = chain.toLowerCase();
+    if (!contract) {
+      if (chain === "bsc") {
+        chain = "binancecoin";
+      } else if (chain == "polygon") {
+        chain = "polygon-ecosystem-token";
+      }
+    }
+    const platform = coinGeckoNetwork[chain] ?? chain;
+    let url = `${vultiApiUrl}/coingeicko/api/v3/simple/price?ids=${platform}&vs_currencies=usd`;
+    if (contract) {
+      url = `${vultiApiUrl}/coingeicko/api/v3/simple/token_price/${platform}?contract_addresses=${contract}&vs_currencies=usd`;
+    }
+    const data = await externalGet<{
+      [contractAddress: string]: { usd: number };
+    }>(url);
+    const price = Object.values(data)[0]?.usd ?? 0;
+    return price ?? 0;
   } catch {
     return 0;
   }
