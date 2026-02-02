@@ -29,6 +29,7 @@ import { AutomationFormTitle } from "@/automations/components/FormTitle";
 import { AutomationToken } from "@/automations/components/Token";
 import { AutomationFormProps } from "@/automations/Default";
 import { AssetProps, AssetWidget } from "@/automations/widgets/Asset";
+import { StatusModal } from "@/components/StatusModal";
 import { TokenImage } from "@/components/TokenImage";
 import { useAntd } from "@/hooks/useAntd";
 import { useCore } from "@/hooks/useCore";
@@ -81,6 +82,7 @@ type DataProps = {
 type StateProps = {
   automations: CustomAppAutomation[];
   current: number;
+  error?: { text: string; title: string };
   isActive: boolean;
   isAdded: boolean;
   loading: boolean;
@@ -106,6 +108,7 @@ export const RecurringSwapsForm: FC<AutomationFormProps> = ({
   const {
     automations,
     current,
+    error,
     isActive,
     isAdded,
     loading,
@@ -484,9 +487,14 @@ export const RecurringSwapsForm: FC<AutomationFormProps> = ({
                   });
               })
               .catch(() => {
-                setState((prev) => ({ ...prev, submitting: false }));
-
-                messageAPI.error("Failed to get suggestion from plugin");
+                setState((prev) => ({
+                  ...prev,
+                  error: {
+                    text: "The selected token pair isn’t supported by this plugin. Try choosing another pair.",
+                    title: "Failed to Find Swap Route",
+                  },
+                  submitting: false,
+                }));
               });
           }
         })
@@ -649,6 +657,25 @@ export const RecurringSwapsForm: FC<AutomationFormProps> = ({
           </Form>
         </VStack>
       </Modal>
+
+      <StatusModal
+        onClose={() => setState((prev) => ({ ...prev, error: undefined }))}
+        open={visible && Boolean(error)}
+      >
+        <Stack as="span" $style={{ fontSize: "22px", lineHeight: "24px" }}>
+          {error?.title}
+        </Stack>
+        <Stack
+          as="span"
+          $style={{
+            color: colors.textTertiary.toHex(),
+            lineHeight: "18px",
+            textAlign: "center",
+          }}
+        >
+          {error?.text}
+        </Stack>
+      </StatusModal>
 
       {discardHolder}
     </>
