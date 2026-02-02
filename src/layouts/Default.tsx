@@ -5,6 +5,7 @@ import { Link, Outlet, useNavigate } from "react-router-dom";
 import { createGlobalStyle, useTheme } from "styled-components";
 
 import { CurrencyModal } from "@/components/CurrencyModal";
+import { OnboardingModal } from "@/components/OnboardingModal";
 import { PaymentModal } from "@/components/PaymentModal";
 import { useCore } from "@/hooks/useCore";
 import { useExtension } from "@/hooks/useExtension";
@@ -171,18 +172,6 @@ export const DefaultLayout = () => {
           zIndex: "2",
         }}
       >
-        <VStack
-          $style={{
-            alignItems: "center",
-            backgroundColor: colors.bgAlert.toHex(),
-            height: "40px",
-            justifyContent: "center",
-            width: "100%",
-          }}
-        >
-          This is an early-stage version of the platform. Do not rely on it for
-          production use or real funds. Testing only.
-        </VStack>
         <HStack
           $style={{
             alignItems: "center",
@@ -299,6 +288,7 @@ export const DefaultLayout = () => {
 
       <Outlet />
       <CurrencyModal />
+      <OnboardingModal />
       <PaymentModal />
 
       {extensionHolder}

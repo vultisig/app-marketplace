@@ -143,7 +143,7 @@ const tickers: Record<Chain, string> = {
   [chains.Optimism]: "OP",
   [chains.Osmosis]: "OSMO",
   [chains.Polkadot]: "DOT",
-  [chains.Polygon]: "MATIC",
+  [chains.Polygon]: "POL",
   [chains.Ripple]: "XRP",
   [chains.Solana]: "SOL",
   [chains.Sei]: "SEI",

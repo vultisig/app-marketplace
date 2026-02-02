@@ -226,7 +226,7 @@ export const AssetWidget: FC<AssetWidgetProps> = ({
         <Form.Item
           label="Chain"
           name={[...keys, "chain"]}
-          rules={[{ required: true }]}
+          rules={[{ required: true, message: "Please select a chain" }]}
         >
           <Select {...chainSelectProps} />
         </Form.Item>
