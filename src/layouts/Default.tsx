@@ -172,18 +172,6 @@ export const DefaultLayout = () => {
           zIndex: "2",
         }}
       >
-        <VStack
-          $style={{
-            alignItems: "center",
-            backgroundColor: colors.bgAlert.toHex(),
-            height: "40px",
-            justifyContent: "center",
-            width: "100%",
-          }}
-        >
-          This is an early-stage version of the platform. Do not rely on it for
-          production use or real funds. Testing only.
-        </VStack>
         <HStack
           $style={{
             alignItems: "center",
