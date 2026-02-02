@@ -68,7 +68,7 @@ export const AutomationFormAmountInput: FC<
           as="span"
           $style={{ color: colors.textTertiary.toHex(), fontSize: "13px" }}
         >
-          {balance}
+          {balance} {asset?.symbol}
         </Stack>
       </HStack>
     </VStack>
