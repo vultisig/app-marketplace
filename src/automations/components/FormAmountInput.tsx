@@ -7,8 +7,8 @@ import { AssetProps } from "@/automations/widgets/Asset";
 import { useCore } from "@/hooks/useCore";
 import { InputDigits } from "@/toolkits/InputDigits";
 import { HStack, Stack, VStack } from "@/toolkits/Stack";
-import { toNumberFormat } from "@/utils/functions";
 import { getPrice } from "@/utils/api";
+import { toNumberFormat } from "@/utils/functions";
 
 export const AutomationFormAmountInput: FC<
   FormItemProps & { asset?: AssetProps; disabled?: boolean }
