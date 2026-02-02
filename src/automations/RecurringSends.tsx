@@ -493,8 +493,8 @@ export const RecurringSendsForm: FC<AutomationFormProps> = ({
           setState((prev) => ({
             ...prev,
             error: {
-              text: "The selected token pair isn’t supported by this plugin. Try choosing another pair.",
-              title: "Failed to Find Swap Route",
+              text: "The selected token isn't supported by this plugin. Try choosing another token.",
+              title: "Unsupported Token",
             },
             submitting: false,
           }));
