@@ -31,15 +31,12 @@ export const AutomationFormAmountInput: FC<
   useEffect(() => {
     if (!asset?.chain) return;
 
+    setPrice(0);
+
     getPrice(asset.chain, asset.token).then((price) => {
       setPrice(price);
     });
   }, [asset]);
-
-  const usdValue =
-    amount && price
-      ? toValueFormat(Number(amount) * price * baseValue, currency, 2)
-      : null;
 
   return (
     <VStack>
@@ -54,7 +51,9 @@ export const AutomationFormAmountInput: FC<
                 fontSize: "13px",
               }}
             >
-              {usdValue}
+              {amount && price
+                ? toValueFormat(Number(amount) * price * baseValue, currency, 2)
+                : null}
             </Stack>
           }
         />
