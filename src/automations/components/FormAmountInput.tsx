@@ -29,7 +29,6 @@ export const AutomationFormAmountInput: FC<
   }, [asset, vault]);
 
   useEffect(() => {
-    console.log("Fetching price for asset:", asset);
     if (!asset?.chain) return;
 
     getPrice(asset.chain,asset.token).then((price) => {
