@@ -18,6 +18,7 @@ export type AssetProps = {
   chain: Chain;
   decimals: number;
   token: string;
+  symbol: string;
 };
 
 type AssetWidgetProps = {
@@ -48,6 +49,7 @@ export const AssetWidget: FC<AssetWidgetProps> = ({
   const addressField = [...prefixKeys, ...keys, "address"];
   const chainField = [...prefixKeys, ...keys, "chain"];
   const decimalsField = [...prefixKeys, ...keys, "decimals"];
+  const symbolField = [...prefixKeys, ...keys, "symbol"];
   const tokenField = [...prefixKeys, ...keys, "token"];
   const form = Form.useFormInstance();
   const chain = Form.useWatch<Chain>(chainField, form);
@@ -60,6 +62,7 @@ export const AssetWidget: FC<AssetWidgetProps> = ({
         vault.address(chain).then((address) => {
           form.setFieldValue(addressField, address);
           form.setFieldValue(decimalsField, nativeTokens[chain].decimals);
+          form.setFieldValue(symbolField, nativeTokens[chain].ticker);
           form.setFieldValue(tokenField, "");
         });
       },
@@ -107,6 +110,7 @@ export const AssetWidget: FC<AssetWidgetProps> = ({
         tokens.find(({ id }) => id === token) || nativeTokens[chain];
 
       form.setFieldValue(decimalsField, selectedToken.decimals);
+      form.setFieldValue(symbolField, selectedToken.ticker);
       // Note: For Solana SPL tokens, we keep the wallet address (not ATA).
       // The backend metarule will derive the ATA automatically using DeriveATA(wallet, mint).
     },
@@ -204,6 +208,7 @@ export const AssetWidget: FC<AssetWidgetProps> = ({
     } else {
       form.setFieldValue(addressField, undefined);
       form.setFieldValue(decimalsField, undefined);
+      form.setFieldValue(symbolField, undefined);
       form.setFieldValue(tokenField, undefined);
     }
   }, [chain]);
@@ -232,6 +237,9 @@ export const AssetWidget: FC<AssetWidgetProps> = ({
           <Input type="hidden" />
         </Form.Item>
         <Form.Item name={[...keys, "decimals"]} noStyle>
+          <Input type="hidden" />
+        </Form.Item>
+        <Form.Item name={[...keys, "symbol"]} noStyle>
           <Input type="hidden" />
         </Form.Item>
       </Stack>
