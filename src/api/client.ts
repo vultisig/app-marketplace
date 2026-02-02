@@ -5,17 +5,17 @@ import { jwtDecode } from "jwt-decode";
 import { getToken, setToken } from "@/storage/token";
 import { getVaultId } from "@/storage/vaultId";
 import { storeApiUrl } from "@/utils/constants";
-import { toCamelCase } from "@/utils/functions";
-import { APIResponse } from "@/utils/types";
+import { toCamelCase, toSnakeCase } from "@/utils/functions";
+import { APIResponse, AuthToken } from "@/utils/types";
 
 class TokenManager {
-  private refreshPromise: Promise<string> | null = null;
+  private refreshPromise: Promise<AuthToken> | null = null;
 
-  async check(token: string): Promise<string> {
+  async check(token: AuthToken): Promise<AuthToken> {
     const now = dayjs().unix();
 
     try {
-      const { exp } = jwtDecode<{ exp: number }>(token);
+      const { exp } = jwtDecode<{ exp: number }>(token.accessToken);
 
       if (exp < now) return this.refresh(token);
 
@@ -25,23 +25,18 @@ class TokenManager {
     }
   }
 
-  async refresh(token: string): Promise<string> {
+  async refresh({ refreshToken }: AuthToken): Promise<AuthToken> {
     // If a refresh is already happening, wait for it
     if (this.refreshPromise) return this.refreshPromise;
 
     // Start a new refresh
     this.refreshPromise = axios
-      .post<APIResponse<{ token: string }>>(
+      .post<APIResponse<AuthToken>>(
         `${storeApiUrl}/auth/refresh`,
-        { token },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            accept: "application/json",
-          },
-        },
+        toSnakeCase({ refreshToken }),
+        { headers: { accept: "application/json" } },
       )
-      .then((res) => res.data.data.token)
+      .then((res) => toCamelCase(res.data.data))
       .finally(() => {
         // Reset so future refreshes can happen
         this.refreshPromise = null;

@@ -64,12 +64,13 @@ export const delAutomation = async (
   });
 };
 
-export const getAuthToken = async (data: AuthToken): Promise<string> => {
-  const { token } = await apiClient.post<{ token: string }>(
-    "/auth",
-    toSnakeCase(data),
-  );
-  return token;
+export const getAuthToken = async (data: {
+  chainCodeHex: string;
+  message: string;
+  publicKey: string;
+  signature: string;
+}): Promise<AuthToken> => {
+  return apiClient.post<AuthToken>("/auth", toSnakeCase(data));
 };
 
 export const getApp = async (id: string): Promise<App> => {
