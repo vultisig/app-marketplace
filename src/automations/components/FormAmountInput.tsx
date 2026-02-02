@@ -8,14 +8,14 @@ import { useCore } from "@/hooks/useCore";
 import { InputDigits } from "@/toolkits/InputDigits";
 import { HStack, Stack, VStack } from "@/toolkits/Stack";
 import { getPrice } from "@/utils/api";
-import { toNumberFormat } from "@/utils/functions";
+import { toNumberFormat, toValueFormat } from "@/utils/functions";
 
 export const AutomationFormAmountInput: FC<
   FormItemProps & { asset?: AssetProps; disabled?: boolean }
 > = ({ asset, disabled, name, ...rest }) => {
   const [balance, setBalance] = useState<string>("");
   const [price, setPrice] = useState<number>(0);
-  const { vault } = useCore();
+  const { baseValue, currency, vault } = useCore();
   const colors = useTheme();
   const form = Form.useFormInstance();
   const amount = Form.useWatch(name, form);
@@ -31,12 +31,15 @@ export const AutomationFormAmountInput: FC<
   useEffect(() => {
     if (!asset?.chain) return;
 
-    getPrice(asset.chain,asset.token).then((price) => {
+    getPrice(asset.chain, asset.token).then((price) => {
       setPrice(price);
     });
   }, [asset]);
 
-  const usdValue = amount && price ? (Number(amount) * price).toFixed(2) : null;
+  const usdValue =
+    amount && price
+      ? toValueFormat(Number(amount) * price * baseValue, currency, 2)
+      : null;
 
   return (
     <VStack>
@@ -51,7 +54,7 @@ export const AutomationFormAmountInput: FC<
                 fontSize: "13px",
               }}
             >
-              {usdValue ? `($${toNumberFormat(usdValue)})` : ""}
+              {usdValue}
             </Stack>
           }
         />

@@ -46,6 +46,10 @@ export const AntdProvider: FC<{ children?: ReactNode }> = ({ children }) => {
           linkPaddingBlock: 0,
           linkPaddingInlineStart: 0,
         },
+        Checkbox: {
+          borderRadiusSM: 16,
+          controlInteractiveSize: 20,
+        },
         DatePicker: {
           activeBorderColor: colors.borderNormal.toHex(),
           activeShadow: "none",
