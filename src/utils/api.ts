@@ -271,6 +271,43 @@ export const getBaseValue = async (currency: Currency): Promise<number> => {
   }
 };
 
+const coinGeckoNetwork: Record<string, string> = {
+  ["arbitrum"]: "arbitrum-one",
+  ["optimistic"]: "optimistic-ethereum",
+  ["bsc"]: "binance-smart-chain",
+  ["cronoschain"]: "cronos",
+  ["sei"]: "sei-network",
+  ["bitcoin-cash"]: "bitcoincash",
+  ["polygon"]: "polygon-pos",
+};
+//bitcoin,ethereum,
+
+export const getPrice = async (
+  chain: string,
+  contract?: string,
+): Promise<number> => {
+  try {
+    chain = chain.toLowerCase();
+    const platform = coinGeckoNetwork[chain] ?? chain;
+    let url = `${vultiApiUrl}/coingeicko/api/v3/simple/price?ids=${platform}&vs_currencies=usd`;
+    if (contract) {
+      url = `${vultiApiUrl}/coingeicko/api/v3/simple/token_price/${platform}?contract_addresses=${contract}&vs_currencies=usd`;
+    }
+    //check if contract is not empty
+    const data = await externalGet<{
+      [contractAddress: string]: { usd: number };
+    }>(url);
+
+    console.log("Price data received:", data);
+    const price = Object.values(data)[0]?.usd ?? 0;
+    console.log("Fetched price:", price);
+
+    return price ?? 0;
+  } catch {
+    return 0;
+  }
+};
+
 export const getCategories = async (): Promise<Category[]> => {
   return get<Category[]>(`${storeApiUrl}/categories`).then((categories) => [
     { id: "", name: "All" },
