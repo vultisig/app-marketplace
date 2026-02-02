@@ -69,7 +69,7 @@ export const MainPage = () => {
           <FreeTrialBanner />
           <Stack
             $style={{
-              backgroundImage: "url(/images/banner.jpg)",
+              backgroundImage: "url(/images/mainbanner.jpg)",
               backgroundPosition: "center center",
               backgroundSize: "cover",
               borderRadius: "16px",
@@ -80,7 +80,7 @@ export const MainPage = () => {
         <VStack $style={{ flexGrow: "1", gap: "32px" }}>
           <VStack $style={{ gap: "24px" }}>
             <Stack as="span" $style={{ fontSize: "40px", lineHeight: "42px" }}>
-              Discover Apps
+              Discover Plugins
             </Stack>
             <Divider light />
             <HStack $style={{ flexGrow: "1", gap: "12px" }}>
@@ -146,7 +146,7 @@ export const MainPage = () => {
                   as="span"
                   $style={{ fontSize: "17px", lineHeight: "20px" }}
                 >
-                  All Apps
+                  All Plugins
                 </Stack>
                 <Stack
                   $style={{

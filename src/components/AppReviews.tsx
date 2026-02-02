@@ -315,7 +315,7 @@ export const AppReviews: FC<{ app: App; onReload: () => void }> = ({
               >
                 <Input.TextArea
                   rows={4}
-                  placeholder="How do you feel about this app?"
+                  placeholder="How do you feel about this plugin?"
                 />
               </Form.Item>
             </VStack>

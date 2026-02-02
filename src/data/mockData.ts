@@ -20,7 +20,7 @@ export const mockFAQs: Record<string, App["faqs"]> = {
     },
     {
       answer:
-        "A fixed fee of $0.50 USDC per executed trade is charged and added to your account’s fee balance. As with all Vultisig apps, the Fee Management app will deduct the accumulated balance on the due date, which you can see in the Billing section of the app store. There is no minimum DCA amount – you are free to DCA any amount you like.",
+        "A fixed fee of $0.50 USDC per executed trade is charged and added to your account’s fee balance. As with all Vultisig apps, the Fee Management app will deduct the accumulated balance on the due date, which you can see in the Billing section of the plugin marketplace. There is no minimum DCA amount – you are free to DCA any amount you like.",
       question:
         "What fees apply, or minimum amounts apply when using the Reoccurring Swaps App?",
     },

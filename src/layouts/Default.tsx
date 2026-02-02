@@ -5,6 +5,7 @@ import { Link, Outlet, useNavigate } from "react-router-dom";
 import { createGlobalStyle, useTheme } from "styled-components";
 
 import { CurrencyModal } from "@/components/CurrencyModal";
+import { OnboardingModal } from "@/components/OnboardingModal";
 import { PaymentModal } from "@/components/PaymentModal";
 import { useCore } from "@/hooks/useCore";
 import { useExtension } from "@/hooks/useExtension";
@@ -151,7 +152,7 @@ export const DefaultLayout = () => {
           width: "264px",
         }}
       >
-        The Vultisig App Store is currently only available on desktop.
+        The Vultisig Plugin Marketplace is currently only available on desktop.
       </Stack>
     </VStack>
   ) : (
@@ -171,18 +172,6 @@ export const DefaultLayout = () => {
           zIndex: "2",
         }}
       >
-        <VStack
-          $style={{
-            alignItems: "center",
-            backgroundColor: colors.bgAlert.toHex(),
-            height: "40px",
-            justifyContent: "center",
-            width: "100%",
-          }}
-        >
-          This is an early-stage version of the platform. Do not rely on it for
-          production use or real funds. Testing only.
-        </VStack>
         <HStack
           $style={{
             alignItems: "center",
@@ -219,7 +208,7 @@ export const DefaultLayout = () => {
               />
             </HStack>
             <Stack $style={{ fontSize: "22px", lineHeight: "40px" }}>
-              App Store
+              Plugin Marketplace
             </Stack>
           </HStack>
           <HStack $style={{ gap: "48px", lineHeight: "20px" }}>
@@ -236,7 +225,7 @@ export const DefaultLayout = () => {
                 to={routeTree.myApps.path}
                 $hover={{ color: colors.accentThree.toHex() }}
               >
-                My Apps
+                My Plugins
               </Stack>
             )}
             <Stack
@@ -299,6 +288,7 @@ export const DefaultLayout = () => {
 
       <Outlet />
       <CurrencyModal />
+      <OnboardingModal />
       <PaymentModal />
 
       {extensionHolder}

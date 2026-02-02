@@ -2,6 +2,7 @@ export const storageKeys = {
   chain: "chain",
   currency: "currency",
   language: "language",
+  onboarding: "hasFinishedOnboarding",
   theme: "theme",
   token: "token",
   vaultId: "vaultId",
