@@ -200,5 +200,17 @@ describe("pricingText", () => {
       expect(result).toBeDefined();
       expect(result).toContain("one time installation");
     });
+    it("should handle decimal amounts with Math.floor", () => {
+      const result = pricingText({
+        amount: 5.9999991, // 7 decimals: produces non-integer product
+        baseValue,
+        currency,
+        frequency: "",
+        type: "per-tx",
+      });
+
+      expect(result).toContain("per transaction");
+      expect(result).toBeDefined(); // Verifies no BigInt error thrown
+    });
   });
 });
