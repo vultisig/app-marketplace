@@ -425,7 +425,7 @@ export const AppPage = () => {
                   </HStack>
                 ),
               }))}
-              offsetTop={117}
+              offsetTop={77}
               targetOffset={158}
               $style={{ backgroundColor: colors.bgPrimary.toHex() }}
             />
