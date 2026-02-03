@@ -313,7 +313,7 @@ export const pricingText = ({
   currency: Currency;
 }) => {
   const value = toValueFormat(
-    formatUnits(BigInt(amount * baseValue), 6),
+    formatUnits(BigInt(Math.floor(amount * baseValue)), 6),
     currency,
     8,
   );
@@ -328,6 +328,16 @@ export const pricingText = ({
     default:
       return "Unknown pricing type";
   }
+};
+
+export const scrollSelectDropdownToTop = (dropdownClassName: string) => {
+  requestAnimationFrame(() => {
+    const holder = document.querySelector(
+      `.${dropdownClassName} .rc-virtual-list-holder`,
+    ) as HTMLDivElement | null;
+
+    holder?.scrollTo({ top: 0 });
+  });
 };
 
 export const snakeCaseToTitle = (input: string) => {
@@ -413,4 +423,8 @@ export const toValueFormat = (
   decimal = 2,
 ): string => {
   return `${currencySymbols[currency]}${toNumberFormat(value, decimal)}`;
+};
+
+export const tinyId = (prefix = "id") => {
+  return `${prefix}-${Math.random().toString(36).slice(2, 8)}`;
 };

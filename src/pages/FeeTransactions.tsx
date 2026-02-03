@@ -90,7 +90,7 @@ export const FeeTransactionsPage = () => {
         if (!amount) return "-";
 
         return toValueFormat(
-          formatUnits(BigInt(Number(amount) * baseValue), feeAsset.decimals),
+          formatUnits(BigInt(Math.floor(Number(amount) * baseValue)), feeAsset.decimals),
           currency,
         );
       },

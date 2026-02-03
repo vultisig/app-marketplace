@@ -10,7 +10,11 @@ import { Divider } from "@/toolkits/Divider";
 import { Spin } from "@/toolkits/Spin";
 import { HStack, Stack, VStack } from "@/toolkits/Stack";
 import { Chain, nativeTokens } from "@/utils/chain";
-import { camelCaseToTitle } from "@/utils/functions";
+import {
+  camelCaseToTitle,
+  scrollSelectDropdownToTop,
+  tinyId,
+} from "@/utils/functions";
 import { Token } from "@/utils/types";
 
 export type AssetProps = {
@@ -18,6 +22,7 @@ export type AssetProps = {
   chain: Chain;
   decimals: number;
   token: string;
+  symbol: string;
 };
 
 type AssetWidgetProps = {
@@ -48,9 +53,11 @@ export const AssetWidget: FC<AssetWidgetProps> = ({
   const addressField = [...prefixKeys, ...keys, "address"];
   const chainField = [...prefixKeys, ...keys, "chain"];
   const decimalsField = [...prefixKeys, ...keys, "decimals"];
+  const symbolField = [...prefixKeys, ...keys, "symbol"];
   const tokenField = [...prefixKeys, ...keys, "token"];
   const form = Form.useFormInstance();
   const chain = Form.useWatch<Chain>(chainField, form);
+  const tokenSelectDropdownId = tinyId();
 
   const chainSelectProps: SelectProps<Chain, { label: string; value: string }> =
     {
@@ -60,6 +67,7 @@ export const AssetWidget: FC<AssetWidgetProps> = ({
         vault.address(chain).then((address) => {
           form.setFieldValue(addressField, address);
           form.setFieldValue(decimalsField, nativeTokens[chain].decimals);
+          form.setFieldValue(symbolField, nativeTokens[chain].ticker);
           form.setFieldValue(tokenField, "");
         });
       },
@@ -97,6 +105,7 @@ export const AssetWidget: FC<AssetWidgetProps> = ({
     allowClear: true,
     disabled: !chain,
     loading,
+    classNames: { popup: { root: tokenSelectDropdownId } },
     notFoundContent: loading ? (
       <HStack $style={{ justifyContent: "center", padding: "12px" }}>
         <Spin />
@@ -107,6 +116,7 @@ export const AssetWidget: FC<AssetWidgetProps> = ({
         tokens.find(({ id }) => id === token) || nativeTokens[chain];
 
       form.setFieldValue(decimalsField, selectedToken.decimals);
+      form.setFieldValue(symbolField, selectedToken.ticker);
       // Note: For Solana SPL tokens, we keep the wallet address (not ATA).
       // The backend metarule will derive the ATA automatically using DeriveATA(wallet, mint).
     },
@@ -149,7 +159,7 @@ export const AssetWidget: FC<AssetWidgetProps> = ({
         logo: token.logo,
         name: token.name,
         value: token.id,
-      })
+      }),
     ),
     showSearch: {
       filterOption: (input, option) => {
@@ -166,7 +176,56 @@ export const AssetWidget: FC<AssetWidgetProps> = ({
           value.includes(search)
         );
       },
+      filterSort: (optionA, optionB, search) => {
+        if (!search) return 0;
+
+        const searchLower = search.searchValue.toLowerCase();
+        const labelA = optionA.label.toLowerCase();
+        const nameA = optionA.name.toLowerCase();
+        const labelB = optionB.label.toLowerCase();
+        const nameB = optionB.name.toLowerCase();
+
+        // Priority 1: Exact match on label (ticker)
+        const exactLabelA = labelA === searchLower;
+        const exactLabelB = labelB === searchLower;
+
+        if (exactLabelA && !exactLabelB) return -1;
+        if (!exactLabelA && exactLabelB) return 1;
+        if (exactLabelA && exactLabelB) return 0;
+
+        // Priority 2: Exact match on name
+        const exactNameA = nameA === searchLower;
+        const exactNameB = nameB === searchLower;
+
+        if (exactNameA && !exactNameB) return -1;
+        if (!exactNameA && exactNameB) return 1;
+        if (exactNameA && exactNameB) return 0;
+
+        // Priority 3: Label starts with search (prioritize shorter)
+        const labelStartsA = labelA.startsWith(searchLower);
+        const labelStartsB = labelB.startsWith(searchLower);
+
+        if (labelStartsA && !labelStartsB) return -1;
+        if (!labelStartsA && labelStartsB) return 1;
+        if (labelStartsA && labelStartsB) return labelA.length - labelB.length;
+
+        // Priority 4: Name starts with search (prioritize shorter)
+        const nameStartsA = nameA.startsWith(searchLower);
+        const nameStartsB = nameB.startsWith(searchLower);
+
+        if (nameStartsA && !nameStartsB) return -1;
+        if (!nameStartsA && nameStartsB) return 1;
+        if (nameStartsA && nameStartsB) return nameA.length - nameB.length;
+
+        // Priority 5: Other tokens (contain search but don't start with it)
+        // Sort alphabetically by label
+        return labelA.localeCompare(labelB);
+      },
       onSearch: (address) => {
+        setTimeout(() => {
+          scrollSelectDropdownToTop(tokenSelectDropdownId);
+        }, 0);
+
         if (
           !chain ||
           !address ||
@@ -204,6 +263,7 @@ export const AssetWidget: FC<AssetWidgetProps> = ({
     } else {
       form.setFieldValue(addressField, undefined);
       form.setFieldValue(decimalsField, undefined);
+      form.setFieldValue(symbolField, undefined);
       form.setFieldValue(tokenField, undefined);
     }
   }, [chain]);
@@ -232,6 +292,9 @@ export const AssetWidget: FC<AssetWidgetProps> = ({
           <Input type="hidden" />
         </Form.Item>
         <Form.Item name={[...keys, "decimals"]} noStyle>
+          <Input type="hidden" />
+        </Form.Item>
+        <Form.Item name={[...keys, "symbol"]} noStyle>
           <Input type="hidden" />
         </Form.Item>
       </Stack>

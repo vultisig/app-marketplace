@@ -7,14 +7,18 @@ import { AssetProps } from "@/automations/widgets/Asset";
 import { useCore } from "@/hooks/useCore";
 import { InputDigits } from "@/toolkits/InputDigits";
 import { HStack, Stack, VStack } from "@/toolkits/Stack";
-import { toNumberFormat } from "@/utils/functions";
+import { getPrice } from "@/utils/api";
+import { toNumberFormat, toValueFormat } from "@/utils/functions";
 
 export const AutomationFormAmountInput: FC<
   FormItemProps & { asset?: AssetProps; disabled?: boolean }
-> = ({ asset, disabled, ...rest }) => {
+> = ({ asset, disabled, name, ...rest }) => {
   const [balance, setBalance] = useState<string>("");
-  const { vault } = useCore();
+  const [price, setPrice] = useState<number>(0);
+  const { baseValue, currency, vault } = useCore();
   const colors = useTheme();
+  const form = Form.useFormInstance();
+  const amount = Form.useWatch(name, form);
 
   useEffect(() => {
     if (!asset?.chain || !vault) return;
@@ -24,10 +28,35 @@ export const AutomationFormAmountInput: FC<
     });
   }, [asset, vault]);
 
+  useEffect(() => {
+    if (!asset?.chain) return;
+
+    setPrice(0);
+
+    getPrice(asset.chain, asset.token).then((price) => {
+      setPrice(price);
+    });
+  }, [asset]);
+
   return (
     <VStack>
-      <Form.Item {...rest}>
-        <InputDigits disabled={disabled} />
+      <Form.Item {...rest} name={name}>
+        <InputDigits
+          disabled={disabled}
+          suffix={
+            <Stack
+              as="span"
+              $style={{
+                color: colors.textTertiary.toHex(),
+                fontSize: "13px",
+              }}
+            >
+              {amount && price
+                ? toValueFormat(Number(amount) * price * baseValue, currency, 2)
+                : null}
+            </Stack>
+          }
+        />
       </Form.Item>
       <HStack $style={{ justifyContent: "space-between", marginTop: "-6px" }}>
         <Stack
@@ -40,7 +69,7 @@ export const AutomationFormAmountInput: FC<
           as="span"
           $style={{ color: colors.textTertiary.toHex(), fontSize: "13px" }}
         >
-          {balance}
+          {balance} {asset?.symbol}
         </Stack>
       </HStack>
     </VStack>

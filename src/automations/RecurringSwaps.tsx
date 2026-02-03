@@ -237,7 +237,7 @@ export const RecurringSwapsForm: FC<AutomationFormProps> = ({
           />
         );
       },
-      title: "Amount",
+      title: "Amount Per Frequency",
     },
     {
       align: "center",
@@ -647,7 +647,7 @@ export const RecurringSwapsForm: FC<AutomationFormProps> = ({
               <AssetWidget chains={supportedChains} keys={["from"]} />
               <AutomationFormAmountInput
                 asset={values?.from}
-                label="Amount"
+                label="Amount per frequency"
                 name="fromAmount"
                 rules={[{ required: true }]}
               />

@@ -129,7 +129,7 @@ export const BillingPage = () => {
 
         // TODO: Fetch fee token and decimals dynamically
         return toValueFormat(
-          formatUnits(BigInt(Number(totalFees) * baseValue), 6),
+          formatUnits(BigInt(Math.floor(Number(totalFees) * baseValue)), 6),
           currency,
         );
       },

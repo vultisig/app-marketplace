@@ -12,6 +12,7 @@ import { AutomationsPage } from "@/pages/Automations";
 import { BillingPage } from "@/pages/Billing";
 import { FaqPage } from "@/pages/FAQ";
 import { FeeTransactionsPage } from "@/pages/FeeTransactions";
+import { InternalErrorPage } from "@/pages/InternalError";
 import { MainPage } from "@/pages/Main";
 import { MyAppsPage } from "@/pages/MyApps";
 import { NotFoundPage } from "@/pages/NotFound";
@@ -74,6 +75,7 @@ export const Routes = () => {
         },
         { path: routeTree.faq.path, element: <FaqPage /> },
       ],
+      errorElement: <InternalErrorPage />,
     },
     { path: routeTree.notFound.path, element: <NotFoundPage /> },
   ]);
