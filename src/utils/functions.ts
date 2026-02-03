@@ -425,6 +425,6 @@ export const toValueFormat = (
   return `${currencySymbols[currency]}${toNumberFormat(value, decimal)}`;
 };
 
-export const tinyId = () => {
-  return `id-${(Date.now() + Math.random()).toString(36).replace(".", "-")}`;
+export const tinyId = (prefix = "id") => {
+  return `${prefix}-${Math.random().toString(36).slice(2, 8)}`;
 };
