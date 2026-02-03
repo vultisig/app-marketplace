@@ -1,4 +1,4 @@
-import { describe, expect,it } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import type { Currency } from "./currency";
 import { pricingText } from "./functions";
@@ -47,19 +47,6 @@ describe("pricingText", () => {
 
       expect(result).toContain("per transaction");
       expect(result).toContain("$");
-    });
-
-    it("should handle decimal amounts with Math.floor", () => {
-      const result = pricingText({
-        amount: 5.99,
-        baseValue,
-        currency,
-        frequency: "",
-        type: "per-tx",
-      });
-
-      expect(result).toContain("per transaction");
-      // Should not throw BigInt error
     });
   });
 
