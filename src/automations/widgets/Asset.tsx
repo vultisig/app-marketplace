@@ -1,5 +1,5 @@
 import { Form, Input, Select, SelectProps } from "antd";
-import { FC, useEffect, useRef, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import { useTheme } from "styled-components";
 
 import { TokenImage } from "@/components/TokenImage";
@@ -10,7 +10,11 @@ import { Divider } from "@/toolkits/Divider";
 import { Spin } from "@/toolkits/Spin";
 import { HStack, Stack, VStack } from "@/toolkits/Stack";
 import { Chain, nativeTokens } from "@/utils/chain";
-import { camelCaseToTitle } from "@/utils/functions";
+import {
+  camelCaseToTitle,
+  scrollSelectDropdownToTop,
+  tinyId,
+} from "@/utils/functions";
 import { Token } from "@/utils/types";
 
 export type AssetProps = {
@@ -53,7 +57,7 @@ export const AssetWidget: FC<AssetWidgetProps> = ({
   const tokenField = [...prefixKeys, ...keys, "token"];
   const form = Form.useFormInstance();
   const chain = Form.useWatch<Chain>(chainField, form);
-  const selectRef = useRef<any>(null);
+  const tokenSelectDropdownId = tinyId();
 
   const chainSelectProps: SelectProps<Chain, { label: string; value: string }> =
     {
@@ -101,6 +105,7 @@ export const AssetWidget: FC<AssetWidgetProps> = ({
     allowClear: true,
     disabled: !chain,
     loading,
+    classNames: { popup: { root: tokenSelectDropdownId } },
     notFoundContent: loading ? (
       <HStack $style={{ justifyContent: "center", padding: "12px" }}>
         <Spin />
@@ -154,7 +159,7 @@ export const AssetWidget: FC<AssetWidgetProps> = ({
         logo: token.logo,
         name: token.name,
         value: token.id,
-      })
+      }),
     ),
     showSearch: {
       filterOption: (input, option) => {
@@ -183,6 +188,7 @@ export const AssetWidget: FC<AssetWidgetProps> = ({
         // Priority 1: Exact match on label (ticker)
         const exactLabelA = labelA === searchLower;
         const exactLabelB = labelB === searchLower;
+
         if (exactLabelA && !exactLabelB) return -1;
         if (!exactLabelA && exactLabelB) return 1;
         if (exactLabelA && exactLabelB) return 0;
@@ -190,6 +196,7 @@ export const AssetWidget: FC<AssetWidgetProps> = ({
         // Priority 2: Exact match on name
         const exactNameA = nameA === searchLower;
         const exactNameB = nameB === searchLower;
+
         if (exactNameA && !exactNameB) return -1;
         if (!exactNameA && exactNameB) return 1;
         if (exactNameA && exactNameB) return 0;
@@ -197,34 +204,26 @@ export const AssetWidget: FC<AssetWidgetProps> = ({
         // Priority 3: Label starts with search (prioritize shorter)
         const labelStartsA = labelA.startsWith(searchLower);
         const labelStartsB = labelB.startsWith(searchLower);
+
         if (labelStartsA && !labelStartsB) return -1;
         if (!labelStartsA && labelStartsB) return 1;
-        if (labelStartsA && labelStartsB) {
-          return labelA.length - labelB.length;
-        }
+        if (labelStartsA && labelStartsB) return labelA.length - labelB.length;
 
         // Priority 4: Name starts with search (prioritize shorter)
         const nameStartsA = nameA.startsWith(searchLower);
         const nameStartsB = nameB.startsWith(searchLower);
+
         if (nameStartsA && !nameStartsB) return -1;
         if (!nameStartsA && nameStartsB) return 1;
-        if (nameStartsA && nameStartsB) {
-          return nameA.length - nameB.length;
-        }
+        if (nameStartsA && nameStartsB) return nameA.length - nameB.length;
 
         // Priority 5: Other tokens (contain search but don't start with it)
         // Sort alphabetically by label
         return labelA.localeCompare(labelB);
       },
       onSearch: (address) => {
-        // Scroll to top of dropdown on each search change
         setTimeout(() => {
-          const dropdown = document.querySelector(
-            ".ant-select-dropdown .rc-virtual-list-holder"
-          );
-          if (dropdown) {
-            dropdown.scrollTop = 0;
-          }
+          scrollSelectDropdownToTop(tokenSelectDropdownId);
         }, 0);
 
         if (
@@ -287,7 +286,7 @@ export const AssetWidget: FC<AssetWidgetProps> = ({
           <Select {...chainSelectProps} />
         </Form.Item>
         <Form.Item label="Token" name={[...keys, "token"]}>
-          <Select {...tokenSelectProps} ref={selectRef} />
+          <Select {...tokenSelectProps} />
         </Form.Item>
         <Form.Item name={[...keys, "address"]} noStyle>
           <Input type="hidden" />
