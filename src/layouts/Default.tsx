@@ -84,17 +84,12 @@ export const DefaultLayout = () => {
           $style={{ alignItems: "center", justifyContent: "space-between" }}
         >
           <span>Theme</span>
-          <HStack $style={{ alignItems: "center", gap: "8px" }}>
-            <span>Light</span>
-            <Switch
-              checked={theme === "dark"}
-              size="small"
-              onChange={(checked) => setTheme(checked ? "dark" : "light")}
-            />
-            <span>Dark</span>
-          </HStack>
+          <span>{theme === "light" ? "Light" : "Dark"}</span>
         </HStack>
       ),
+      onClick: () => {
+        setTheme(theme === "light" ? "dark" : "light");
+      },
     },
     ...(vault
       ? [
