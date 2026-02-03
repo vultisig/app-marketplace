@@ -1,4 +1,4 @@
-import { Dropdown, MenuProps, Switch } from "antd";
+import { Dropdown, MenuProps } from "antd";
 import { useEffect } from "react";
 import { useMediaQuery } from "react-responsive";
 import { Link, Outlet, useNavigate } from "react-router-dom";
