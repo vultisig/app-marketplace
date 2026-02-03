@@ -1,6 +1,7 @@
-import { describe, it, expect } from "vitest";
-import { pricingText } from "./functions";
+import { describe, expect,it } from "vitest";
+
 import type { Currency } from "./currency";
+import { pricingText } from "./functions";
 
 describe("pricingText", () => {
   const baseValue = 1000000; // Example base value for USDC (6 decimals)
