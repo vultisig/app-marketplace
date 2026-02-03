@@ -11,7 +11,9 @@ import {
 import { getToken, setToken } from "@/storage/token";
 import { getVaultId } from "@/storage/vaultId";
 import {
+  Chain,
   chains,
+  coinGeckoNetwork,
   ethL2Chains,
   EvmChain,
   evmChainInfo,
@@ -277,46 +279,33 @@ export const getBaseValue = async (currency: Currency): Promise<number> => {
   }
 };
 
-const coinGeckoNetwork: Record<string, string> = {
-  ["arbitrum"]: "arbitrum-one",
-  ["optimism"]: "optimistic-ethereum",
-  ["bsc"]: "binance-smart-chain",
-  ["cronoschain"]: "cronos",
-  ["sei"]: "sei-network",
-  ["polygon"]: "polygon-pos",
-  ["avalanche"]: "avalanche-2",
-  ["mayachain"]: "cacao",
-};
-
 export const getPrice = async (
-  chain: string,
+  chain: Chain,
   contract?: string,
 ): Promise<number> => {
   try {
     // If chain is an ETH L2 and contract is empty, query for Ethereum
-    const isEthL2 = Object.values(ethL2Chains).includes(chain as any);
-    if (isEthL2 && !contract) {
-      chain = chains.Ethereum;
-    }
+    if (chain in ethL2Chains && !contract) chain = chains.Ethereum;
 
-    chain = chain.toLowerCase();
-    if (!contract) {
-      if (chain === "bsc") {
-        chain = "binancecoin";
-      } else if (chain == "polygon") {
-        chain = "polygon-ecosystem-token";
-      }
-    }
-    const platform = coinGeckoNetwork[chain] ?? chain;
-    let url = `${vultiApiUrl}/coingeicko/api/v3/simple/price?ids=${platform}&vs_currencies=usd`;
+    let platform = coinGeckoNetwork[chain];
+    let url = "";
+
     if (contract) {
       url = `${vultiApiUrl}/coingeicko/api/v3/simple/token_price/${platform}?contract_addresses=${contract}&vs_currencies=usd`;
+    } else {
+      if (chain === chains.BSC) {
+        platform = "binancecoin";
+      } else if (chain === chains.Polygon) {
+        platform = "polygon-ecosystem-token";
+      }
+
+      url = `${vultiApiUrl}/coingeicko/api/v3/simple/price?ids=${platform}&vs_currencies=usd`;
     }
-    const data = await externalGet<{
-      [contractAddress: string]: { usd: number };
-    }>(url);
-    const price = Object.values(data)[0]?.usd ?? 0;
-    return price ?? 0;
+
+    const data = await externalGet<{ [addr: string]: { usd: number } }>(url);
+    const [item] = Object.values(data);
+
+    return item?.usd || 0;
   } catch {
     return 0;
   }
