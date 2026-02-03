@@ -319,5 +319,4 @@ export const nativeTokens = Object.values(chains).reduce(
 );
 
 export type Chain = (typeof chains)[keyof typeof chains];
-export type EthL2Chain = (typeof ethL2Chains)[keyof typeof ethL2Chains];
 export type EvmChain = (typeof evmChains)[keyof typeof evmChains];

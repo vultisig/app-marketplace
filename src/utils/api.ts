@@ -14,7 +14,6 @@ import {
   Chain,
   chains,
   coinGeckoNetwork,
-  EthL2Chain,
   ethL2Chains,
   EvmChain,
   evmChainInfo,
