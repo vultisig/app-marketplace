@@ -157,29 +157,6 @@ const tickers: Record<Chain, string> = {
   [chains.Zksync]: "ZK",
 };
 
-export const nativeTokens = Object.values(chains).reduce((acc, chain) => {
-  const isEvm = chain in ethL2Chains;
-
-  acc[chain] = isEvm
-    ? {
-        chain: chains.Ethereum,
-        decimals: decimals[chains.Ethereum],
-        id: "",
-        logo: `/tokens/${chains.Ethereum.toLowerCase()}.svg`,
-        name: chains.Ethereum,
-        ticker: tickers[chains.Ethereum],
-      }
-    : {
-        chain,
-        decimals: decimals[chain],
-        id: "",
-        logo: `/tokens/${chain.toLowerCase()}.svg`,
-        name: chain,
-        ticker: tickers[chain],
-      };
-  return acc;
-}, {} as Record<Chain, Token>);
-
 const evmRpcUrls: Record<EvmChain, string> = {
   [evmChains.Arbitrum]: `${vultiApiUrl}/arb/`,
   [evmChains.Avalanche]: `${vultiApiUrl}/avax/`,
@@ -195,6 +172,24 @@ const evmRpcUrls: Record<EvmChain, string> = {
   [evmChains.Sei]: `https://evm-rpc.sei-apis.com`,
   [evmChains.Zksync]: `${vultiApiUrl}/zksync/`,
 };
+
+const coinGeckoOverrides: Partial<Record<Chain, string>> = {
+  [chains.Arbitrum]: "arbitrum-one",
+  [chains.Avalanche]: "avalanche-2",
+  [chains.BSC]: "binance-smart-chain",
+  [chains.CronosChain]: "cronos",
+  [chains.MayaChain]: "cacao",
+  [chains.Optimism]: "optimistic-ethereum",
+  [chains.Polygon]: "polygon-pos",
+  [chains.Sei]: "sei-network",
+};
+
+export const coinGeckoNetwork = Object.fromEntries(
+  Object.values(chains).map((chain) => [
+    chain,
+    coinGeckoOverrides[chain] ?? chain.toLowerCase(),
+  ]),
+) as Record<Chain, string>;
 
 export const evmChainInfo: Record<EvmChain, ViemChain> = {
   [evmChains.Arbitrum]: {
@@ -297,5 +292,32 @@ export const explorerBaseUrl: Record<Chain, string> = {
   [chains.Zksync]: "https://explorer.zksync.io",
 };
 
+export const nativeTokens = Object.values(chains).reduce(
+  (acc, chain) => {
+    const isEvm = chain in ethL2Chains;
+
+    acc[chain] = isEvm
+      ? {
+          chain: chains.Ethereum,
+          decimals: decimals[chains.Ethereum],
+          id: "",
+          logo: `/tokens/${chains.Ethereum.toLowerCase()}.svg`,
+          name: chains.Ethereum,
+          ticker: tickers[chains.Ethereum],
+        }
+      : {
+          chain,
+          decimals: decimals[chain],
+          id: "",
+          logo: `/tokens/${chain.toLowerCase()}.svg`,
+          name: chain,
+          ticker: tickers[chain],
+        };
+    return acc;
+  },
+  {} as Record<Chain, Token>,
+);
+
 export type Chain = (typeof chains)[keyof typeof chains];
+export type EthL2Chain = (typeof ethL2Chains)[keyof typeof ethL2Chains];
 export type EvmChain = (typeof evmChains)[keyof typeof evmChains];
