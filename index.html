@@ -6,13 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Vultisig Plugin Marketplace</title>
     <meta name="description" content="Create automation plugins leveraging Vultisig’s MPC infrastructure, distribute them through the Marketplace, and earn on every install." />
-    <meta name="keywords" content="Vultisig Plugin Marketplace" />
+    <meta name="keywords" content="Vultisig, Vultisig Plugin Marketplace, MPC infrastructure, crypto automation, blockchain plugins, DeFi marketplace, multi-chain vault, TSS plugins" />
+    
     <meta name="author" content="Vultisig" />
     <link rel="author" href="https://vultisig.com" />
     <meta name="mobile-web-app-capable" content="yes" />
 
     <link rel="apple-touch-icon" href="/favicon.ico" />
     <link rel="apple-touch-startup-image" href="/favicon.ico" />
+    <link rel="canonical" href="https://apps.vultisig.com/" />
     <meta name="apple-mobile-web-app-title" content="Vultisig Plugin Marketplace" />
     <meta
       name="apple-mobile-web-app-status-bar-style"
@@ -26,8 +28,10 @@
     <meta property="og:type" content="website" />
     <meta
       property="og:image"
-      content="https://apps.vultisig.com/images/vultisigthumbnail.jpg"
+      content="https://apps.vultisig.com/images/marketplace_metatag.png"
     />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
 
     <meta name="twitter:title" content="Vultisig Plugin Marketplace" />
     <meta name="twitter:description" content="Create automation plugins leveraging Vultisig’s MPC infrastructure, distribute them through the Marketplace, and earn on every install." />
@@ -36,11 +40,49 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta
       name="twitter:image"
-      content="https://apps.vultisig.com/images/vultisigthumbnail.jpg"
+      content="https://apps.vultisig.com/images/marketplace_metatag.png"
     />
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+
+    <!-- new -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Vultisig Plugin Marketplace",
+        "alternateName": "Vultisig App Directory",
+        "operatingSystem": "Web",
+        "applicationCategory": "BlockchainApplication, FinanceApplication, DeveloperApplication, SecurityApplication",
+        "description": "A decentralized marketplace for Vultisig plugins. Build, deploy, and monetize automation tools using MPC-safe infrastructure.",
+        "softwareVersion": "1.0",
+        "featureList": [
+          "Automate crypto management",
+          "MPC-based security",
+          "Automation plugins",
+          "Developer monetization",
+          "Cross-chain compatibility"
+        ],
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD",
+          "availability": "https://schema.org/InStock"
+        },
+        "author": {
+          "@type": "Organization",
+          "name": "Vultisig",
+          "url": "https://vultisig.com",
+          "sameAs": [
+            "https://x.com/vultisig",
+            "https://github.com/vultisig"
+          ]
+        },
+        "installUrl": "https://docs.vultisig.com/ecosystem/marketplace",
+        "applicationSubCategory": "Blockchain Automation Tools"
+      }
+      </script>
   </body>
 </html>
