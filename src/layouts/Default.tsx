@@ -1,4 +1,4 @@
-import { Dropdown, MenuProps } from "antd";
+import { Dropdown, MenuProps, Switch } from "antd";
 import { useEffect } from "react";
 import { useMediaQuery } from "react-responsive";
 import { Link, Outlet, useNavigate } from "react-router-dom";
@@ -77,19 +77,24 @@ export const DefaultLayout = () => {
       },
     },
     {
-      icon: theme === "light" ? <MoonIcon /> : <SunIcon />,
+      icon: theme === "light" ? <SunIcon /> : <MoonIcon />,
       key: "4",
       label: (
         <HStack
           $style={{ alignItems: "center", justifyContent: "space-between" }}
         >
           <span>Theme</span>
-          <span>{theme === "light" ? "Dark" : "Light"}</span>
+          <HStack $style={{ alignItems: "center", gap: "8px" }}>
+            <span>Light</span>
+            <Switch
+              checked={theme === "dark"}
+              size="small"
+              onChange={(checked) => setTheme(checked ? "dark" : "light")}
+            />
+            <span>Dark</span>
+          </HStack>
         </HStack>
       ),
-      onClick: () => {
-        setTheme(theme === "light" ? "dark" : "light");
-      },
     },
     ...(vault
       ? [
