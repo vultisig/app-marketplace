@@ -1,5 +1,13 @@
 import { thirdPartyClient } from "@/api/third-party/client";
-import { chains, EvmChain, evmChainInfo, evmChains } from "@/utils/chain";
+import {
+  Chain,
+  chains,
+  coinGeckoNetwork,
+  ethL2Chains,
+  EvmChain,
+  evmChainInfo,
+  evmChains,
+} from "@/utils/chain";
 import { vultiApiUrl } from "@/utils/constants";
 import { Currency } from "@/utils/currency";
 import { JupiterToken, OneInchToken, Token } from "@/utils/types";
@@ -24,6 +32,38 @@ export const getBaseValue = async (currency: Currency): Promise<number> => {
   } catch {
     return 0;
   }
+};
+
+export const getJupiterToken = async (id: string): Promise<Token> => {
+  const [jupiterToken] = await thirdPartyClient.get<JupiterToken[]>(
+    `${vultiApiUrl}/jup/tokens/v2/search?query=${id}`,
+  );
+
+  if (!jupiterToken) throw new Error("Token not found");
+
+  return {
+    chain: chains.Solana,
+    decimals: jupiterToken.decimals,
+    id: jupiterToken.id,
+    logo: jupiterToken.icon || "",
+    name: jupiterToken.name,
+    ticker: jupiterToken.symbol,
+  };
+};
+
+export const getJupiterTokens = async (): Promise<Token[]> => {
+  const jupiterTokens = await thirdPartyClient.get<JupiterToken[]>(
+    `${vultiApiUrl}/jup/tokens/v2/tag?query=verified`,
+  );
+
+  return jupiterTokens.map((token) => ({
+    chain: chains.Solana,
+    decimals: token.decimals,
+    id: token.id,
+    logo: token.icon || "",
+    name: token.name,
+    ticker: token.symbol,
+  }));
 };
 
 export const getOneInchToken = async (
@@ -79,34 +119,36 @@ export const getOneInchTokens = async (chain: EvmChain): Promise<Token[]> => {
   return tokenList;
 };
 
-export const getJupiterToken = async (id: string): Promise<Token> => {
-  const [jupiterToken] = await thirdPartyClient.get<JupiterToken[]>(
-    `${vultiApiUrl}/jup/tokens/v2/search?query=${id}`,
-  );
+export const getPrice = async (
+  chain: Chain,
+  contract?: string,
+): Promise<number> => {
+  try {
+    // If chain is an ETH L2 and contract is empty, query for Ethereum
+    if (chain in ethL2Chains && !contract) chain = chains.Ethereum;
 
-  if (!jupiterToken) throw new Error("Token not found");
+    let platform = coinGeckoNetwork[chain];
+    let url = "";
 
-  return {
-    chain: chains.Solana,
-    decimals: jupiterToken.decimals,
-    id: jupiterToken.id,
-    logo: jupiterToken.icon || "",
-    name: jupiterToken.name,
-    ticker: jupiterToken.symbol,
-  };
-};
+    if (contract) {
+      url = `${vultiApiUrl}/coingeicko/api/v3/simple/token_price/${platform}?contract_addresses=${contract}&vs_currencies=usd`;
+    } else {
+      if (chain === chains.BSC) {
+        platform = "binancecoin";
+      } else if (chain === chains.Polygon) {
+        platform = "polygon-ecosystem-token";
+      }
 
-export const getJupiterTokens = async (): Promise<Token[]> => {
-  const jupiterTokens = await thirdPartyClient.get<JupiterToken[]>(
-    `${vultiApiUrl}/jup/tokens/v2/tag?query=verified`,
-  );
+      url = `${vultiApiUrl}/coingeicko/api/v3/simple/price?ids=${platform}&vs_currencies=usd`;
+    }
 
-  return jupiterTokens.map((token) => ({
-    chain: chains.Solana,
-    decimals: token.decimals,
-    id: token.id,
-    logo: token.icon || "",
-    name: token.name,
-    ticker: token.symbol,
-  }));
+    const data = await thirdPartyClient.get<{
+      [contractAddress: string]: { usd: number };
+    }>(url);
+    const [item] = Object.values(data);
+
+    return item?.usd || 0;
+  } catch {
+    return 0;
+  }
 };
