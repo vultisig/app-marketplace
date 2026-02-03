@@ -1,5 +1,5 @@
 import { Form, Input, Select, SelectProps } from "antd";
-import { FC, useEffect, useState } from "react";
+import { FC, useEffect, useRef, useState } from "react";
 import { useTheme } from "styled-components";
 
 import { TokenImage } from "@/components/TokenImage";
@@ -53,6 +53,7 @@ export const AssetWidget: FC<AssetWidgetProps> = ({
   const tokenField = [...prefixKeys, ...keys, "token"];
   const form = Form.useFormInstance();
   const chain = Form.useWatch<Chain>(chainField, form);
+  const selectRef = useRef<any>(null);
 
   const chainSelectProps: SelectProps<Chain, { label: string; value: string }> =
     {
@@ -170,7 +171,62 @@ export const AssetWidget: FC<AssetWidgetProps> = ({
           value.includes(search)
         );
       },
+      filterSort: (optionA, optionB, search) => {
+        if (!search) return 0;
+
+        const searchLower = search.searchValue.toLowerCase();
+        const labelA = optionA.label.toLowerCase();
+        const nameA = optionA.name.toLowerCase();
+        const labelB = optionB.label.toLowerCase();
+        const nameB = optionB.name.toLowerCase();
+
+        // Priority 1: Exact match on label (ticker)
+        const exactLabelA = labelA === searchLower;
+        const exactLabelB = labelB === searchLower;
+        if (exactLabelA && !exactLabelB) return -1;
+        if (!exactLabelA && exactLabelB) return 1;
+        if (exactLabelA && exactLabelB) return 0;
+
+        // Priority 2: Exact match on name
+        const exactNameA = nameA === searchLower;
+        const exactNameB = nameB === searchLower;
+        if (exactNameA && !exactNameB) return -1;
+        if (!exactNameA && exactNameB) return 1;
+        if (exactNameA && exactNameB) return 0;
+
+        // Priority 3: Label starts with search (prioritize shorter)
+        const labelStartsA = labelA.startsWith(searchLower);
+        const labelStartsB = labelB.startsWith(searchLower);
+        if (labelStartsA && !labelStartsB) return -1;
+        if (!labelStartsA && labelStartsB) return 1;
+        if (labelStartsA && labelStartsB) {
+          return labelA.length - labelB.length;
+        }
+
+        // Priority 4: Name starts with search (prioritize shorter)
+        const nameStartsA = nameA.startsWith(searchLower);
+        const nameStartsB = nameB.startsWith(searchLower);
+        if (nameStartsA && !nameStartsB) return -1;
+        if (!nameStartsA && nameStartsB) return 1;
+        if (nameStartsA && nameStartsB) {
+          return nameA.length - nameB.length;
+        }
+
+        // Priority 5: Other tokens (contain search but don't start with it)
+        // Sort alphabetically by label
+        return labelA.localeCompare(labelB);
+      },
       onSearch: (address) => {
+        // Scroll to top of dropdown on each search change
+        setTimeout(() => {
+          const dropdown = document.querySelector(
+            ".ant-select-dropdown .rc-virtual-list-holder"
+          );
+          if (dropdown) {
+            dropdown.scrollTop = 0;
+          }
+        }, 0);
+
         if (
           !chain ||
           !address ||
@@ -231,7 +287,7 @@ export const AssetWidget: FC<AssetWidgetProps> = ({
           <Select {...chainSelectProps} />
         </Form.Item>
         <Form.Item label="Token" name={[...keys, "token"]}>
-          <Select {...tokenSelectProps} />
+          <Select {...tokenSelectProps} ref={selectRef} />
         </Form.Item>
         <Form.Item name={[...keys, "address"]} noStyle>
           <Input type="hidden" />
