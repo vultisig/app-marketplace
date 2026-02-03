@@ -313,7 +313,7 @@ export const pricingText = ({
   currency: Currency;
 }) => {
   const value = toValueFormat(
-    formatUnits(BigInt(amount * baseValue), 6),
+    formatUnits(BigInt(Math.floor(amount * baseValue)), 6),
     currency,
     8,
   );
