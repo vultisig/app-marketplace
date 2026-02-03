@@ -77,14 +77,14 @@ export const DefaultLayout = () => {
       },
     },
     {
-      icon: theme === "light" ? <MoonIcon /> : <SunIcon />,
+      icon: theme === "light" ? <SunIcon /> : <MoonIcon />,
       key: "4",
       label: (
         <HStack
           $style={{ alignItems: "center", justifyContent: "space-between" }}
         >
           <span>Theme</span>
-          <span>{theme === "light" ? "Dark" : "Light"}</span>
+          <span>{theme === "light" ? "Light" : "Dark"}</span>
         </HStack>
       ),
       onClick: () => {
