@@ -3,11 +3,11 @@ import { useEffect, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import { useTheme } from "styled-components";
 
+import { appReport } from "@/api/store";
 import { StatusModal } from "@/components/StatusModal";
 import { useGoBack } from "@/hooks/useGoBack";
 import { Button } from "@/toolkits/Button";
 import { Stack, VStack } from "@/toolkits/Stack";
-import { appReport } from "@/utils/api";
 import { modalHash } from "@/utils/constants";
 import { ReportForm } from "@/utils/types";
 

@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useTheme } from "styled-components";
 import { formatUnits } from "viem";
 
+import { getApps, getBillings } from "@/api/store";
 import { useCore } from "@/hooks/useCore";
 import { useGoBack } from "@/hooks/useGoBack";
 import { ChevronLeftIcon } from "@/icons/ChevronLeftIcon";
@@ -12,7 +13,6 @@ import { Button } from "@/toolkits/Button";
 import { Divider } from "@/toolkits/Divider";
 import { Spin } from "@/toolkits/Spin";
 import { HStack, Stack, VStack } from "@/toolkits/Stack";
-import { getApps, getBillings } from "@/utils/api";
 import { defaultPageSize, modalHash } from "@/utils/constants";
 import { toValueFormat } from "@/utils/functions";
 import { routeTree } from "@/utils/routes";
@@ -155,6 +155,7 @@ export const BillingPage = () => {
   };
 
   useEffect(() => {
+    // TODO: Update billings API to include app icon and remove getApps API call
     getApps({}).then(({ apps }) => {
       setState((prev) => ({ ...prev, apps }));
     });

@@ -1,6 +1,6 @@
 import { App } from "@/utils/types";
 
-export const faqs: Record<string, App["faqs"]> = {
+export const mockFAQs: Record<string, App["faqs"]> = {
   "vultisig-dca-0000": [
     {
       answer:

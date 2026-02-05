@@ -4,6 +4,7 @@ import { FC, useCallback, useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useTheme } from "styled-components";
 
+import { addReview, getReviews } from "@/api/store";
 import { MiddleTruncate } from "@/components/MiddleTruncate";
 import { useCore } from "@/hooks/useCore";
 import { useGoBack } from "@/hooks/useGoBack";
@@ -13,7 +14,6 @@ import { Divider } from "@/toolkits/Divider";
 import { Rate } from "@/toolkits/Rate";
 import { Spin } from "@/toolkits/Spin";
 import { HStack, Stack, VStack } from "@/toolkits/Stack";
-import { addReview, getReviews } from "@/utils/api";
 import { modalHash } from "@/utils/constants";
 import { App, Review, ReviewForm } from "@/utils/types";
 

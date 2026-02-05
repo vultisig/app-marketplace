@@ -3,11 +3,11 @@ import { FC, useEffect, useState } from "react";
 import { useTheme } from "styled-components";
 import { formatUnits } from "viem";
 
+import { getPrice } from "@/api/third-party/crypto";
 import { AssetProps } from "@/automations/widgets/Asset";
 import { useCore } from "@/hooks/useCore";
 import { InputDigits } from "@/toolkits/InputDigits";
 import { HStack, Stack, VStack } from "@/toolkits/Stack";
-import { getPrice } from "@/utils/api";
 import { toNumberFormat, toValueFormat } from "@/utils/functions";
 
 export const AutomationFormAmountInput: FC<

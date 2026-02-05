@@ -19,6 +19,12 @@ import { useTheme } from "styled-components";
 import { v4 as uuidv4 } from "uuid";
 import { parseUnits } from "viem";
 
+import {
+  addAutomation,
+  delAutomation,
+  getAutomations,
+  getRecipeSuggestion,
+} from "@/api/store";
 import { AutomationFormAddressInput } from "@/automations/components/FormAddressInput";
 import { AutomationFormAmountInput } from "@/automations/components/FormAmountInput";
 import { AutomationFormCheckboxDate } from "@/automations/components/FormCheckboxDate";
@@ -46,12 +52,6 @@ import { Button } from "@/toolkits/Button";
 import { Divider } from "@/toolkits/Divider";
 import { Spin } from "@/toolkits/Spin";
 import { HStack, Stack, VStack } from "@/toolkits/Stack";
-import {
-  addAutomation,
-  delAutomation,
-  getAutomations,
-  getRecipeSuggestion,
-} from "@/utils/api";
 import { nativeTokens } from "@/utils/chain";
 import { defaultPageSize, modalHash } from "@/utils/constants";
 import { personalSign } from "@/utils/extension";

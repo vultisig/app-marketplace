@@ -4,6 +4,9 @@ import { hexlify, randomBytes } from "ethers";
 import { jwtDecode } from "jwt-decode";
 import { FC, ReactNode, useCallback, useEffect, useState } from "react";
 
+import { setUnauthorizedHandler } from "@/api/client";
+import { delAuthToken, getAuthToken, getFeeAppStatus } from "@/api/store";
+import { getBaseValue } from "@/api/third-party/crypto";
 import { CoreContext, CoreContextProps } from "@/context/Core";
 import { useQueries } from "@/hooks/useQueries";
 import { storageKeys } from "@/storage/constants";
@@ -15,13 +18,6 @@ import { useLocalStorageWatcher } from "@/storage/hooks/useLocalStorageWatcher";
 import { getTheme, setTheme as setThemeStorage } from "@/storage/theme";
 import { delToken, getToken, setToken } from "@/storage/token";
 import { delVaultId, getVaultId, setVaultId } from "@/storage/vaultId";
-import {
-  delAuthToken,
-  getAuthToken,
-  getBaseValue,
-  getFeeAppStatus,
-  setUnauthorizedHandler,
-} from "@/utils/api";
 import { feeAppId } from "@/utils/constants";
 import { Currency } from "@/utils/currency";
 import {
