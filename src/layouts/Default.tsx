@@ -21,9 +21,9 @@ import { MoonIcon } from "@/icons/MoonIcon";
 import { SunIcon } from "@/icons/SunIcon";
 import { VultisigLogoIcon } from "@/icons/VultisigLogoIcon";
 import { ZapIcon } from "@/icons/ZapIcon";
+import { getVaults } from "@/storage/vaults";
 import { HStack, Stack, VStack } from "@/toolkits/Stack";
 import { modalHash } from "@/utils/constants";
-import { getVault } from "@/utils/extension";
 import { routeTree } from "@/utils/routes";
 
 const GlobalStyle = createGlobalStyle`
@@ -113,15 +113,9 @@ export const DefaultLayout = () => {
   useEffect(() => {
     if (isNotSupport) return;
 
-    const timeoutId = setTimeout(() => {
-      getVault()
-        .then((vault) => {
-          if (vault) connect();
-        })
-        .catch(() => {});
-    }, 200);
+    const [vault] = getVaults();
 
-    return () => clearTimeout(timeoutId);
+    if (vault) connect();
   }, [connect, isNotSupport]);
 
   return isNotSupport ? (

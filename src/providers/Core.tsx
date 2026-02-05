@@ -16,8 +16,7 @@ import {
 } from "@/storage/currency";
 import { useLocalStorageWatcher } from "@/storage/hooks/useLocalStorageWatcher";
 import { getTheme, setTheme as setThemeStorage } from "@/storage/theme";
-import { delToken, getToken, setToken } from "@/storage/token";
-import { delVaultId, getVaultId, setVaultId } from "@/storage/vaultId";
+import { getVaults, setVaults } from "@/storage/vaults";
 import { feeAppId } from "@/utils/constants";
 import { Currency } from "@/utils/currency";
 import {
@@ -27,6 +26,7 @@ import {
   personalSign,
 } from "@/utils/extension";
 import { Theme } from "@/utils/theme";
+import { Vault } from "@/utils/types";
 
 type StateProps = Pick<
   CoreContextProps,
@@ -53,8 +53,7 @@ export const CoreProvider: FC<{ children: ReactNode }> = ({ children }) => {
 
   const clear = useCallback(() => {
     disconnectFromExtension().finally(() => {
-      delToken(getVaultId());
-      delVaultId();
+      setVaults([]);
       setState((prevState) => ({
         ...prevState,
         address: undefined,
@@ -64,104 +63,65 @@ export const CoreProvider: FC<{ children: ReactNode }> = ({ children }) => {
   }, []);
 
   const connect = useCallback(() => {
-    connectToExtension()
-      .then((address: string) =>
-        getVault()
-          .then(async (vault) => {
-            const vultisig = new Vultisig({ storage: new MemoryStorage() });
-            const {
-              name,
-              hexChainCode,
-              localPartyId,
-              parties,
-              publicKeyEcdsa,
-              publicKeyEddsa,
-              uid,
-            } = vault;
+    const [vault] = getVaults();
 
-            return vultisig.initialize().then(() =>
-              vultisig.storage
-                .set<VaultBase["data"]>(`vault:${uid}`, {
-                  publicKeys: { ecdsa: publicKeyEcdsa, eddsa: publicKeyEddsa },
-                  hexChainCode,
-                  signers: parties,
-                  localPartyId,
-                  createdAt: Date.now(),
-                  libType: "DKLS",
-                  isEncrypted: false,
-                  type: "fast",
-                  id: uid,
-                  name,
-                  isBackedUp: false,
-                  order: 1,
-                  folderId: undefined,
-                  lastModified: Date.now(),
-                  currency: "",
-                  chains: [],
-                  tokens: {},
-                  lastValueUpdate: undefined,
-                  vultFileContent: "",
-                })
-                .then(() =>
-                  vultisig.listVaults().then(([vault]) => {
-                    const token = getToken(publicKeyEcdsa);
+    if (vault) {
+      initVault(vault).then((sdkVault) => {
+        setState((prevState) => ({
+          ...prevState,
+          address,
+          vault: sdkVault,
+        }));
+      });
+    } else {
+      connectToExtension()
+        .then((address: string) =>
+          getVault()
+            .then(async (vault) => {
+              return initVault(vault).then((sdkVault) => {
+                const nonce = hexlify(randomBytes(16));
+                const expiryTime = new Date(
+                  Date.now() + 15 * 60 * 1000,
+                ).toISOString();
 
-                    if (token) {
-                      setVaultId(publicKeyEcdsa);
+                const message = JSON.stringify({
+                  message: "Sign into Vultisig Plugin Marketplace",
+                  nonce: nonce,
+                  expiresAt: expiryTime,
+                  address,
+                });
+
+                personalSign(address, message, "connect").then((signature) =>
+                  getAuthToken({
+                    chainCodeHex: vault.hexChainCode,
+                    publicKey: vault.publicKeyEcdsa,
+                    signature,
+                    message,
+                  })
+                    .then(({ accessToken, refreshToken }) => {
+                      setVaults([{ ...vault, accessToken, refreshToken }]);
 
                       setState((prevState) => ({
                         ...prevState,
                         address,
-                        vault,
+                        vault: sdkVault,
                       }));
-                    } else {
-                      const nonce = hexlify(randomBytes(16));
-                      const expiryTime = new Date(
-                        Date.now() + 15 * 60 * 1000,
-                      ).toISOString();
 
-                      const message = JSON.stringify({
-                        message: "Sign into Vultisig Plugin Marketplace",
-                        nonce: nonce,
-                        expiresAt: expiryTime,
-                        address,
-                      });
-
-                      personalSign(address, message, "connect").then(
-                        (signature) =>
-                          getAuthToken({
-                            chainCodeHex: hexChainCode,
-                            publicKey: publicKeyEcdsa,
-                            signature,
-                            message,
-                          })
-                            .then((newToken) => {
-                              setToken(publicKeyEcdsa, newToken);
-                              setVaultId(publicKeyEcdsa);
-
-                              setState((prevState) => ({
-                                ...prevState,
-                                address,
-                                vault,
-                              }));
-
-                              messageAPI.success("Successfully authenticated!");
-                            })
-                            .catch(() => {
-                              messageAPI.error("Authentication failed!");
-                            }),
-                      );
-                    }
-                  }),
-                ),
-            );
-          })
-          .catch((error: Error) => {
-            messageAPI.error(error.message);
-            clear();
-          }),
-      )
-      .catch((error: Error) => messageAPI.error(error.message));
+                      messageAPI.success("Successfully authenticated!");
+                    })
+                    .catch(() => {
+                      messageAPI.error("Authentication failed!");
+                    }),
+                );
+              });
+            })
+            .catch((error: Error) => {
+              messageAPI.error(error.message);
+              clear();
+            }),
+        )
+        .catch((error: Error) => messageAPI.error(error.message));
+    }
   }, [clear, messageAPI]);
 
   const disconnect = () => {
@@ -171,11 +131,11 @@ export const CoreProvider: FC<{ children: ReactNode }> = ({ children }) => {
       okType: "default",
       cancelText: "No",
       onOk() {
-        const token = getToken(getVaultId());
+        const [vault] = getVaults();
 
         try {
           const { token_id } = jwtDecode<{ token_id: string }>(
-            token?.accessToken,
+            vault?.accessToken,
           );
 
           delAuthToken(token_id).finally(clear);
@@ -184,6 +144,45 @@ export const CoreProvider: FC<{ children: ReactNode }> = ({ children }) => {
         }
       },
     });
+  };
+
+  const initVault = async (vault: Vault): Promise<VaultBase> => {
+    const vultisig = new Vultisig({ storage: new MemoryStorage() });
+    const {
+      hexChainCode,
+      localPartyId,
+      name,
+      parties,
+      publicKeyEcdsa,
+      publicKeyEddsa,
+      uid,
+    } = vault;
+
+    return vultisig.initialize().then(() =>
+      vultisig.storage
+        .set<VaultBase["data"]>(`vault:${uid}`, {
+          publicKeys: { ecdsa: publicKeyEcdsa, eddsa: publicKeyEddsa },
+          hexChainCode,
+          signers: parties,
+          localPartyId,
+          createdAt: Date.now(),
+          libType: "DKLS",
+          isEncrypted: false,
+          type: "fast",
+          id: uid,
+          name,
+          isBackedUp: false,
+          order: 1,
+          folderId: undefined,
+          lastModified: Date.now(),
+          currency: "",
+          chains: [],
+          tokens: {},
+          lastValueUpdate: undefined,
+          vultFileContent: "",
+        })
+        .then(() => vultisig.listVaults().then(([vault]) => vault)),
+    );
   };
 
   const setCurrency = (currency: Currency, fromStorage?: boolean) => {

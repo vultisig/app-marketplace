@@ -46,7 +46,6 @@ import { ChevronRightIcon } from "@/icons/ChevronRightIcon";
 import { CrossIcon } from "@/icons/CrossIcon";
 import { TrashIcon } from "@/icons/TrashIcon";
 import { PolicySchema } from "@/proto/policy_pb";
-import { getVaultId } from "@/storage/vaultId";
 import { Button } from "@/toolkits/Button";
 import { Divider } from "@/toolkits/Divider";
 import { Spin } from "@/toolkits/Spin";
@@ -125,7 +124,7 @@ export const RecurringSwapsForm: FC<AutomationFormProps> = ({
     requirements,
   } = schema;
   const { messageAPI, modalAPI } = useAntd();
-  const { address = "" } = useCore();
+  const { address = "", vault } = useCore();
   const { discard, discardHolder } = useDiscard();
   const { hash } = useLocation();
   const { id: appId = "" } = useParams();
@@ -405,7 +404,7 @@ export const RecurringSwapsForm: FC<AutomationFormProps> = ({
   };
 
   const handleStep = () => {
-    if (!configuration) return;
+    if (!configuration || !vault) return;
 
     if (step === 1) {
       form.resetFields();
@@ -457,7 +456,7 @@ export const RecurringSwapsForm: FC<AutomationFormProps> = ({
                   pluginId: id,
                   pluginVersion: String(pluginVersion),
                   policyVersion: 0,
-                  publicKey: getVaultId(),
+                  publicKey: vault.publicKeys.ecdsa,
                   recipe,
                 };
 

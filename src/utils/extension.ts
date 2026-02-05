@@ -3,6 +3,7 @@ import { randomBytes } from "crypto";
 
 import { reshareVault } from "@/api/store";
 import { vultiApiUrl } from "@/utils/constants";
+import { Vault } from "@/utils/types";
 
 type VultisigProviderItem = {
   request: <T>(params: { method: string; params?: unknown[] }) => Promise<T>;
@@ -15,16 +16,7 @@ type VultisigProvider = {
   ripple: VultisigProviderItem;
   zcash: VultisigProviderItem;
   plugin: VultisigProviderItem;
-  getVault: () => Promise<{
-    hexChainCode: string;
-    isFastVault: boolean;
-    localPartyId: string;
-    name: string;
-    parties: string[];
-    publicKeyEcdsa: string;
-    publicKeyEddsa: string;
-    uid: string;
-  }>;
+  getVault: () => Promise<Vault>;
 };
 
 declare global {

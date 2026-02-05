@@ -217,4 +217,15 @@ export type Transaction = {
   updatedAt: string;
 };
 
+export type Vault = {
+  hexChainCode: string;
+  isFastVault: boolean;
+  localPartyId: string;
+  name: string;
+  parties: string[];
+  publicKeyEcdsa: string;
+  publicKeyEddsa: string;
+  uid: string;
+};
+
 type Widget = "#/definitions/asset";

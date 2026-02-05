@@ -47,7 +47,6 @@ import { CrossIcon } from "@/icons/CrossIcon";
 import { PencilLineIcon } from "@/icons/PencilLineIcon";
 import { TrashIcon } from "@/icons/TrashIcon";
 import { PolicySchema } from "@/proto/policy_pb";
-import { getVaultId } from "@/storage/vaultId";
 import { Button } from "@/toolkits/Button";
 import { Divider } from "@/toolkits/Divider";
 import { Spin } from "@/toolkits/Spin";
@@ -129,7 +128,7 @@ export const RecurringSendsForm: FC<AutomationFormProps> = ({
   const { id, pricing } = app;
   const { configuration, pluginId, pluginVersion, requirements } = schema;
   const { messageAPI, modalAPI } = useAntd();
-  const { address = "" } = useCore();
+  const { address = "", vault } = useCore();
   const { hash } = useLocation();
   const { discard, discardHolder } = useDiscard();
   const { id: appId = "" } = useParams();
@@ -414,7 +413,7 @@ export const RecurringSendsForm: FC<AutomationFormProps> = ({
   };
 
   const handleStep = (values: DataProps) => {
-    if (!configuration) return;
+    if (!configuration || !vault) return;
 
     if (step === 4) {
       setState((prev) => ({ ...prev, submitting: true }));
@@ -459,7 +458,7 @@ export const RecurringSendsForm: FC<AutomationFormProps> = ({
             pluginId: id,
             pluginVersion: String(pluginVersion),
             policyVersion: 0,
-            publicKey: getVaultId(),
+            publicKey: vault.publicKeys.ecdsa,
             recipe,
           };
 
