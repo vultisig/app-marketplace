@@ -116,7 +116,7 @@ export const getCategories = async (): Promise<Category[]> => {
 };
 
 export const getFeeAppStatus = async (): Promise<FeeAppStatus> => {
-  const status = await apiClient.get<FeeAppStatus>("/fee/status");
+  const status = await apiClient.getFlexible<FeeAppStatus>("/fee/status");
   const isInstalled = await isAppInstalled(feeAppId);
   return { ...status, isInstalled };
 };

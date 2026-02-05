@@ -71,7 +71,9 @@ api.interceptors.request.use(
 
     return {
       ...config,
-      headers: config.headers.setAuthorization(`Bearer ${newToken}`),
+      headers: config.headers.setAuthorization(
+        `Bearer ${newToken.accessToken}`,
+      ),
     };
   },
   (error) => Promise.reject(error),
@@ -110,6 +112,27 @@ const get = async <T>(url: string, config?: AxiosRequestConfig): Promise<T> => {
     .get<APIResponse<T>>(url, config)
     .then(({ data }) => toCamelCase(data.data));
 };
+//TODO: remove this function after backend fully migrate to new APIResponse format
+const getFlexible = async <T>(
+  url: string,
+  config?: AxiosRequestConfig,
+): Promise<T> => {
+  return await api.get<APIResponse<T> | T>(url, config).then(({ data }) => {
+    // Try to detect if it's wrapped in APIResponse format
+    if (
+      data &&
+      typeof data === "object" &&
+      "data" in data &&
+      "status" in data &&
+      "timestamp" in data
+    ) {
+      // It's an APIResponse<T>, extract the data field
+      return toCamelCase((data as APIResponse<T>).data);
+    }
+    // It's already in the direct format T
+    return toCamelCase(data as T);
+  });
+};
 
 const post = async <T>(
   url: string,
@@ -134,6 +157,8 @@ const put = async <T>(
 export const apiClient = {
   del,
   get,
+  //TODO: remove getFlexible after backend fully migrate to new APIResponse format
+  getFlexible,
   post,
   put,
 };
