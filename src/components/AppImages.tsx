@@ -1,10 +1,10 @@
-import { FC } from "react";
+import { FC, useMemo } from "react";
 
 import { HStack, Stack, VStack } from "@/toolkits/Stack";
 
 export const AppImages: FC<{ images: string[] }> = ({ images }) => {
-  const left = images.filter((_, i) => i % 2 === 0);
-  const right = images.filter((_, i) => i % 2 === 1);
+  const left = useMemo(() => images.filter((_, i) => i % 2 === 0), [images]);
+  const right = useMemo(() => images.filter((_, i) => i % 2 === 1), [images]);
 
   return (
     <HStack $style={{ gap: "16px" }}>
