@@ -39,7 +39,7 @@ import { MiddleTruncate } from "@/components/MiddleTruncate";
 import { StatusModal } from "@/components/StatusModal";
 import { TokenImage } from "@/components/TokenImage";
 import { useAntd } from "@/hooks/useAntd";
-import { useCore } from "@/hooks/useCore";
+import { useApp } from "@/hooks/useApp";
 import { useDiscard } from "@/hooks/useDiscard";
 import { useGoBack } from "@/hooks/useGoBack";
 import { useQueries } from "@/hooks/useQueries";
@@ -53,7 +53,6 @@ import { Spin } from "@/toolkits/Spin";
 import { HStack, Stack, VStack } from "@/toolkits/Stack";
 import { nativeTokens } from "@/utils/chain";
 import { defaultPageSize, modalHash } from "@/utils/constants";
-import { personalSign } from "@/utils/extension";
 import { frequencies } from "@/utils/frequencies";
 import {
   getConfiguration,
@@ -125,10 +124,9 @@ export const RecurringSendsForm: FC<AutomationFormProps> = ({
     submitting,
     total,
   } = state;
-  const { id, pricing } = app;
-  const { configuration, pluginId, pluginVersion, requirements } = schema;
+  const { configuration, pluginVersion, requirements } = schema;
   const { messageAPI, modalAPI } = useAntd();
-  const { address = "", vault } = useCore();
+  const { personalSign, vault } = useApp();
   const { hash } = useLocation();
   const { discard, discardHolder } = useDiscard();
   const { id: appId = "" } = useParams();
@@ -433,14 +431,14 @@ export const RecurringSendsForm: FC<AutomationFormProps> = ({
         configuration.definitions,
       );
 
-      getRecipeSuggestion(id, configurationData)
+      getRecipeSuggestion(appId, configurationData)
         .then(({ maxTxsPerWindow, rateLimitWindow, rules = [] }) => {
           const jsonData = create(PolicySchema, {
             author: "",
             configuration: configurationData,
             description: "",
-            feePolicies: getFeePolicies(pricing),
-            id: pluginId,
+            feePolicies: getFeePolicies(app.pricing),
+            id: appId,
             maxTxsPerWindow,
             name: values.name || "",
             rateLimitWindow,
@@ -455,7 +453,7 @@ export const RecurringSendsForm: FC<AutomationFormProps> = ({
           const policy: AppAutomation = {
             active: true,
             id: uuidv4(),
-            pluginId: id,
+            pluginId: appId,
             pluginVersion: String(pluginVersion),
             policyVersion: 0,
             publicKey: vault.publicKeys.ecdsa,
@@ -464,7 +462,7 @@ export const RecurringSendsForm: FC<AutomationFormProps> = ({
 
           const message = policyToHexMessage(policy);
 
-          personalSign(address, message, "policy", id)
+          personalSign(message, appId)
             .then((signature) => {
               addAutomation({ ...policy, signature })
                 .then(() => {

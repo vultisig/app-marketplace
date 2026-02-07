@@ -38,7 +38,7 @@ import { AssetProps, AssetWidget } from "@/automations/widgets/Asset";
 import { StatusModal } from "@/components/StatusModal";
 import { TokenImage } from "@/components/TokenImage";
 import { useAntd } from "@/hooks/useAntd";
-import { useCore } from "@/hooks/useCore";
+import { useApp } from "@/hooks/useApp";
 import { useDiscard } from "@/hooks/useDiscard";
 import { useGoBack } from "@/hooks/useGoBack";
 import { useQueries } from "@/hooks/useQueries";
@@ -52,7 +52,6 @@ import { Spin } from "@/toolkits/Spin";
 import { HStack, Stack, VStack } from "@/toolkits/Stack";
 import { nativeTokens } from "@/utils/chain";
 import { defaultPageSize, modalHash } from "@/utils/constants";
-import { personalSign } from "@/utils/extension";
 import { frequencies, Frequency } from "@/utils/frequencies";
 import {
   getConfiguration,
@@ -115,16 +114,10 @@ export const RecurringSwapsForm: FC<AutomationFormProps> = ({
     submitting,
     total,
   } = state;
-  const { id, pricing } = app;
-  const {
-    configuration,
-    configurationExample,
-    pluginId,
-    pluginVersion,
-    requirements,
-  } = schema;
+  const { configuration, configurationExample, pluginVersion, requirements } =
+    schema;
   const { messageAPI, modalAPI } = useAntd();
-  const { address = "", vault } = useCore();
+  const { personalSign, vault } = useApp();
   const { discard, discardHolder } = useDiscard();
   const { hash } = useLocation();
   const { id: appId = "" } = useParams();
@@ -431,14 +424,14 @@ export const RecurringSwapsForm: FC<AutomationFormProps> = ({
               configuration.definitions,
             );
 
-            getRecipeSuggestion(id, configurationData)
+            getRecipeSuggestion(appId, configurationData)
               .then(({ maxTxsPerWindow, rateLimitWindow, rules = [] }) => {
                 const jsonData = create(PolicySchema, {
                   author: "",
                   configuration: configurationData,
                   description: "",
-                  feePolicies: getFeePolicies(pricing),
-                  id: pluginId,
+                  feePolicies: getFeePolicies(app.pricing),
+                  id: appId,
                   maxTxsPerWindow,
                   name: values.name || "",
                   rateLimitWindow,
@@ -453,7 +446,7 @@ export const RecurringSwapsForm: FC<AutomationFormProps> = ({
                 const policy: AppAutomation = {
                   active: true,
                   id: uuidv4(),
-                  pluginId: id,
+                  pluginId: appId,
                   pluginVersion: String(pluginVersion),
                   policyVersion: 0,
                   publicKey: vault.publicKeys.ecdsa,
@@ -462,7 +455,7 @@ export const RecurringSwapsForm: FC<AutomationFormProps> = ({
 
                 const message = policyToHexMessage(policy);
 
-                personalSign(address, message, "policy", id)
+                personalSign(message, appId)
                   .then((signature) => {
                     addAutomation({ ...policy, signature })
                       .then(() => {
@@ -915,7 +908,7 @@ const TemplateItem: FC<{
   setAsset: (asset: AssetProps) => void;
 }> = ({ asset, setAsset }) => {
   const [token, setToken] = useState<Token | undefined>(undefined);
-  const { vault } = useCore();
+  const { vault } = useApp();
   const { getTokenData } = useQueries();
   const colors = useTheme();
 

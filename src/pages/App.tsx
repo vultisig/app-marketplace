@@ -11,6 +11,7 @@ import { AppReviews } from "@/components/AppReviews";
 import { FreeTrialBanner } from "@/components/FreeTrialBanner";
 import { StatusModal } from "@/components/StatusModal";
 import { useAntd } from "@/hooks/useAntd";
+import { useApp } from "@/hooks/useApp";
 import { useCore } from "@/hooks/useCore";
 import { useGoBack } from "@/hooks/useGoBack";
 import { useQueries } from "@/hooks/useQueries";
@@ -31,7 +32,6 @@ import {
   recurringSendsAppId,
   recurringSwapsAppId,
 } from "@/utils/constants";
-import { startReshareSession } from "@/utils/extension";
 import {
   pricingText,
   snakeCaseToTitle,
@@ -51,7 +51,8 @@ export const AppPage = () => {
   const [state, setState] = useState<StateProps>({});
   const { app, isInstalled, loading, schema } = state;
   const { messageAPI } = useAntd();
-  const { baseValue, connect, currency, feeAppStatus, vault } = useCore();
+  const { connect, feeAppStatus, startReshare, vault } = useApp();
+  const { baseValue, currency } = useCore();
   const { hash } = useLocation();
   const { id = "" } = useParams();
   const { getAppData } = useQueries();
@@ -94,7 +95,8 @@ export const AppPage = () => {
 
     setState((prevState) => ({ ...prevState, loading: true }));
 
-    const isInstalled = await startReshareSession(id, vault.data);
+    const isInstalled = await startReshare(id);
+    
     if (isInstalled) {
       setState((prevState) => ({
         ...prevState,

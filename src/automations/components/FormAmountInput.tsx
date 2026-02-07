@@ -5,6 +5,7 @@ import { formatUnits } from "viem";
 
 import { getPrice } from "@/api/third-party/crypto";
 import { AssetProps } from "@/automations/widgets/Asset";
+import { useApp } from "@/hooks/useApp";
 import { useCore } from "@/hooks/useCore";
 import { InputDigits } from "@/toolkits/InputDigits";
 import { HStack, Stack, VStack } from "@/toolkits/Stack";
@@ -15,7 +16,8 @@ export const AutomationFormAmountInput: FC<
 > = ({ asset, disabled, name, ...rest }) => {
   const [balance, setBalance] = useState<string>("");
   const [price, setPrice] = useState<number>(0);
-  const { baseValue, currency, vault } = useCore();
+  const { vault } = useApp();
+  const { baseValue, currency } = useCore();
   const colors = useTheme();
   const form = Form.useFormInstance();
   const amount = Form.useWatch(name, form);

@@ -3,7 +3,7 @@ import { FC, useEffect, useState } from "react";
 import { useTheme } from "styled-components";
 
 import { TokenImage } from "@/components/TokenImage";
-import { useCore } from "@/hooks/useCore";
+import { useApp } from "@/hooks/useApp";
 import { useQueries } from "@/hooks/useQueries";
 import { useWalletCore } from "@/hooks/useWalletCore";
 import { Divider } from "@/toolkits/Divider";
@@ -45,7 +45,7 @@ export const AssetWidget: FC<AssetWidgetProps> = ({
 }) => {
   const [state, setState] = useState<StateProps>({ tokens: [] });
   const { loading, tokens } = state;
-  const { vault } = useCore();
+  const { vault } = useApp();
   const { getTokenData, getTokenList } = useQueries();
   const { isValidAddress } = useWalletCore();
   const colors = useTheme();

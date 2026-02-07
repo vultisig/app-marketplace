@@ -3,13 +3,13 @@ import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { useTheme } from "styled-components";
 
-import { useCore } from "@/hooks/useCore";
+import { useApp } from "@/hooks/useApp";
 import { CircleInfoIcon } from "@/icons/CircleInfoIcon";
 import { HStack, Stack } from "@/toolkits/Stack";
 import { modalHash } from "@/utils/constants";
 
 export const FreeTrialBanner = () => {
-  const { feeApp, feeAppStatus } = useCore();
+  const { feeApp, feeAppStatus } = useApp();
   const colors = useTheme();
 
   const trialRemaining = useMemo(() => {

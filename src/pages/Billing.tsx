@@ -6,6 +6,7 @@ import { useTheme } from "styled-components";
 import { formatUnits } from "viem";
 
 import { getApps, getBillings } from "@/api/store";
+import { useApp } from "@/hooks/useApp";
 import { useCore } from "@/hooks/useCore";
 import { useGoBack } from "@/hooks/useGoBack";
 import { ChevronLeftIcon } from "@/icons/ChevronLeftIcon";
@@ -35,7 +36,8 @@ export const BillingPage = () => {
     total: 0,
   });
   const { apps, billings, current, loading, total } = state;
-  const { baseValue, currency, feeApp, feeAppStatus } = useCore();
+  const { feeApp, feeAppStatus } = useApp();
+  const { baseValue, currency } = useCore();
   const goBack = useGoBack();
   const navigate = useNavigate();
   const colors = useTheme();

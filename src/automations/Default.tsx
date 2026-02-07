@@ -27,7 +27,7 @@ import { AutomationFormSuccess } from "@/automations/components/FormSuccess";
 import { AutomationFormTitle } from "@/automations/components/FormTitle";
 import { MiddleTruncate } from "@/components/MiddleTruncate";
 import { useAntd } from "@/hooks/useAntd";
-import { useCore } from "@/hooks/useCore";
+import { useApp } from "@/hooks/useApp";
 import { useGoBack } from "@/hooks/useGoBack";
 import { CrossIcon } from "@/icons/CrossIcon";
 import { TrashIcon } from "@/icons/TrashIcon";
@@ -43,7 +43,6 @@ import { Button } from "@/toolkits/Button";
 import { Divider } from "@/toolkits/Divider";
 import { HStack, Stack, VStack } from "@/toolkits/Stack";
 import { defaultPageSize, modalHash } from "@/utils/constants";
-import { personalSign } from "@/utils/extension";
 import {
   camelCaseToTitle,
   getConfiguration,
@@ -92,17 +91,15 @@ export const AutomationForm: FC<AutomationFormProps> = ({ app, schema }) => {
     submitting,
     total,
   } = state;
-  const { id, pricing } = app;
   const {
     configuration,
-    pluginId,
     pluginName,
     pluginVersion,
     requirements,
     supportedResources,
   } = schema;
   const { messageAPI, modalAPI } = useAntd();
-  const { address = "", vault } = useCore();
+  const { personalSign, vault } = useApp();
   const { hash } = useLocation();
   const { id: appId = "" } = useParams();
   const [form] = Form.useForm<FormFieldType>();
@@ -242,8 +239,8 @@ export const AutomationForm: FC<AutomationFormProps> = ({ app, schema }) => {
         ? getConfiguration(configuration, values, configuration.definitions)
         : undefined,
       description: "",
-      feePolicies: getFeePolicies(pricing),
-      id: pluginId,
+      feePolicies: getFeePolicies(app.pricing),
+      id: appId,
       name: pluginName,
       rules: rules
         .filter(
@@ -310,7 +307,7 @@ export const AutomationForm: FC<AutomationFormProps> = ({ app, schema }) => {
     const policy: AppAutomation = {
       active: true,
       id: uuidv4(),
-      pluginId: id,
+      pluginId: appId,
       pluginVersion: String(pluginVersion),
       policyVersion: 0,
       publicKey: vault.publicKeys.ecdsa,
@@ -319,7 +316,7 @@ export const AutomationForm: FC<AutomationFormProps> = ({ app, schema }) => {
 
     const message = policyToHexMessage(policy);
 
-    personalSign(address, message, "policy", id)
+    personalSign(message, appId)
       .then((signature) => {
         addAutomation({ ...policy, signature })
           .then(() => {
@@ -352,7 +349,7 @@ export const AutomationForm: FC<AutomationFormProps> = ({ app, schema }) => {
       configuration.definitions,
     );
 
-    getRecipeSuggestion(id, configurationData).then(({ rules = [] }) => {
+    getRecipeSuggestion(appId, configurationData).then(({ rules = [] }) => {
       const formRules = rules.map(
         ({ parameterConstraints, resource, target }) => {
           const params: JsonObject = { resource };
