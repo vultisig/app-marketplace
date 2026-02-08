@@ -643,7 +643,10 @@ export const RecurringSwapsForm: FC<AutomationFormProps> = ({
                   }))}
                 />
               </Form.Item>
-              <AutomationFormCheckboxDate name="startDate" />
+              <AutomationFormCheckboxDate
+                name="startDate"
+                label="Start first Recurring Swap after setup"
+              />
               <AssetWidget chains={supportedChains} keys={["from"]} />
               <AutomationFormAmountInput
                 asset={values?.from}
