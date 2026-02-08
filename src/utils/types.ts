@@ -13,6 +13,12 @@ export type APIResponse<T> = {
   version: string;
 };
 
+export type PluginImage = {
+  id: string;
+  url: string;
+  sort_order: number;
+};
+
 export type App = {
   audited: boolean;
   avgRating: number;
@@ -22,7 +28,7 @@ export type App = {
   faqs: { answer: string; question: string }[];
   features: string[];
   id: string;
-  images: string[];
+  images: PluginImage[];
   installations: number;
   logoUrl: string;
   pricing: AppPricing[];
