@@ -6,8 +6,8 @@ import { VStack } from "@/toolkits/Stack";
 import { Frequency } from "@/utils/frequencies";
 
 export const AutomationFormCheckboxDate: FC<
-  FormItemProps & { disabled?: boolean }
-> = ({ disabled, name, ...rest }) => {
+  FormItemProps & { disabled?: boolean; label?: string }
+> = ({ disabled, label = "Start first Recurring Swap after setup", name, ...rest }) => {
   const checkboxName = `${name}Status`;
   const form = Form.useFormInstance();
   const frequency = Form.useWatch<Frequency>("frequency", form);
@@ -66,9 +66,7 @@ export const AutomationFormCheckboxDate: FC<
   return (
     <VStack $style={{ gap: "16px", gridColumn: "1 / -1" }}>
       <Form.Item name={checkboxName} valuePropName="checked" {...rest}>
-        <Checkbox disabled={disabled}>
-          Start first Recurring Swap after setup
-        </Checkbox>
+        <Checkbox disabled={disabled}>{label}</Checkbox>
       </Form.Item>
       <Form.Item name={name} {...rest} noStyle>
         <Input type="hidden" />
