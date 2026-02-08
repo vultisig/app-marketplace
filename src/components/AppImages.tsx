@@ -7,7 +7,7 @@ import type { PluginImage } from "@/utils/types";
 export const AppImages: FC<{ images: PluginImage[] }> = ({ images }) => {
   const items = useMemo(
     () =>
-      images
+      [...images]
         .sort((a, b) => a.sort_order - b.sort_order)
         .map((image) => ({ key: image.id, data: image.url })),
     [images],
