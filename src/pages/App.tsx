@@ -5,6 +5,7 @@ import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { useTheme } from "styled-components";
 
 import { getRecipeSpecification, isAppInstalled } from "@/api/store";
+import { AppImages } from "@/components/AppImages";
 import { RecurringSendsImages } from "@/components/appImages/RecurringSends";
 import { RecurringSwapsImages } from "@/components/appImages/RecurringSwaps";
 import { AppReviews } from "@/components/AppReviews";
@@ -405,8 +406,14 @@ export const AppPage = () => {
               $style={{ backgroundColor: colors.bgPrimary.toHex() }}
             />
             <Stack id="overview">{app.description}</Stack>
-            {app.id === recurringSendsAppId && <RecurringSendsImages />}
-            {app.id === recurringSwapsAppId && <RecurringSwapsImages />}
+            {app.images.length > 0 ? (
+              <AppImages images={app.images} />
+            ) : (
+              <>
+                {app.id === recurringSendsAppId && <RecurringSendsImages />}
+                {app.id === recurringSwapsAppId && <RecurringSwapsImages />}
+              </>
+            )}
             <Divider light />
             <VStack id="features" $style={{ gap: "24px" }}>
               <Stack

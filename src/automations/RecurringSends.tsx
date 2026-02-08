@@ -709,7 +709,10 @@ export const RecurringSendsForm: FC<AutomationFormProps> = ({
                   }))}
                 />
               </Form.Item>
-              <AutomationFormCheckboxDate name="startDate" />
+              <AutomationFormCheckboxDate
+                name="startDate"
+                label="Start first Recurring Send after setup"
+              />
             </Stack>
             {step === 4 && <Overview {...{ ...values, recipients }} />}
           </Form>
