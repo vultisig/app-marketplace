@@ -25,13 +25,13 @@ export const CoreProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const setCurrency = (currency: Currency, fromStorage?: boolean) => {
     if (!fromStorage) setCurrencyStorage(currency);
 
-    setState((prevState) => ({ ...prevState, currency }));
+    setState((prev) => ({ ...prev, currency }));
   };
 
   const setTheme = (theme: Theme, fromStorage?: boolean) => {
     if (!fromStorage) setThemeStorage(theme);
 
-    setState((prevState) => ({ ...prevState, theme }));
+    setState((prev) => ({ ...prev, theme }));
   };
 
   useLocalStorageWatcher(storageKeys.currency, () => {
@@ -44,7 +44,7 @@ export const CoreProvider: FC<{ children: ReactNode }> = ({ children }) => {
 
   useEffect(() => {
     getBaseValue(currency).then((baseValue) =>
-      setState((prevState) => ({ ...prevState, baseValue })),
+      setState((prev) => ({ ...prev, baseValue })),
     );
   }, [currency]);
 

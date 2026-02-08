@@ -481,8 +481,6 @@ export const RecurringSendsForm: FC<AutomationFormProps> = ({
                 });
             })
             .catch(() => {
-              messageAPI.error("Failed to sign automation");
-
               setState((prev) => ({ ...prev, submitting: false }));
             });
         })

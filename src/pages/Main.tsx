@@ -30,28 +30,28 @@ export const MainPage = () => {
   const [newApp] = apps;
 
   const fetchApps = useCallback((skip: number, filters: AppFilters) => {
-    setState((prevState) => ({ ...prevState, loading: true }));
+    setState((prev) => ({ ...prev, loading: true }));
 
     getApps({ ...filters, skip }).then(({ apps }) => {
-      setState((prevState) => ({ ...prevState, loading: false, apps }));
+      setState((prev) => ({ ...prev, loading: false, apps }));
     });
   }, []);
 
   const debouncedFetchApps = useMemo(
     () => debounce(fetchApps, 500),
-    [fetchApps]
+    [fetchApps],
   );
 
   useEffect(
     () => debouncedFetchApps(0, filters),
-    [debouncedFetchApps, filters]
+    [debouncedFetchApps, filters],
   );
 
   useEffect(() => {
     getCategories()
       .catch(() => [])
       .then((categories) => {
-        setState((prevState) => ({ ...prevState, categories }));
+        setState((prev) => ({ ...prev, categories }));
       });
   }, []);
 

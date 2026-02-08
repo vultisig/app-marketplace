@@ -46,19 +46,19 @@ export const AppReviews: FC<{ app: App; onReload: () => void }> = ({
 
   const fetchReviews = useCallback(
     (skip: number) => {
-      setState((prevState) => ({ ...prevState, loading: true }));
+      setState((prev) => ({ ...prev, loading: true }));
 
       getReviews({ appId, skip })
         .then(({ reviews, totalCount }) => {
-          setState((prevState) => ({
-            ...prevState,
+          setState((prev) => ({
+            ...prev,
             loading: false,
             reviews,
             totalCount,
           }));
         })
         .catch(() => {
-          setState((prevState) => ({ ...prevState, loading: false }));
+          setState((prev) => ({ ...prev, loading: false }));
         });
     },
     [appId],
@@ -69,11 +69,11 @@ export const AppReviews: FC<{ app: App; onReload: () => void }> = ({
 
     const address = await vault.address(chains.Ethereum);
 
-    setState((prevState) => ({ ...prevState, submitting: true }));
+    setState((prev) => ({ ...prev, submitting: true }));
 
     addReview(appId, { ...values, address })
       .then(() => {
-        setState((prevState) => ({ ...prevState, submitting: false }));
+        setState((prev) => ({ ...prev, submitting: false }));
 
         form.resetFields();
 
@@ -84,7 +84,7 @@ export const AppReviews: FC<{ app: App; onReload: () => void }> = ({
         onReload();
       })
       .catch(() => {
-        setState((prevState) => ({ ...prevState, submitting: false }));
+        setState((prev) => ({ ...prev, submitting: false }));
       });
   };
 

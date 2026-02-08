@@ -90,7 +90,10 @@ export const FeeTransactionsPage = () => {
         if (!amount) return "-";
 
         return toValueFormat(
-          formatUnits(BigInt(Math.floor(Number(amount) * baseValue)), feeAsset.decimals),
+          formatUnits(
+            BigInt(Math.floor(Number(amount) * baseValue)),
+            feeAsset.decimals,
+          ),
           currency,
         );
       },
@@ -99,12 +102,12 @@ export const FeeTransactionsPage = () => {
 
   const fetchTransactions = useCallback(
     (skip = 0) => {
-      setState((prevState) => ({ ...prevState, loading: true }));
+      setState((prev) => ({ ...prev, loading: true }));
 
       getFeeTransactions({ appId, skip })
         .then(({ transactions, total }) => {
-          setState((prevState) => ({
-            ...prevState,
+          setState((prev) => ({
+            ...prev,
             current: skip ? Math.floor(skip / defaultPageSize) + 1 : 1,
             loading: false,
             total,
@@ -112,7 +115,7 @@ export const FeeTransactionsPage = () => {
           }));
         })
         .catch(() => {
-          setState((prevState) => ({ ...prevState, loading: false }));
+          setState((prev) => ({ ...prev, loading: false }));
         });
     },
     [appId],

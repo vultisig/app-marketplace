@@ -194,7 +194,7 @@ export const AutomationForm: FC<AutomationFormProps> = ({ app, schema }) => {
 
   const handleBack = () => {
     if (step > 1) {
-      setState((prevState) => ({ ...prevState, step: prevState.step - 1 }));
+      setState((prev) => ({ ...prev, step: prev.step - 1 }));
     } else {
       goBack();
     }
@@ -231,7 +231,7 @@ export const AutomationForm: FC<AutomationFormProps> = ({ app, schema }) => {
   const handleSign = (values: JsonObject, rules: JsonObject[]) => {
     if (!vault) return;
 
-    setState((prevState) => ({ ...prevState, submitting: true }));
+    setState((prev) => ({ ...prev, submitting: true }));
 
     const jsonData = create(PolicySchema, {
       author: "",
@@ -320,7 +320,7 @@ export const AutomationForm: FC<AutomationFormProps> = ({ app, schema }) => {
       .then((signature) => {
         addAutomation({ ...policy, signature })
           .then(() => {
-            setState((prevState) => ({ ...prevState, isAdded: true }));
+            setState((prev) => ({ ...prev, isAdded: true }));
 
             fetchAutomations(0, isActive);
           })
@@ -328,20 +328,18 @@ export const AutomationForm: FC<AutomationFormProps> = ({ app, schema }) => {
             messageAPI.error(error.message);
           })
           .finally(() => {
-            setState((prevState) => ({ ...prevState, submitting: false }));
+            setState((prev) => ({ ...prev, submitting: false }));
           });
       })
-      .catch((error: Error) => {
-        messageAPI.error(error.message);
-
-        setState((prevState) => ({ ...prevState, submitting: false }));
+      .catch(() => {
+        setState((prev) => ({ ...prev, submitting: false }));
       });
   };
 
   const handleSuggest = (values: JsonObject) => {
     if (!configuration) return;
 
-    setState((prevState) => ({ ...prevState, submitting: true }));
+    setState((prev) => ({ ...prev, submitting: true }));
 
     const configurationData = getConfiguration(
       configuration,
@@ -372,13 +370,13 @@ export const AutomationForm: FC<AutomationFormProps> = ({ app, schema }) => {
         form.setFieldValue("rules", formRules);
 
         setTimeout(() => {
-          setState((prevState) => ({ ...prevState, step: steps.length }));
+          setState((prev) => ({ ...prev, step: steps.length }));
 
           handleSign(values, formRules);
         }, 0);
       } else {
-        setState((prevState) => ({
-          ...prevState,
+        setState((prev) => ({
+          ...prev,
           submitting: false,
           step: steps.length,
         }));
@@ -401,8 +399,8 @@ export const AutomationForm: FC<AutomationFormProps> = ({ app, schema }) => {
     if (!visible) return;
 
     form.resetFields();
-    setState((prevState) => ({
-      ...prevState,
+    setState((prev) => ({
+      ...prev,
       isAdded: false,
       submitting: false,
       step: 1,

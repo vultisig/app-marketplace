@@ -474,8 +474,6 @@ export const RecurringSwapsForm: FC<AutomationFormProps> = ({
                   })
                   .catch(() => {
                     setState((prev) => ({ ...prev, submitting: false }));
-
-                    messageAPI.error("Failed to sign automation");
                   });
               })
               .catch(() => {
