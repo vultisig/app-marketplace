@@ -5,7 +5,6 @@ export const storageKeys = {
   onboarding: "hasFinishedOnboarding",
   theme: "theme",
   token: "token",
-  vaultId: "vaultId",
   vaults: "vaults",
 } as const;
 
