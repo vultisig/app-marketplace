@@ -227,10 +227,6 @@ export const AppProvider: FC<{ children: ReactNode }> = ({ children }) => {
   }, [vault]);
 
   useEffect(() => {
-    setUnauthorizedHandler(clear);
-  }, [clear]);
-
-  useEffect(() => {
     updateFeeAppStatus();
   }, [updateFeeAppStatus]);
 
@@ -242,6 +238,8 @@ export const AppProvider: FC<{ children: ReactNode }> = ({ children }) => {
         setState((prev) => ({ ...prev, vault }));
       });
     }
+
+    setUnauthorizedHandler(clear);
 
     getAppData(feeAppId)
       .catch(() => undefined)
