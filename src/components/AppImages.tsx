@@ -2,10 +2,14 @@ import { Masonry } from "antd";
 import { FC, useMemo } from "react";
 
 import { Stack } from "@/toolkits/Stack";
+import type { PluginImage } from "@/utils/types";
 
-export const AppImages: FC<{ images: string[] }> = ({ images }) => {
+export const AppImages: FC<{ images: PluginImage[] }> = ({ images }) => {
   const items = useMemo(
-    () => images.map((src, i) => ({ key: String(i), data: src })),
+    () =>
+      images
+        .sort((a, b) => a.sort_order - b.sort_order)
+        .map((image) => ({ key: image.id, data: image.url })),
     [images],
   );
 
@@ -17,7 +21,7 @@ export const AppImages: FC<{ images: string[] }> = ({ images }) => {
       itemRender={(item) => (
         <Stack
           as="img"
-          alt={`App image ${Number(item.key) + 1}`}
+          alt="App image"
           src={item.data}
           $style={{ borderRadius: "16px", width: "100%" }}
         />
