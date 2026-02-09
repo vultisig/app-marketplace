@@ -1,4 +1,5 @@
 import { AntdProvider } from "@/providers/Antd";
+import { AppProvider } from "@/providers/App";
 import { CoreProvider } from "@/providers/Core";
 import { QueryProvider } from "@/providers/Query";
 import { StyledProvider } from "@/providers/Styled";
@@ -9,7 +10,9 @@ export const App = () => (
     <CoreProvider>
       <StyledProvider>
         <AntdProvider>
-          <Routes />
+          <AppProvider>
+            <Routes />
+          </AppProvider>
         </AntdProvider>
       </StyledProvider>
     </CoreProvider>

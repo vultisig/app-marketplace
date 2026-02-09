@@ -4,7 +4,7 @@ import { useLocation } from "react-router-dom";
 import { useTheme } from "styled-components";
 
 import { StatusModal } from "@/components/StatusModal";
-import { useCore } from "@/hooks/useCore";
+import { useApp } from "@/hooks/useApp";
 import { useGoBack } from "@/hooks/useGoBack";
 import { CircleInfoIcon } from "@/icons/CircleInfoIcon";
 import { CirclePlusIcon } from "@/icons/CirclePlusIcon";
@@ -12,12 +12,11 @@ import { ShieldCheckIcon } from "@/icons/ShieldCheckIcon";
 import { Button } from "@/toolkits/Button";
 import { HStack, Stack, VStack } from "@/toolkits/Stack";
 import { feeAppId, modalHash } from "@/utils/constants";
-import { startReshareSession } from "@/utils/extension";
 
 export const PaymentModal = () => {
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState(1);
-  const { feeApp, feeAppStatus, vault, updateFeeAppStatus } = useCore();
+  const { feeApp, feeAppStatus, startReshare, updateFeeAppStatus } = useApp();
   const { hash } = useLocation();
   const goBack = useGoBack();
   const colors = useTheme();
@@ -42,16 +41,18 @@ export const PaymentModal = () => {
     },
   ];
 
-  const handleInstall = async () => {
-    if (loading || !vault) return;
+  const handleInstall = () => {
+    if (loading) return;
 
     setLoading(true);
 
-    await startReshareSession(feeAppId, vault.data);
-
-    setLoading(false);
-
-    updateFeeAppStatus();
+    startReshare(feeAppId)
+      .then((isInstalled) => {
+        if (isInstalled) updateFeeAppStatus();
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   };
 
   useEffect(() => {

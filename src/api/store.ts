@@ -7,7 +7,7 @@ import {
   PolicySuggestJson,
   PolicySuggestSchema,
 } from "@/proto/policy_pb";
-import { getVaultId } from "@/storage/vaultId";
+import { getVaults } from "@/storage/vaults";
 import {
   defaultPageSize,
   feeAppId,
@@ -271,7 +271,12 @@ export const getTransactions = async ({
 
 export const isAppInstalled = async (id: string): Promise<boolean> => {
   try {
-    await apiClient.get(`/vault/exist/${id}/${getVaultId()}`);
+    const [vault] = getVaults();
+
+    if (!vault) return false;
+
+    await apiClient.get(`/vault/exist/${id}/${vault.publicKeyEcdsa}`);
+
     return true;
   } catch {
     return false;

@@ -2,8 +2,7 @@ import axios, { AxiosRequestConfig } from "axios";
 import dayjs from "dayjs";
 import { jwtDecode } from "jwt-decode";
 
-import { getToken, setToken } from "@/storage/token";
-import { getVaultId } from "@/storage/vaultId";
+import { getVaults, setVaults } from "@/storage/vaults";
 import { storeApiUrl } from "@/utils/constants";
 import { toCamelCase, toSnakeCase } from "@/utils/functions";
 import { APIResponse, AuthToken } from "@/utils/types";
@@ -11,21 +10,35 @@ import { APIResponse, AuthToken } from "@/utils/types";
 class TokenManager {
   private refreshPromise: Promise<AuthToken> | null = null;
 
-  async check(token: AuthToken): Promise<AuthToken> {
-    const now = dayjs().unix();
-
+  private isExpired(token: string): boolean {
     try {
-      const { exp } = jwtDecode<{ exp: number }>(token.accessToken);
+      const { exp } = jwtDecode<{ exp: number }>(token);
 
-      if (exp < now) return this.refresh(token);
-
-      return token;
+      return exp < dayjs().unix();
     } catch {
-      throw new Error("Invalid token");
+      return true;
     }
   }
 
-  async refresh({ refreshToken }: AuthToken): Promise<AuthToken> {
+  async check(token: AuthToken): Promise<AuthToken | null> {
+    const { accessToken, refreshToken } = token;
+
+    const isAccessTokenExpired = this.isExpired(accessToken);
+
+    if (isAccessTokenExpired) {
+      const isRefreshTokenExpired = this.isExpired(refreshToken);
+
+      if (isRefreshTokenExpired) return null;
+
+      const newToken = await this.refresh(refreshToken).catch(() => null);
+
+      return newToken;
+    } else {
+      return token;
+    }
+  }
+
+  async refresh(refreshToken: string): Promise<AuthToken> {
     // If a refresh is already happening, wait for it
     if (this.refreshPromise) return this.refreshPromise;
 
@@ -55,25 +68,22 @@ let onUnauthorized: (() => void) | null = null;
 
 api.interceptors.request.use(
   async (config) => {
-    const publicKey = getVaultId();
+    const vaults = getVaults();
+    const [vault, ...rest] = vaults;
 
-    if (!publicKey) return config;
+    if (!vault) return config;
 
-    const token = getToken(publicKey);
+    const { accessToken, refreshToken } = vault;
+
+    const token = await tokenManager.check({ accessToken, refreshToken });
 
     if (!token) return config;
 
-    const newToken = await tokenManager.check(token).catch(() => null);
-
-    if (!newToken) return config;
-
-    setToken(publicKey, newToken);
+    setVaults([{ ...vault, ...token }, ...rest]);
 
     return {
       ...config,
-      headers: config.headers.setAuthorization(
-        `Bearer ${newToken.accessToken}`,
-      ),
+      headers: config.headers.setAuthorization(`Bearer ${token.accessToken}`),
     };
   },
   (error) => Promise.reject(error),
@@ -161,6 +171,7 @@ export const apiClient = {
   getFlexible,
   post,
   put,
+  tokenManager,
 };
 
 export const setUnauthorizedHandler = (fn: () => void) => {

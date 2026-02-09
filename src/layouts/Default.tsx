@@ -1,5 +1,4 @@
 import { Dropdown, MenuProps } from "antd";
-import { useEffect } from "react";
 import { useMediaQuery } from "react-responsive";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import { createGlobalStyle, useTheme } from "styled-components";
@@ -7,8 +6,8 @@ import { createGlobalStyle, useTheme } from "styled-components";
 import { CurrencyModal } from "@/components/CurrencyModal";
 import { OnboardingModal } from "@/components/OnboardingModal";
 import { PaymentModal } from "@/components/PaymentModal";
+import { useApp } from "@/hooks/useApp";
 import { useCore } from "@/hooks/useCore";
-import { useExtension } from "@/hooks/useExtension";
 import { ArrowBoxLeftIcon } from "@/icons/ArrowBoxLeftIcon";
 import { ArrowBoxRightIcon } from "@/icons/ArrowBoxRightIcon";
 import { BoxIcon } from "@/icons/BoxIcon";
@@ -23,7 +22,6 @@ import { VultisigLogoIcon } from "@/icons/VultisigLogoIcon";
 import { ZapIcon } from "@/icons/ZapIcon";
 import { HStack, Stack, VStack } from "@/toolkits/Stack";
 import { modalHash } from "@/utils/constants";
-import { getVault } from "@/utils/extension";
 import { routeTree } from "@/utils/routes";
 
 const GlobalStyle = createGlobalStyle`
@@ -34,11 +32,11 @@ const GlobalStyle = createGlobalStyle`
 `;
 
 export const DefaultLayout = () => {
-  const { connect, currency, disconnect, setTheme, theme, vault } = useCore();
+  const { connect, disconnect, vault } = useApp();
+  const { currency, setTheme, theme } = useCore();
   const navigate = useNavigate();
   const colors = useTheme();
   const isNotSupport = useMediaQuery({ query: "(max-width: 991px)" });
-  const { extension, extensionHolder } = useExtension();
 
   const dropdownMenu: MenuProps["items"] = [
     ...(vault
@@ -97,7 +95,7 @@ export const DefaultLayout = () => {
             icon: <ArrowBoxLeftIcon color={colors.accentFour.toHex()} />,
             key: "6",
             label: "Sign out",
-            onClick: () => extension(() => disconnect()),
+            onClick: () => disconnect(),
           },
         ]
       : [
@@ -105,24 +103,10 @@ export const DefaultLayout = () => {
             icon: <ArrowBoxRightIcon color={colors.accentFour.toHex()} />,
             key: "7",
             label: "Connect Vault",
-            onClick: () => extension(() => connect()),
+            onClick: () => connect(),
           },
         ]),
   ];
-
-  useEffect(() => {
-    if (isNotSupport) return;
-
-    const timeoutId = setTimeout(() => {
-      getVault()
-        .then((vault) => {
-          if (vault) connect();
-        })
-        .catch(() => {});
-    }, 200);
-
-    return () => clearTimeout(timeoutId);
-  }, [connect, isNotSupport]);
 
   return isNotSupport ? (
     <VStack
@@ -290,8 +274,6 @@ export const DefaultLayout = () => {
       <CurrencyModal />
       <OnboardingModal />
       <PaymentModal />
-
-      {extensionHolder}
     </>
   );
 };

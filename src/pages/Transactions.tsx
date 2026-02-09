@@ -162,12 +162,12 @@ export const TransactionsPage = () => {
   ];
 
   const fetchTransactions = (skip = 0) => {
-    setState((prevState) => ({ ...prevState, loading: true }));
+    setState((prev) => ({ ...prev, loading: true }));
 
     getTransactions({ skip })
       .then(({ transactions, total }) => {
-        setState((prevState) => ({
-          ...prevState,
+        setState((prev) => ({
+          ...prev,
           current: skip ? Math.floor(skip / defaultPageSize) + 1 : 1,
           loading: false,
           total,
@@ -175,14 +175,14 @@ export const TransactionsPage = () => {
         }));
       })
       .catch(() => {
-        setState((prevState) => ({ ...prevState, loading: false }));
+        setState((prev) => ({ ...prev, loading: false }));
       });
   };
 
   useEffect(() => {
     // TODO: Update transactions API to include app icon and remove getApps API call
     getApps({}).then(({ apps }) => {
-      setState((prevState) => ({ ...prevState, apps }));
+      setState((prev) => ({ ...prev, apps }));
     });
 
     fetchTransactions();

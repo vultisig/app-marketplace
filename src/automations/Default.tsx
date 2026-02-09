@@ -27,7 +27,7 @@ import { AutomationFormSuccess } from "@/automations/components/FormSuccess";
 import { AutomationFormTitle } from "@/automations/components/FormTitle";
 import { MiddleTruncate } from "@/components/MiddleTruncate";
 import { useAntd } from "@/hooks/useAntd";
-import { useCore } from "@/hooks/useCore";
+import { useApp } from "@/hooks/useApp";
 import { useGoBack } from "@/hooks/useGoBack";
 import { CrossIcon } from "@/icons/CrossIcon";
 import { TrashIcon } from "@/icons/TrashIcon";
@@ -39,12 +39,10 @@ import {
 import { ParameterConstraintSchema } from "@/proto/parameter_constraint_pb";
 import { Policy, PolicySchema } from "@/proto/policy_pb";
 import { Effect, RuleSchema, TargetSchema, TargetType } from "@/proto/rule_pb";
-import { getVaultId } from "@/storage/vaultId";
 import { Button } from "@/toolkits/Button";
 import { Divider } from "@/toolkits/Divider";
 import { HStack, Stack, VStack } from "@/toolkits/Stack";
 import { defaultPageSize, modalHash } from "@/utils/constants";
-import { personalSign } from "@/utils/extension";
 import {
   camelCaseToTitle,
   getConfiguration,
@@ -93,17 +91,15 @@ export const AutomationForm: FC<AutomationFormProps> = ({ app, schema }) => {
     submitting,
     total,
   } = state;
-  const { id, pricing } = app;
   const {
     configuration,
-    pluginId,
     pluginName,
     pluginVersion,
     requirements,
     supportedResources,
   } = schema;
   const { messageAPI, modalAPI } = useAntd();
-  const { address = "" } = useCore();
+  const { personalSign, vault } = useApp();
   const { hash } = useLocation();
   const { id: appId = "" } = useParams();
   const [form] = Form.useForm<FormFieldType>();
@@ -189,7 +185,7 @@ export const AutomationForm: FC<AutomationFormProps> = ({ app, schema }) => {
           setState((prev) => ({ ...prev, loading: false }));
         });
     },
-    [appId]
+    [appId],
   );
 
   const steps = useMemo(() => {
@@ -198,7 +194,7 @@ export const AutomationForm: FC<AutomationFormProps> = ({ app, schema }) => {
 
   const handleBack = () => {
     if (step > 1) {
-      setState((prevState) => ({ ...prevState, step: prevState.step - 1 }));
+      setState((prev) => ({ ...prev, step: prev.step - 1 }));
     } else {
       goBack();
     }
@@ -233,7 +229,9 @@ export const AutomationForm: FC<AutomationFormProps> = ({ app, schema }) => {
   };
 
   const handleSign = (values: JsonObject, rules: JsonObject[]) => {
-    setState((prevState) => ({ ...prevState, submitting: true }));
+    if (!vault) return;
+
+    setState((prev) => ({ ...prev, submitting: true }));
 
     const jsonData = create(PolicySchema, {
       author: "",
@@ -241,15 +239,15 @@ export const AutomationForm: FC<AutomationFormProps> = ({ app, schema }) => {
         ? getConfiguration(configuration, values, configuration.definitions)
         : undefined,
       description: "",
-      feePolicies: getFeePolicies(pricing),
-      id: pluginId,
+      feePolicies: getFeePolicies(app.pricing),
+      id: appId,
       name: pluginName,
       rules: rules
         .filter(
           ({ resource }) =>
             supportedResources.findIndex(
-              ({ resourcePath }) => resourcePath?.full === resource
-            ) >= 0
+              ({ resourcePath }) => resourcePath?.full === resource,
+            ) >= 0,
         )
         .map(({ description = "", resource, target, ...params }) => {
           const {
@@ -257,7 +255,7 @@ export const AutomationForm: FC<AutomationFormProps> = ({ app, schema }) => {
             resourcePath,
             target: targetType,
           } = supportedResources.find(
-            ({ resourcePath }) => resourcePath?.full === resource
+            ({ resourcePath }) => resourcePath?.full === resource,
           )!;
 
           return create(RuleSchema, {
@@ -282,7 +280,7 @@ export const AutomationForm: FC<AutomationFormProps> = ({ app, schema }) => {
                     },
                   }),
                   parameterName,
-                })
+                }),
             ),
             resource: resource as string,
             target: create(TargetSchema, {
@@ -291,11 +289,11 @@ export const AutomationForm: FC<AutomationFormProps> = ({ app, schema }) => {
                 targetType === TargetType.ADDRESS
                   ? { case: "address", value: target as string }
                   : targetType === TargetType.MAGIC_CONSTANT
-                  ? {
-                      case: "magicConstant",
-                      value: MagicConstant.VULTISIG_TREASURY,
-                    }
-                  : { case: undefined, value: undefined },
+                    ? {
+                        case: "magicConstant",
+                        value: MagicConstant.VULTISIG_TREASURY,
+                      }
+                    : { case: undefined, value: undefined },
             }),
           });
         }),
@@ -309,20 +307,20 @@ export const AutomationForm: FC<AutomationFormProps> = ({ app, schema }) => {
     const policy: AppAutomation = {
       active: true,
       id: uuidv4(),
-      pluginId: id,
+      pluginId: appId,
       pluginVersion: String(pluginVersion),
       policyVersion: 0,
-      publicKey: getVaultId(),
+      publicKey: vault.publicKeys.ecdsa,
       recipe,
     };
 
     const message = policyToHexMessage(policy);
 
-    personalSign(address, message, "policy", id)
+    personalSign(message, appId)
       .then((signature) => {
         addAutomation({ ...policy, signature })
           .then(() => {
-            setState((prevState) => ({ ...prevState, isAdded: true }));
+            setState((prev) => ({ ...prev, isAdded: true }));
 
             fetchAutomations(0, isActive);
           })
@@ -330,28 +328,26 @@ export const AutomationForm: FC<AutomationFormProps> = ({ app, schema }) => {
             messageAPI.error(error.message);
           })
           .finally(() => {
-            setState((prevState) => ({ ...prevState, submitting: false }));
+            setState((prev) => ({ ...prev, submitting: false }));
           });
       })
-      .catch((error: Error) => {
-        messageAPI.error(error.message);
-
-        setState((prevState) => ({ ...prevState, submitting: false }));
+      .catch(() => {
+        setState((prev) => ({ ...prev, submitting: false }));
       });
   };
 
   const handleSuggest = (values: JsonObject) => {
     if (!configuration) return;
 
-    setState((prevState) => ({ ...prevState, submitting: true }));
+    setState((prev) => ({ ...prev, submitting: true }));
 
     const configurationData = getConfiguration(
       configuration,
       values,
-      configuration.definitions
+      configuration.definitions,
     );
 
-    getRecipeSuggestion(id, configurationData).then(({ rules = [] }) => {
+    getRecipeSuggestion(appId, configurationData).then(({ rules = [] }) => {
       const formRules = rules.map(
         ({ parameterConstraints, resource, target }) => {
           const params: JsonObject = { resource };
@@ -367,20 +363,20 @@ export const AutomationForm: FC<AutomationFormProps> = ({ app, schema }) => {
           });
 
           return params;
-        }
+        },
       );
 
       if (formRules.length > 0) {
         form.setFieldValue("rules", formRules);
 
         setTimeout(() => {
-          setState((prevState) => ({ ...prevState, step: steps.length }));
+          setState((prev) => ({ ...prev, step: steps.length }));
 
           handleSign(values, formRules);
         }, 0);
       } else {
-        setState((prevState) => ({
-          ...prevState,
+        setState((prev) => ({
+          ...prev,
           submitting: false,
           step: steps.length,
         }));
@@ -403,8 +399,8 @@ export const AutomationForm: FC<AutomationFormProps> = ({ app, schema }) => {
     if (!visible) return;
 
     form.resetFields();
-    setState((prevState) => ({
-      ...prevState,
+    setState((prev) => ({
+      ...prev,
       isAdded: false,
       submitting: false,
       step: 1,
@@ -435,7 +431,7 @@ export const AutomationForm: FC<AutomationFormProps> = ({ app, schema }) => {
           expandable={{
             expandedRowRender: (
               { parsedRecipe: { description, rules } },
-              index
+              index,
             ) => {
               return (
                 <VStack key={index} $style={{ gap: "8px" }}>
@@ -508,7 +504,7 @@ export const AutomationForm: FC<AutomationFormProps> = ({ app, schema }) => {
                                         lineHeight: "18px",
                                       }}
                                     >{`(${camelCaseToTitle(
-                                      constraint.value.case
+                                      constraint.value.case,
                                     )})`}</Stack>
                                   </HStack>
                                 ) : (
@@ -544,7 +540,7 @@ export const AutomationForm: FC<AutomationFormProps> = ({ app, schema }) => {
                                   </Stack>
                                 )}
                               </VStack>
-                            )
+                            ),
                           )}
                           {target ? (
                             <VStack>
@@ -571,7 +567,7 @@ export const AutomationForm: FC<AutomationFormProps> = ({ app, schema }) => {
                                       lineHeight: "18px",
                                     }}
                                   >{`(${camelCaseToTitle(
-                                    target.target.case
+                                    target.target.case,
                                   )})`}</Stack>
                                 </HStack>
                               ) : (
@@ -634,7 +630,7 @@ export const AutomationForm: FC<AutomationFormProps> = ({ app, schema }) => {
                           </VStack>
                         )}
                       </Fragment>
-                    )
+                    ),
                   )}
                 </VStack>
               );
@@ -727,7 +723,7 @@ export const AutomationForm: FC<AutomationFormProps> = ({ app, schema }) => {
                         (!rules || rules.length < 1)
                       ) {
                         return Promise.reject(
-                          new Error("Please enter at least one rule")
+                          new Error("Please enter at least one rule"),
                         );
                       }
                     },
@@ -772,7 +768,7 @@ export const AutomationForm: FC<AutomationFormProps> = ({ app, schema }) => {
                                 const supportedResource =
                                   supportedResources.find(
                                     ({ resourcePath }) =>
-                                      resourcePath?.full === resource
+                                      resourcePath?.full === resource,
                                   );
 
                                 if (!supportedResource) return null;
@@ -782,13 +778,13 @@ export const AutomationForm: FC<AutomationFormProps> = ({ app, schema }) => {
                                     {supportedResource.parameterCapabilities
                                       .filter(
                                         ({ supportedTypes }) =>
-                                          supportedTypes !== ConstraintType.ANY
+                                          supportedTypes !== ConstraintType.ANY,
                                       )
                                       .map(({ parameterName, required }) => (
                                         <Form.Item
                                           key={parameterName}
                                           label={snakeCaseToTitle(
-                                            parameterName
+                                            parameterName,
                                           )}
                                           name={[name, parameterName]}
                                           rules={[
@@ -856,7 +852,7 @@ export const AutomationForm: FC<AutomationFormProps> = ({ app, schema }) => {
                                 const supportedResource =
                                   supportedResources.find(
                                     ({ resourcePath }) =>
-                                      resourcePath?.full === resource
+                                      resourcePath?.full === resource,
                                   );
 
                                 if (!supportedResource) return null;
@@ -868,7 +864,7 @@ export const AutomationForm: FC<AutomationFormProps> = ({ app, schema }) => {
                                         ? [
                                             `Chain: ${camelCaseToTitle(
                                               supportedResource.resourcePath
-                                                .chainId
+                                                .chainId,
                                             )}`,
                                           ]
                                         : []),
@@ -877,7 +873,7 @@ export const AutomationForm: FC<AutomationFormProps> = ({ app, schema }) => {
                                         ? [
                                             `Protocol: ${camelCaseToTitle(
                                               supportedResource.resourcePath
-                                                .protocolId
+                                                .protocolId,
                                             )}`,
                                           ]
                                         : []),
@@ -886,7 +882,7 @@ export const AutomationForm: FC<AutomationFormProps> = ({ app, schema }) => {
                                         ? [
                                             `Function: ${camelCaseToTitle(
                                               supportedResource.resourcePath
-                                                .functionId
+                                                .functionId,
                                             )}`,
                                           ]
                                         : []),

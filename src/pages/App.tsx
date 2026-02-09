@@ -11,7 +11,7 @@ import { RecurringSwapsImages } from "@/components/appImages/RecurringSwaps";
 import { AppReviews } from "@/components/AppReviews";
 import { FreeTrialBanner } from "@/components/FreeTrialBanner";
 import { StatusModal } from "@/components/StatusModal";
-import { useAntd } from "@/hooks/useAntd";
+import { useApp } from "@/hooks/useApp";
 import { useCore } from "@/hooks/useCore";
 import { useGoBack } from "@/hooks/useGoBack";
 import { useQueries } from "@/hooks/useQueries";
@@ -32,7 +32,6 @@ import {
   recurringSendsAppId,
   recurringSwapsAppId,
 } from "@/utils/constants";
-import { startReshareSession } from "@/utils/extension";
 import {
   pricingText,
   snakeCaseToTitle,
@@ -44,15 +43,14 @@ import { App, RecipeSchema } from "@/utils/types";
 type StateProps = {
   app?: App;
   isInstalled?: boolean;
-  loading?: boolean;
   schema?: RecipeSchema;
 };
 
 export const AppPage = () => {
   const [state, setState] = useState<StateProps>({});
-  const { app, isInstalled, loading, schema } = state;
-  const { messageAPI } = useAntd();
-  const { baseValue, connect, currency, feeAppStatus, vault } = useCore();
+  const { app, isInstalled, schema } = state;
+  const { connect, feeAppStatus, startReshare, vault } = useApp();
+  const { baseValue, currency } = useCore();
   const { hash } = useLocation();
   const { id = "" } = useParams();
   const { getAppData } = useQueries();
@@ -71,52 +69,28 @@ export const AppPage = () => {
 
     if (isFree || isFeeAppInstalled) isInstalled = await isAppInstalled(id);
 
-    setState((prevState) => ({ ...prevState, isInstalled }));
+    setState((prev) => ({ ...prev, isInstalled }));
   }, [id, isFeeAppInstalled, isFree]);
 
   const fetchApp = useCallback(async () => {
     getAppData(id, true)
       .then((app) => {
         if (schema) {
-          setState((prevState) => ({ ...prevState, app }));
+          setState((prev) => ({ ...prev, app }));
         } else {
           getRecipeSpecification(app.id)
             .catch(() => undefined)
             .then((schema) => {
-              setState((prevState) => ({ ...prevState, app, schema }));
+              setState((prev) => ({ ...prev, app, schema }));
             });
         }
       })
       .catch(() => goBack(routeTree.root.path));
   }, [id, schema]);
 
-  const handleInstall = async () => {
-    if (loading || !vault) return;
-
-    setState((prevState) => ({ ...prevState, loading: true }));
-
-    const isInstalled = await startReshareSession(id, vault.data);
-    if (isInstalled) {
-      setState((prevState) => ({
-        ...prevState,
-        isInstalled: true,
-        loading: false,
-      }));
-
-      navigate(modalHash.success);
-    } else {
-      setState((prevState) => ({ ...prevState, loading: false }));
-
-      messageAPI.open({
-        type: "error",
-        content: "Plugin installation failed",
-      });
-    }
-  };
-
   useEffect(() => {
     if (!vault) {
-      setState((prevState) => ({ ...prevState, isInstalled: undefined }));
+      setState((prev) => ({ ...prev, isInstalled: undefined }));
     } else {
       checkStatus();
     }
@@ -281,7 +255,7 @@ export const AppPage = () => {
                       </Button>
                     ) : !isFree && !isFeeAppInstalled ? (
                       // TODO: Replace hard‑coded "Get · Free" with dynamic pricing
-                      <Button href={modalHash.payment} loading={loading}>
+                      <Button href={modalHash.payment}>
                         Get
                         <Stack
                           as="span"
@@ -296,14 +270,14 @@ export const AppPage = () => {
                       </Button>
                     ) : isInstalled ? (
                       <Button
-                        disabled={loading || !schema}
+                        disabled={!schema}
                         href={routeTree.automations.link(id)}
                         state={true}
                       >
                         Automations
                       </Button>
                     ) : (
-                      <Button loading={loading} onClick={handleInstall}>
+                      <Button onClick={() => startReshare(id)}>
                         Get
                         <Stack
                           as="span"

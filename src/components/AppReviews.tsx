@@ -6,7 +6,7 @@ import { useTheme } from "styled-components";
 
 import { addReview, getReviews } from "@/api/store";
 import { MiddleTruncate } from "@/components/MiddleTruncate";
-import { useCore } from "@/hooks/useCore";
+import { useApp } from "@/hooks/useApp";
 import { useGoBack } from "@/hooks/useGoBack";
 import { StarIcon } from "@/icons/StarIcon";
 import { Button } from "@/toolkits/Button";
@@ -14,6 +14,7 @@ import { Divider } from "@/toolkits/Divider";
 import { Rate } from "@/toolkits/Rate";
 import { Spin } from "@/toolkits/Spin";
 import { HStack, Stack, VStack } from "@/toolkits/Stack";
+import { chains } from "@/utils/chain";
 import { modalHash } from "@/utils/constants";
 import { App, Review, ReviewForm } from "@/utils/types";
 
@@ -35,7 +36,7 @@ export const AppReviews: FC<{ app: App; onReload: () => void }> = ({
   });
   const { loading, reviews, submitting } = state;
   const { avgRating, id: appId, ratesCount, ratings } = app;
-  const { address, connect, vault } = useCore();
+  const { connect, vault } = useApp();
   const { hash } = useLocation();
   const [form] = Form.useForm<ReviewForm>();
   const goBack = useGoBack();
@@ -45,44 +46,46 @@ export const AppReviews: FC<{ app: App; onReload: () => void }> = ({
 
   const fetchReviews = useCallback(
     (skip: number) => {
-      setState((prevState) => ({ ...prevState, loading: true }));
+      setState((prev) => ({ ...prev, loading: true }));
 
       getReviews({ appId, skip })
         .then(({ reviews, totalCount }) => {
-          setState((prevState) => ({
-            ...prevState,
+          setState((prev) => ({
+            ...prev,
             loading: false,
             reviews,
             totalCount,
           }));
         })
         .catch(() => {
-          setState((prevState) => ({ ...prevState, loading: false }));
+          setState((prev) => ({ ...prev, loading: false }));
         });
     },
-    [appId]
+    [appId],
   );
 
-  const onFinishSuccess: FormProps<ReviewForm>["onFinish"] = (values) => {
-    if (address) {
-      setState((prevState) => ({ ...prevState, submitting: true }));
+  const onFinishSuccess: FormProps<ReviewForm>["onFinish"] = async (values) => {
+    if (!vault) return;
 
-      addReview(appId, { ...values, address })
-        .then(() => {
-          setState((prevState) => ({ ...prevState, submitting: false }));
+    const address = await vault.address(chains.Ethereum);
 
-          form.resetFields();
+    setState((prev) => ({ ...prev, submitting: true }));
 
-          fetchReviews(0);
+    addReview(appId, { ...values, address })
+      .then(() => {
+        setState((prev) => ({ ...prev, submitting: false }));
 
-          goBack();
+        form.resetFields();
 
-          onReload();
-        })
-        .catch(() => {
-          setState((prevState) => ({ ...prevState, submitting: false }));
-        });
-    }
+        fetchReviews(0);
+
+        goBack();
+
+        onReload();
+      })
+      .catch(() => {
+        setState((prev) => ({ ...prev, submitting: false }));
+      });
   };
 
   useEffect(() => fetchReviews(0), [appId, fetchReviews]);

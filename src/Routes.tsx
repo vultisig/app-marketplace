@@ -5,7 +5,6 @@ import {
   RouterProvider,
 } from "react-router-dom";
 
-import { useCore } from "@/hooks/useCore";
 import { DefaultLayout } from "@/layouts/Default";
 import { AppPage } from "@/pages/App";
 import { AutomationsPage } from "@/pages/Automations";
@@ -19,8 +18,10 @@ import { NotFoundPage } from "@/pages/NotFound";
 import { TransactionsPage } from "@/pages/Transactions";
 import { routeTree } from "@/utils/routes";
 
+import { useApp } from "./hooks/useApp";
+
 const ProtectedRoute: FC<{ children: ReactNode }> = ({ children }) => {
-  const { vault } = useCore();
+  const { vault } = useApp();
 
   return !vault ? <Navigate to={routeTree.root.path} replace /> : children;
 };

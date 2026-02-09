@@ -20,10 +20,10 @@ export const MyAppsPage = () => {
   useEffect(() => {
     getMyApps({})
       .then(({ apps }) => {
-        setState((prevState) => ({ ...prevState, loading: false, apps }));
+        setState((prev) => ({ ...prev, loading: false, apps }));
       })
       .catch(() => {
-        setState((prevState) => ({ ...prevState, loading: false }));
+        setState((prev) => ({ ...prev, loading: false }));
       });
   }, []);
 
