@@ -93,12 +93,13 @@ export const AppProvider: FC<{ children: ReactNode }> = ({ children }) => {
         connectStatus: "connecting",
       }));
 
-      const address = await extensionAPI.connect().catch((error) => {
-        disconnect();
+      
+      const address = await extensionAPI.connect();
+      const baseVault = await extensionAPI.getVault().catch((error) => {
+        extensionAPI.disconnect();
 
         throw error;
       });
-      const baseVault = await extensionAPI.getVault();
       const vault = await normalizeVault(baseVault);
 
       setState((prev) => ({
@@ -303,7 +304,7 @@ export const AppProvider: FC<{ children: ReactNode }> = ({ children }) => {
         open={!isExtensionInstalled}
       >
         <Stack as="span" $style={{ fontSize: "22px", lineHeight: "24px" }}>
-          Vultisig Extension Not Found
+          Vultisig Extension Not Installed
         </Stack>
         <Stack
           as="a"
@@ -338,14 +339,14 @@ export const AppProvider: FC<{ children: ReactNode }> = ({ children }) => {
             textAlign: "center",
           }}
         >
-          Please verify your active vault in the Vultisig Extension
+          Please switch to your connected vault in Vultisig
         </Stack>
       </StatusModal>
 
       <Modal
         centered={true}
         closable={false}
-        footer="Installation progress"
+        footer="Installing Plugin..."
         styles={{
           body: {
             alignItems: "center",
@@ -371,7 +372,7 @@ export const AppProvider: FC<{ children: ReactNode }> = ({ children }) => {
       <Modal
         centered={true}
         closable={false}
-        footer="Signing progress"
+        footer="Confirming Transaction..."
         styles={{
           body: {
             alignItems: "center",
@@ -462,7 +463,7 @@ export const AppProvider: FC<{ children: ReactNode }> = ({ children }) => {
             as="span"
             $style={{ fontSize: "18px", fontWeight: "700", lineHeight: "24px" }}
           >
-            Opening Vultisig...
+            Connecting to Vultisig Extension
           </Stack>
           <Stack
             as="span"
@@ -477,13 +478,13 @@ export const AppProvider: FC<{ children: ReactNode }> = ({ children }) => {
             {connectError ||
               (connectStatus &&
                 match(connectStatus, {
-                  connected: () => "Connected successfully",
+                  connected: () => "Connection established",
                   connecting: () =>
-                    "Please check your Vultisig Extension to connect",
+                    "Waiting for approval...",
                   retrying: () =>
-                    "Please check your Vultisig Extension and try again",
+                    "Connection failed. Please try again",
                   signing: () =>
-                    "Please check your Vultisig Extension to sign the message",
+                    "Approve the request in Vultisig Extension",
                 }))}
           </Stack>
         </VStack>
@@ -543,7 +544,7 @@ export const AppProvider: FC<{ children: ReactNode }> = ({ children }) => {
           as="span"
           $style={{ fontSize: "18px", fontWeight: "700", lineHeight: "24px" }}
         >
-          Want to disconnect?
+          Disconnect from Vultisig Extension?
         </Stack>
       </Modal>
     </AppContext.Provider>
