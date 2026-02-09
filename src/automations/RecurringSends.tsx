@@ -97,6 +97,16 @@ type StateProps = {
   total: number;
 };
 
+const formatDateWithTimezone = (date: string | number) => {
+  const d = dayjs(date);
+  const offset = d.format("Z");
+  return {
+    date: d.format("YYYY-MM-DD"),
+    time: d.format("HH:mm:ss"),
+    timezone: `UTC${offset}`,
+  };
+};
+
 export const RecurringSendsForm: FC<AutomationFormProps> = ({
   app,
   schema,
@@ -149,12 +159,12 @@ export const RecurringSendsForm: FC<AutomationFormProps> = ({
       dataIndex: "configuration",
       key: "startDate",
       render: ({ startDate }: DataProps) => {
-        const date = dayjs(startDate);
+        const { date, time, timezone } = formatDateWithTimezone(startDate);
 
         return (
           <VStack $style={{ gap: "2px" }}>
             <Stack as="span" $style={{ lineHeight: "14px" }}>
-              {date.format("YYYY-MM-DD")}
+              {date}
             </Stack>
             <Stack
               as="span"
@@ -164,7 +174,17 @@ export const RecurringSendsForm: FC<AutomationFormProps> = ({
                 lineHeight: "12px",
               }}
             >
-              {date.format("HH:mm:ss")}
+              {time}
+            </Stack>
+            <Stack
+              as="span"
+              $style={{
+                color: colors.textTertiary.toHex(),
+                fontSize: "11px",
+                lineHeight: "11px",
+              }}
+            >
+              {timezone}
             </Stack>
           </VStack>
         );
@@ -178,12 +198,12 @@ export const RecurringSendsForm: FC<AutomationFormProps> = ({
       render: ({ endDate }: DataProps) => {
         if (!endDate) return "-";
 
-        const date = dayjs(endDate);
+        const { date, time, timezone } = formatDateWithTimezone(endDate);
 
         return (
           <VStack $style={{ gap: "2px" }}>
             <Stack as="span" $style={{ lineHeight: "14px" }}>
-              {date.format("YYYY-MM-DD")}
+              {date}
             </Stack>
             <Stack
               as="span"
@@ -193,7 +213,17 @@ export const RecurringSendsForm: FC<AutomationFormProps> = ({
                 lineHeight: "12px",
               }}
             >
-              {date.format("HH:mm:ss")}
+              {time}
+            </Stack>
+            <Stack
+              as="span"
+              $style={{
+                color: colors.textTertiary.toHex(),
+                fontSize: "11px",
+                lineHeight: "11px",
+              }}
+            >
+              {timezone}
             </Stack>
           </VStack>
         );
@@ -793,9 +823,20 @@ const Overview: FC<DataProps> = ({
               <Stack as="span" $style={{ color: colors.textTertiary.toHex() }}>
                 Start Date
               </Stack>
-              <Stack as="span">
-                {dayjs(startDate).format("YYYY-MM-DD HH:mm")}
-              </Stack>
+              <VStack $style={{ gap: "2px", alignItems: "flex-end" }}>
+                <Stack as="span">
+                  {dayjs(startDate).format("YYYY-MM-DD HH:mm")}
+                </Stack>
+                <Stack
+                  as="span"
+                  $style={{
+                    color: colors.textTertiary.toHex(),
+                    fontSize: "12px",
+                  }}
+                >
+                  {formatDateWithTimezone(startDate).timezone}
+                </Stack>
+              </VStack>
             </HStack>
             <Divider light />
           </>
@@ -811,9 +852,20 @@ const Overview: FC<DataProps> = ({
               <Stack as="span" $style={{ color: colors.textTertiary.toHex() }}>
                 End Date
               </Stack>
-              <Stack as="span">
-                {dayjs(endDate).format("YYYY-MM-DD HH:mm")}
-              </Stack>
+              <VStack $style={{ gap: "2px", alignItems: "flex-end" }}>
+                <Stack as="span">
+                  {dayjs(endDate).format("YYYY-MM-DD HH:mm")}
+                </Stack>
+                <Stack
+                  as="span"
+                  $style={{
+                    color: colors.textTertiary.toHex(),
+                    fontSize: "12px",
+                  }}
+                >
+                  {formatDateWithTimezone(endDate).timezone}
+                </Stack>
+              </VStack>
             </HStack>
             <Divider light />
           </>
