@@ -277,7 +277,13 @@ export const AppPage = () => {
                         Automations
                       </Button>
                     ) : (
-                      <Button onClick={() => startReshare(id)}>
+                      <Button
+                        onClick={() =>
+                          startReshare(id).then((isInstalled) =>
+                            setState((prev) => ({ ...prev, isInstalled })),
+                          )
+                        }
+                      >
                         Get
                         <Stack
                           as="span"

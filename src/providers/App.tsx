@@ -1,7 +1,6 @@
 import { MemoryStorage, VaultBase, Vultisig } from "@vultisig/sdk";
 import { Modal } from "antd";
 import { hexlify, randomBytes } from "ethers";
-import { jwtDecode } from "jwt-decode";
 import Lottie from "lottie-react";
 import { FC, ReactNode, useCallback, useEffect, useState } from "react";
 import { useTheme } from "styled-components";
@@ -23,10 +22,12 @@ import { match } from "@/utils/functions";
 import { Vault } from "@/utils/types";
 
 type StateProps = Pick<AppContextProps, "feeApp" | "feeAppStatus" | "vault"> & {
-  connectionStatus?: "connected" | "disconnected" | "connecting";
+  connectError?: string;
+  connectStatus?: "connected" | "connecting" | "retrying" | "signing";
+  disconnectStatus?: "confirm" | "pending" | "success";
+  installing?: boolean;
   isExtensionInstalled: boolean;
   isValidActiveVault: boolean;
-  installing?: boolean;
   signing?: boolean;
 };
 
@@ -36,7 +37,9 @@ export const AppProvider: FC<{ children: ReactNode }> = ({ children }) => {
     isValidActiveVault: true,
   });
   const {
-    connectionStatus,
+    connectError,
+    connectStatus,
+    disconnectStatus,
     feeApp,
     feeAppStatus,
     installing,
@@ -45,32 +48,32 @@ export const AppProvider: FC<{ children: ReactNode }> = ({ children }) => {
     signing,
     vault,
   } = state;
-  const [modalAPI, modalHolder] = Modal.useModal();
   const { getAppData } = useQueries();
   const colors = useTheme();
 
   const checkExtensionAvailability = async () => {
-    return extensionAPI.isAvailable().catch((error) => {
+    try {
+      await extensionAPI.isAvailable();
+    } catch (error) {
       setState((prev) => ({ ...prev, isExtensionInstalled: false }));
 
       throw error;
-    });
+    }
   };
 
   const checkActiveVaultValidity = async () => {
-    return extensionAPI
-      .getVault()
-      .then(({ publicKeyEcdsa }) => {
-        if (publicKeyEcdsa !== vault?.publicKeys.ecdsa)
-          throw new Error("Active vault does not match connected vault");
+    if (!vault) throw new Error("No vault connected");
 
-        return;
-      })
-      .catch((error) => {
-        setState((prev) => ({ ...prev, isValidActiveVault: false }));
+    try {
+      const { publicKeyEcdsa } = await extensionAPI.getVault();
 
-        throw error;
-      });
+      if (publicKeyEcdsa !== vault?.publicKeys.ecdsa)
+        throw new Error("Active vault does not match connected vault");
+    } catch (error) {
+      setState((prev) => ({ ...prev, isValidActiveVault: false }));
+
+      throw error;
+    }
   };
 
   const clear = () => {
@@ -84,11 +87,26 @@ export const AppProvider: FC<{ children: ReactNode }> = ({ children }) => {
     await checkExtensionAvailability();
 
     try {
-      setState((prev) => ({ ...prev, connectionStatus: "connecting" }));
+      setState((prev) => ({
+        ...prev,
+        connectError: undefined,
+        connectStatus: "connecting",
+      }));
 
+      
       const address = await extensionAPI.connect();
-      const baseVault = await extensionAPI.getVault();
+      const baseVault = await extensionAPI.getVault().catch((error) => {
+        extensionAPI.disconnect();
+
+        throw error;
+      });
       const vault = await normalizeVault(baseVault);
+
+      setState((prev) => ({
+        ...prev,
+        connectError: undefined,
+        connectStatus: "signing",
+      }));
 
       const message = JSON.stringify({
         address,
@@ -108,41 +126,44 @@ export const AppProvider: FC<{ children: ReactNode }> = ({ children }) => {
 
       setVaults([{ ...baseVault, accessToken, refreshToken }]);
 
-      setState((prev) => ({ ...prev, connectionStatus: "connected", vault }));
+      setState((prev) => ({ ...prev, connectStatus: "connected", vault }));
 
       setTimeout(() => {
-        setState((prev) => ({ ...prev, connectionStatus: undefined }));
+        setState((prev) => ({
+          ...prev,
+          connectStatus: undefined,
+          connectError: undefined,
+        }));
       }, 2000);
-    } catch {
-      setState((prev) => ({ ...prev, connectionStatus: "disconnected" }));
+    } catch (error) {
+      setState((prev) => ({
+        ...prev,
+        connectError: (error as Error).message,
+        connectStatus: "retrying",
+      }));
     }
   };
 
   const disconnect = async () => {
-    await checkExtensionAvailability();
-    await checkActiveVaultValidity();
+    setState((prev) => ({ ...prev, disconnectStatus: "pending" }));
 
-    modalAPI.confirm({
-      title: "Are you sure you want to disconnect?",
-      okText: "Yes",
-      okType: "default",
-      cancelText: "No",
-      onOk() {
-        const [vault] = getVaults();
+    const [vault] = getVaults();
 
-        try {
-          if (!vault?.accessToken) throw new Error("No access token found");
+    if (vault) await delAuthToken(vault.accessToken).catch(() => {});
 
-          const { token_id } = jwtDecode<{ token_id: string }>(
-            vault?.accessToken,
-          );
+    await extensionAPI.disconnect().catch(() => {});
 
-          delAuthToken(token_id).finally(clear);
-        } catch {
-          clear();
-        }
-      },
-    });
+    setState((prev) => ({ ...prev, disconnectStatus: "success" }));
+
+    setTimeout(() => {
+      setState((prev) => ({
+        ...prev,
+        disconnectStatus: undefined,
+        vault: undefined,
+      }));
+
+      setVaults([]);
+    }, 1000);
   };
 
   const normalizeVault = async ({
@@ -210,10 +231,6 @@ export const AppProvider: FC<{ children: ReactNode }> = ({ children }) => {
     }
   };
 
-  const setVault = (vault: VaultBase) => {
-    setState((prev) => ({ ...prev, vault }));
-  };
-
   const startReshare = async (appId: string) => {
     if (!vault) throw new Error("No vault connected");
 
@@ -230,7 +247,7 @@ export const AppProvider: FC<{ children: ReactNode }> = ({ children }) => {
       return isStarted;
     } catch (error) {
       setState((prev) => ({ ...prev, installing: false }));
-      
+
       throw error;
     }
   };
@@ -267,11 +284,12 @@ export const AppProvider: FC<{ children: ReactNode }> = ({ children }) => {
     <AppContext.Provider
       value={{
         connect,
-        disconnect,
+        disconnect: () =>
+          setState((prev) => ({ ...prev, disconnectStatus: "confirm" })),
         feeApp,
         feeAppStatus,
         personalSign,
-        setVault,
+        setVault: (vault) => setState((prev) => ({ ...prev, vault })),
         startReshare,
         updateFeeAppStatus,
         vault,
@@ -286,7 +304,7 @@ export const AppProvider: FC<{ children: ReactNode }> = ({ children }) => {
         open={!isExtensionInstalled}
       >
         <Stack as="span" $style={{ fontSize: "22px", lineHeight: "24px" }}>
-          Vultisig Extension Not Found
+          Vultisig Extension Not Installed
         </Stack>
         <Stack
           as="a"
@@ -321,122 +339,75 @@ export const AppProvider: FC<{ children: ReactNode }> = ({ children }) => {
             textAlign: "center",
           }}
         >
-          Please verify your active vault in the Vultisig Extension
+          Please switch to your connected vault in Vultisig
         </Stack>
       </StatusModal>
 
       <Modal
         centered={true}
         closable={false}
-        footer={false}
-        styles={{
-          body: {
-            alignItems: "center",
-            display: "flex",
-            flexDirection: "column",
-            gap: 24,
-            padding: 32,
-          },
-          container: { overflow: "hidden", padding: 0 },
-          footer: { display: "none" },
-        }}
-        title={false}
-        width={390}
-        open={installing}
-      >
-        <Spin />
-        <Stack as="span" $style={{ fontSize: "22px", lineHeight: "24px" }}>
-          Installation is in progress
-        </Stack>
-      </Modal>
-
-      <Modal
-        centered={true}
-        closable={false}
-        footer={false}
-        styles={{
-          body: {
-            alignItems: "center",
-            display: "flex",
-            flexDirection: "column",
-            gap: 24,
-            padding: 32,
-          },
-          container: { overflow: "hidden", padding: 0 },
-          footer: { display: "none" },
-        }}
-        title={false}
-        width={390}
-        open={signing}
-      >
-        <Spin />
-        <Stack as="span" $style={{ fontSize: "22px", lineHeight: "24px" }}>
-          Signing is in progress
-        </Stack>
-      </Modal>
-
-      <Modal
-        centered={true}
-        closable={connectionStatus !== "connecting"}
-        footer={false}
-        maskClosable={false}
-        onCancel={() =>
-          setState((prev) => ({ ...prev, connectionStatus: undefined }))
-        }
+        footer="Installing Plugin..."
         styles={{
           body: {
             alignItems: "center",
             display: "flex",
             flexDirection: "column",
             gap: 12,
-            padding: 32,
           },
-          container: { overflow: "hidden", padding: 0 },
-          footer: { display: "none" },
+          container: { display: "flex", flexDirection: "column", gap: 12 },
+          footer: {
+            fontSize: 22,
+            lineHeight: "24px",
+            marginTop: 0,
+            textAlign: "center",
+          },
         }}
         title={false}
-        width={368}
-        open={Boolean(connectionStatus)}
+        width={480}
+        open={installing}
       >
-        <VStack>
-          <Lottie
-            animationData={splashScreen}
-            loop={connectionStatus === "connecting"}
-          />
-        </VStack>
-        <VStack $style={{ alignItems: "center", gap: "4px" }}>
-          <Stack
-            as="span"
-            $style={{ fontSize: "18px", fontWeight: "700", lineHeight: "24px" }}
-          >
-            Opening Vultisig...
-          </Stack>
-          <Stack
-            as="span"
-            $style={{
-              color: colors.textTertiary.toHex(),
-              fontSize: "14px",
-              fontWeight: "500",
-              lineHeight: "18px",
-            }}
-          >
-            Confirm connection in the extension
-          </Stack>
-        </VStack>
-        {connectionStatus &&
-          match(connectionStatus, {
+        <Lottie animationData={splashScreen} />
+      </Modal>
+
+      <Modal
+        centered={true}
+        closable={false}
+        footer="Confirming Transaction..."
+        styles={{
+          body: {
+            alignItems: "center",
+            display: "flex",
+            flexDirection: "column",
+            gap: 12,
+          },
+          container: { display: "flex", flexDirection: "column", gap: 12 },
+          footer: {
+            fontSize: 22,
+            lineHeight: "24px",
+            marginTop: 0,
+            textAlign: "center",
+          },
+        }}
+        title={false}
+        width={480}
+        open={signing}
+      >
+        <Lottie animationData={splashScreen} />
+      </Modal>
+
+      <Modal
+        centered={true}
+        closable={connectStatus !== "connecting" && connectStatus !== "signing"}
+        footer={
+          connectStatus &&
+          match(connectStatus, {
             connected: () => (
-              <VStack
-                $style={{
-                  backgroundColor: colors.success.toHex(),
-                  borderRadius: "44px",
-                  height: "44px",
-                  justifyContent: "center",
-                  padding: "0 24px",
-                }}
+              <Stack
+                as="span"
+                $style={{ color: colors.success.toHex(), lineHeight: "44px" }}
               >
                 Connected
-              </VStack>
+              </Stack>
             ),
             connecting: () => (
               <VStack
@@ -449,11 +420,133 @@ export const AppProvider: FC<{ children: ReactNode }> = ({ children }) => {
                 <Spin />
               </VStack>
             ),
-            disconnected: () => <Button onClick={connect}>Retry</Button>,
-          })}
+            retrying: () => <Button onClick={connect}>Retry</Button>,
+            signing: () => (
+              <VStack
+                $style={{
+                  color: colors.textTertiary.toHex(),
+                  height: "44px",
+                  justifyContent: "center",
+                }}
+              >
+                <Spin />
+              </VStack>
+            ),
+          })
+        }
+        maskClosable={false}
+        onCancel={() =>
+          setState((prev) => ({ ...prev, connectStatus: undefined }))
+        }
+        styles={{
+          body: {
+            alignItems: "center",
+            display: "flex",
+            flexDirection: "column",
+            gap: 12,
+          },
+          container: { display: "flex", flexDirection: "column", gap: 24 },
+          footer: { display: "flex", justifyContent: "center", marginTop: 0 },
+        }}
+        title={false}
+        width={480}
+        open={Boolean(connectStatus)}
+      >
+        <VStack>
+          <Lottie
+            animationData={splashScreen}
+            loop={connectStatus === "connecting" || connectStatus === "signing"}
+          />
+        </VStack>
+        <VStack $style={{ alignItems: "center", gap: "4px" }}>
+          <Stack
+            as="span"
+            $style={{ fontSize: "18px", fontWeight: "700", lineHeight: "24px" }}
+          >
+            Connecting to Vultisig Extension
+          </Stack>
+          <Stack
+            as="span"
+            $style={{
+              color: colors.textTertiary.toHex(),
+              fontSize: "14px",
+              fontWeight: "500",
+              lineHeight: "18px",
+              textAlign: "center",
+            }}
+          >
+            {connectError ||
+              (connectStatus &&
+                match(connectStatus, {
+                  connected: () => "Connection established",
+                  connecting: () =>
+                    "Waiting for approval...",
+                  retrying: () =>
+                    "Connection failed. Please try again",
+                  signing: () =>
+                    "Approve the request in Vultisig Extension",
+                }))}
+          </Stack>
+        </VStack>
       </Modal>
 
-      {modalHolder}
+      <Modal
+        centered={true}
+        closable={disconnectStatus !== "pending"}
+        footer={
+          disconnectStatus &&
+          match(disconnectStatus, {
+            confirm: () => (
+              <Button kind="warning" onClick={disconnect}>
+                Disconnect
+              </Button>
+            ),
+            pending: () => (
+              <VStack
+                $style={{
+                  color: colors.textTertiary.toHex(),
+                  height: "44px",
+                  justifyContent: "center",
+                }}
+              >
+                <Spin />
+              </VStack>
+            ),
+            success: () => (
+              <Stack
+                as="span"
+                $style={{ color: colors.success.toHex(), lineHeight: "44px" }}
+              >
+                Disconnected
+              </Stack>
+            ),
+          })
+        }
+        maskClosable={false}
+        onCancel={() =>
+          setState((prev) => ({ ...prev, disconnectStatus: undefined }))
+        }
+        styles={{
+          body: {
+            alignItems: "center",
+            display: "flex",
+            flexDirection: "column",
+            gap: 12,
+          },
+          container: { display: "flex", flexDirection: "column", gap: 24 },
+          footer: { display: "flex", justifyContent: "center", marginTop: 0 },
+        }}
+        width={480}
+        open={Boolean(disconnectStatus)}
+      >
+        <Lottie animationData={splashScreen} loop={false} />
+        <Stack
+          as="span"
+          $style={{ fontSize: "18px", fontWeight: "700", lineHeight: "24px" }}
+        >
+          Disconnect from Vultisig Extension?
+        </Stack>
+      </Modal>
     </AppContext.Provider>
   );
 };
