@@ -55,6 +55,7 @@ import { nativeTokens } from "@/utils/chain";
 import { defaultPageSize, modalHash } from "@/utils/constants";
 import { frequencies } from "@/utils/frequencies";
 import {
+  formatDateWithTimezone,
   getConfiguration,
   getFeePolicies,
   kebabCaseToTitle,
@@ -95,16 +96,6 @@ type StateProps = {
   submitting: boolean;
   step: number;
   total: number;
-};
-
-const formatDateWithTimezone = (date: string | number) => {
-  const d = dayjs(date);
-  const offset = d.format("Z");
-  return {
-    date: d.format("YYYY-MM-DD"),
-    time: d.format("HH:mm"),
-    timezone: `UTC${offset}`,
-  };
 };
 
 export const RecurringSendsForm: FC<AutomationFormProps> = ({

@@ -1,5 +1,6 @@
 import { create, JsonObject } from "@bufbuild/protobuf";
 import { TimestampSchema } from "@bufbuild/protobuf/wkt";
+import dayjs from "dayjs";
 import { v4 as uuidv4 } from "uuid";
 import { formatUnits } from "viem";
 
@@ -427,4 +428,14 @@ export const toValueFormat = (
 
 export const tinyId = (prefix = "id") => {
   return `${prefix}-${Math.random().toString(36).slice(2, 8)}`;
+};
+
+export const formatDateWithTimezone = (date: string | number) => {
+  const d = dayjs(date);
+  const offset = d.format("Z");
+  return {
+    date: d.format("YYYY-MM-DD"),
+    time: d.format("HH:mm"),
+    timezone: `UTC${offset}`,
+  };
 };
