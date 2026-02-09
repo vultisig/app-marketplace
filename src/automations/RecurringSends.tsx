@@ -102,7 +102,7 @@ const formatDateWithTimezone = (date: string | number) => {
   const offset = d.format("Z");
   return {
     date: d.format("YYYY-MM-DD"),
-    time: d.format("HH:mm:ss"),
+    time: d.format("HH:mm"),
     timezone: `UTC${offset}`,
   };
 };
@@ -164,23 +164,13 @@ export const RecurringSendsForm: FC<AutomationFormProps> = ({
         return (
           <VStack $style={{ gap: "2px" }}>
             <Stack as="span" $style={{ lineHeight: "14px" }}>
-              {date}
+              {date} {time}
             </Stack>
             <Stack
               as="span"
               $style={{
                 color: colors.textTertiary.toHex(),
-                fontSize: "12px",
-                lineHeight: "12px",
-              }}
-            >
-              {time}
-            </Stack>
-            <Stack
-              as="span"
-              $style={{
-                color: colors.textTertiary.toHex(),
-                fontSize: "11px",
+                fontSize: "10px",
                 lineHeight: "11px",
               }}
             >
@@ -203,23 +193,13 @@ export const RecurringSendsForm: FC<AutomationFormProps> = ({
         return (
           <VStack $style={{ gap: "2px" }}>
             <Stack as="span" $style={{ lineHeight: "14px" }}>
-              {date}
+              {date} {time}
             </Stack>
             <Stack
               as="span"
               $style={{
                 color: colors.textTertiary.toHex(),
-                fontSize: "12px",
-                lineHeight: "12px",
-              }}
-            >
-              {time}
-            </Stack>
-            <Stack
-              as="span"
-              $style={{
-                color: colors.textTertiary.toHex(),
-                fontSize: "11px",
+                fontSize: "10px",
                 lineHeight: "11px",
               }}
             >
