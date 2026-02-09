@@ -1,4 +1,5 @@
 import { fromJson, JsonObject } from "@bufbuild/protobuf";
+import { jwtDecode } from "jwt-decode";
 
 import { apiClient } from "@/api/client";
 import { mockFAQs } from "@/data/mockData";
@@ -51,8 +52,10 @@ export const appReport = async (
   return apiClient.post<void>(`/plugins/${appId}/report`, toSnakeCase(data));
 };
 
-export const delAuthToken = async (tokenId: string): Promise<void> => {
-  return apiClient.del(`/auth/tokens/${tokenId}`);
+export const delAuthToken = async (token: string): Promise<void> => {
+  const { token_id } = jwtDecode<{ token_id: string }>(token);
+  
+  return apiClient.del(`/auth/tokens/${token_id}`);
 };
 
 export const delAutomation = async (
