@@ -6,8 +6,6 @@ import { useTheme } from "styled-components";
 
 import { getRecipeSpecification, isAppInstalled } from "@/api/store";
 import { AppImages } from "@/components/AppImages";
-import { RecurringSendsImages } from "@/components/appImages/RecurringSends";
-import { RecurringSwapsImages } from "@/components/appImages/RecurringSwaps";
 import { AppReviews } from "@/components/AppReviews";
 import { FreeTrialBanner } from "@/components/FreeTrialBanner";
 import { StatusModal } from "@/components/StatusModal";
@@ -26,12 +24,7 @@ import { Button } from "@/toolkits/Button";
 import { Divider } from "@/toolkits/Divider";
 import { Spin } from "@/toolkits/Spin";
 import { HStack, Stack, VStack } from "@/toolkits/Stack";
-import {
-  feeAppId,
-  modalHash,
-  recurringSendsAppId,
-  recurringSwapsAppId,
-} from "@/utils/constants";
+import { feeAppId, modalHash } from "@/utils/constants";
 import {
   pricingText,
   snakeCaseToTitle,
@@ -412,14 +405,7 @@ export const AppPage = () => {
               $style={{ backgroundColor: colors.bgPrimary.toHex() }}
             />
             <Stack id="overview">{app.description}</Stack>
-            {app.images.length > 0 ? (
-              <AppImages images={app.images} />
-            ) : (
-              <>
-                {app.id === recurringSendsAppId && <RecurringSendsImages />}
-                {app.id === recurringSwapsAppId && <RecurringSwapsImages />}
-              </>
-            )}
+            {app.images.length > 0 && <AppImages images={app.images} />}
             <Divider light />
             <VStack id="features" $style={{ gap: "24px" }}>
               <Stack
