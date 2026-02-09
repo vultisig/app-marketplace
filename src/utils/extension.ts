@@ -48,7 +48,9 @@ export const getVault = async () => {
       throw new Error("Missing required vault data");
 
     if (!vault.isFastVault)
-      throw new Error("Only Fast Vaults can connect to the Plugin Marketplace");
+      throw new Error(
+        "Your vault type isn't supported. Please use a Fast Vault",
+      );
 
     return vault;
   } else {
