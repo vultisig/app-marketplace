@@ -16,7 +16,7 @@ import { feeAppId, modalHash } from "@/utils/constants";
 export const PaymentModal = () => {
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState(1);
-  const { feeApp, feeAppStatus, personalSign, updateFeeAppStatus } = useApp();
+  const { feeApp, feeAppStatus, startReshare, updateFeeAppStatus } = useApp();
   const { hash } = useLocation();
   const goBack = useGoBack();
   const colors = useTheme();
@@ -41,16 +41,18 @@ export const PaymentModal = () => {
     },
   ];
 
-  const handleInstall = async () => {
+  const handleInstall = () => {
     if (loading) return;
 
     setLoading(true);
 
-    await personalSign(feeAppId);
-
-    setLoading(false);
-
-    updateFeeAppStatus();
+    startReshare(feeAppId)
+      .then((isInstalled) => {
+        if (isInstalled) updateFeeAppStatus();
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   };
 
   useEffect(() => {

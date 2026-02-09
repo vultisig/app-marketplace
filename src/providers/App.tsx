@@ -26,7 +26,7 @@ type StateProps = Pick<AppContextProps, "feeApp" | "feeAppStatus" | "vault"> & {
   connectionStatus?: "connected" | "disconnected" | "connecting";
   isExtensionInstalled: boolean;
   isValidActiveVault: boolean;
-  resharing?: boolean;
+  installing?: boolean;
   signing?: boolean;
 };
 
@@ -39,9 +39,10 @@ export const AppProvider: FC<{ children: ReactNode }> = ({ children }) => {
     connectionStatus,
     feeApp,
     feeAppStatus,
+    installing,
     isExtensionInstalled,
     isValidActiveVault,
-    resharing,
+    signing,
     vault,
   } = state;
   const [modalAPI, modalHolder] = Modal.useModal();
@@ -189,14 +190,24 @@ export const AppProvider: FC<{ children: ReactNode }> = ({ children }) => {
     await checkExtensionAvailability();
     await checkActiveVaultValidity();
 
-    setState((prev) => ({ ...prev, signing: true }));
+    try {
+      setState((prev) => ({ ...prev, signing: true }));
 
-    const address = await vault.address(chains.Ethereum);
-    const signature = await extensionAPI.personalSign(address, message, appId);
+      const address = await vault.address(chains.Ethereum);
+      const signature = await extensionAPI.personalSign(
+        address,
+        message,
+        appId,
+      );
 
-    setState((prev) => ({ ...prev, signing: false }));
+      setState((prev) => ({ ...prev, signing: false }));
 
-    return signature;
+      return signature;
+    } catch (error) {
+      setState((prev) => ({ ...prev, signing: false }));
+
+      throw error;
+    }
   };
 
   const setVault = (vault: VaultBase) => {
@@ -209,13 +220,19 @@ export const AppProvider: FC<{ children: ReactNode }> = ({ children }) => {
     await checkExtensionAvailability();
     await checkActiveVaultValidity();
 
-    setState((prev) => ({ ...prev, resharing: true }));
+    try {
+      setState((prev) => ({ ...prev, installing: true }));
 
-    const isStarted = await extensionAPI.startReshare(appId, vault);
+      const isStarted = await extensionAPI.startReshare(appId, vault);
 
-    setState((prev) => ({ ...prev, resharing: false }));
+      setState((prev) => ({ ...prev, installing: false }));
 
-    return isStarted;
+      return isStarted;
+    } catch (error) {
+      setState((prev) => ({ ...prev, installing: false }));
+      
+      throw error;
+    }
   };
 
   const updateFeeAppStatus = useCallback(async () => {
@@ -325,11 +342,36 @@ export const AppProvider: FC<{ children: ReactNode }> = ({ children }) => {
         }}
         title={false}
         width={390}
-        open={resharing}
+        open={installing}
       >
         <Spin />
         <Stack as="span" $style={{ fontSize: "22px", lineHeight: "24px" }}>
-          Resharing in Progress
+          Installation is in progress
+        </Stack>
+      </Modal>
+
+      <Modal
+        centered={true}
+        closable={false}
+        footer={false}
+        styles={{
+          body: {
+            alignItems: "center",
+            display: "flex",
+            flexDirection: "column",
+            gap: 24,
+            padding: 32,
+          },
+          container: { overflow: "hidden", padding: 0 },
+          footer: { display: "none" },
+        }}
+        title={false}
+        width={390}
+        open={signing}
+      >
+        <Spin />
+        <Stack as="span" $style={{ fontSize: "22px", lineHeight: "24px" }}>
+          Signing is in progress
         </Stack>
       </Modal>
 
