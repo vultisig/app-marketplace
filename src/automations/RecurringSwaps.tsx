@@ -54,6 +54,7 @@ import { nativeTokens } from "@/utils/chain";
 import { defaultPageSize, modalHash } from "@/utils/constants";
 import { frequencies, Frequency } from "@/utils/frequencies";
 import {
+  formatDateWithTimezone,
   getConfiguration,
   getFeePolicies,
   kebabCaseToTitle,
@@ -140,22 +141,22 @@ export const RecurringSwapsForm: FC<AutomationFormProps> = ({
       dataIndex: "configuration",
       key: "startDate",
       render: ({ startDate }: DataProps) => {
-        const date = dayjs(startDate);
+        const { date, time, timezone } = formatDateWithTimezone(startDate);
 
         return (
           <VStack $style={{ gap: "2px" }}>
             <Stack as="span" $style={{ lineHeight: "14px" }}>
-              {date.format("YYYY-MM-DD")}
+              {date} {time}
             </Stack>
             <Stack
               as="span"
               $style={{
                 color: colors.textTertiary.toHex(),
-                fontSize: "12px",
-                lineHeight: "12px",
+                fontSize: "10px",
+                lineHeight: "11px",
               }}
             >
-              {date.format("HH:mm:ss")}
+              {timezone}
             </Stack>
           </VStack>
         );
@@ -169,22 +170,22 @@ export const RecurringSwapsForm: FC<AutomationFormProps> = ({
       render: ({ endDate }: DataProps) => {
         if (!endDate) return "-";
 
-        const date = dayjs(endDate);
+        const { date, time, timezone } = formatDateWithTimezone(endDate);
 
         return (
           <VStack $style={{ gap: "2px" }}>
             <Stack as="span" $style={{ lineHeight: "14px" }}>
-              {date.format("YYYY-MM-DD")}
+              {date} {time}
             </Stack>
             <Stack
               as="span"
               $style={{
                 color: colors.textTertiary.toHex(),
-                fontSize: "12px",
-                lineHeight: "12px",
+                fontSize: "10px",
+                lineHeight: "11px",
               }}
             >
-              {date.format("HH:mm:ss")}
+              {timezone}
             </Stack>
           </VStack>
         );
@@ -713,9 +714,20 @@ const Overview: FC<DataProps> = ({
             }}
           >
             <Stack as="span">Start Date</Stack>
-            <Stack as="span">
-              {dayjs(startDate).format("YYYY-MM-DD HH:mm")}
-            </Stack>
+            <VStack $style={{ gap: "2px", alignItems: "flex-end" }}>
+              <Stack as="span">
+                {dayjs(startDate).format("YYYY-MM-DD HH:mm")}
+              </Stack>
+              <Stack
+                as="span"
+                $style={{
+                  color: colors.textTertiary.toHex(),
+                  fontSize: "12px",
+                }}
+              >
+                {formatDateWithTimezone(startDate).timezone}
+              </Stack>
+            </VStack>
           </HStack>
           <Divider />
         </>
@@ -729,7 +741,18 @@ const Overview: FC<DataProps> = ({
             }}
           >
             <Stack as="span">End Date</Stack>
-            <Stack as="span">{dayjs(endDate).format("YYYY-MM-DD HH:mm")}</Stack>
+            <VStack $style={{ gap: "2px", alignItems: "flex-end" }}>
+              <Stack as="span">{dayjs(endDate).format("YYYY-MM-DD HH:mm")}</Stack>
+              <Stack
+                as="span"
+                $style={{
+                  color: colors.textTertiary.toHex(),
+                  fontSize: "12px",
+                }}
+              >
+                {formatDateWithTimezone(endDate).timezone}
+              </Stack>
+            </VStack>
           </HStack>
           <Divider />
         </>
