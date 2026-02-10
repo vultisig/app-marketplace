@@ -211,6 +211,7 @@ export type Transaction = {
   broadcastedAt: string;
   chain: Chain;
   createdAt: string;
+  errorMessage?: string | null;
   id: string;
   pluginId: string;
   policyId: string;
