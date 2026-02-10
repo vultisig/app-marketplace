@@ -81,8 +81,6 @@ export const BillingPage = () => {
 
         const parsedDate = formatDateWithTimezone(startDate);
 
-        console.log(parsedDate);
-
         return (
           <VStack $style={{ gap: "4px" }}>
             <Stack as="span" $style={{ lineHeight: "18px" }}>
