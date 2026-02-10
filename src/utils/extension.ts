@@ -41,9 +41,11 @@ export const disconnect = async () => {
 };
 
 export const getVault = async () => {
-  const vault = await window.vultisig.getVault();
+  try {
+    const vault = await window.vultisig.getVault();
 
-  if (vault) {
+    if (!vault) throw new Error("No vault found");
+
     if (!vault.hexChainCode || !vault.publicKeyEcdsa)
       throw new Error("Missing required vault data");
 
@@ -53,8 +55,10 @@ export const getVault = async () => {
       );
 
     return vault;
-  } else {
-    throw new Error("Vault not found");
+  } catch (error) {
+    await disconnect();
+
+    throw error;
   }
 };
 

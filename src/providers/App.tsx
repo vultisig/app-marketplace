@@ -69,10 +69,16 @@ export const AppProvider: FC<{ children: ReactNode }> = ({ children }) => {
     try {
       const { publicKeyEcdsa } = await extensionAPI.getVault();
 
-      if (publicKeyEcdsa !== vault?.publicKeys.ecdsa)
+      if (publicKeyEcdsa !== vault.publicKeys.ecdsa)
         throw new Error("Active vault does not match connected vault");
+
+      setState((prev) => ({ ...prev, isValidActiveVault: true }));
     } catch (error) {
       setState((prev) => ({ ...prev, isValidActiveVault: false }));
+
+      await extensionAPI.disconnect();
+      await extensionAPI.connect();
+      await checkActiveVaultValidity();
 
       throw error;
     }
@@ -96,11 +102,7 @@ export const AppProvider: FC<{ children: ReactNode }> = ({ children }) => {
       }));
 
       const address = await extensionAPI.connect();
-      const baseVault = await extensionAPI.getVault().catch((error) => {
-        extensionAPI.disconnect();
-
-        throw error;
-      });
+      const baseVault = await extensionAPI.getVault();
       const vault = await normalizeVault(baseVault);
 
       setState((prev) => ({
@@ -342,8 +344,20 @@ export const AppProvider: FC<{ children: ReactNode }> = ({ children }) => {
             textAlign: "center",
           }}
         >
-          Please switch to your connected vault in Vultisig
+          {`Please switch to ${vault?.name} vault in Vultisig`}
         </Stack>
+        <VStack $style={{ marginTop: "16px" }}>
+          <Button
+            kind="danger"
+            onClick={() =>
+              disconnect().finally(() =>
+                setState((prev) => ({ ...prev, isValidActiveVault: true })),
+              )
+            }
+          >
+            Disconnect
+          </Button>
+        </VStack>
       </StatusModal>
 
       <Modal
@@ -368,6 +382,7 @@ export const AppProvider: FC<{ children: ReactNode }> = ({ children }) => {
         title={false}
         width={480}
         open={installing}
+        zIndex={1002}
       >
         <Lottie animationData={splashScreen} />
       </Modal>
@@ -394,6 +409,7 @@ export const AppProvider: FC<{ children: ReactNode }> = ({ children }) => {
         title={false}
         width={480}
         open={signing}
+        zIndex={1002}
       >
         <Lottie animationData={splashScreen} />
       </Modal>
@@ -454,6 +470,7 @@ export const AppProvider: FC<{ children: ReactNode }> = ({ children }) => {
         title={false}
         width={480}
         open={Boolean(connectStatus)}
+        zIndex={1002}
       >
         <VStack>
           <Lottie
@@ -538,6 +555,7 @@ export const AppProvider: FC<{ children: ReactNode }> = ({ children }) => {
         }}
         width={480}
         open={Boolean(disconnectStatus)}
+        zIndex={1002}
       >
         <Lottie animationData={splashScreen} loop={false} />
         <Stack

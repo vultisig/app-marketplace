@@ -42,6 +42,7 @@ export const StatusModal: FC<StatusModalProps> = ({
     }
     width={390}
     open={open}
+    zIndex={1001}
   >
     {children}
   </Modal>
