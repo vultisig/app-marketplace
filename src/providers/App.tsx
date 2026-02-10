@@ -28,6 +28,7 @@ type StateProps = Pick<AppContextProps, "feeApp" | "feeAppStatus" | "vault"> & {
   installing?: boolean;
   isExtensionInstalled: boolean;
   isValidActiveVault: boolean;
+  loaded?: boolean;
   signing?: boolean;
 };
 
@@ -45,6 +46,7 @@ export const AppProvider: FC<{ children: ReactNode }> = ({ children }) => {
     installing,
     isExtensionInstalled,
     isValidActiveVault,
+    loaded,
     signing,
     vault,
   } = state;
@@ -93,7 +95,6 @@ export const AppProvider: FC<{ children: ReactNode }> = ({ children }) => {
         connectStatus: "connecting",
       }));
 
-      
       const address = await extensionAPI.connect();
       const baseVault = await extensionAPI.getVault().catch((error) => {
         extensionAPI.disconnect();
@@ -269,8 +270,10 @@ export const AppProvider: FC<{ children: ReactNode }> = ({ children }) => {
 
     if (vault) {
       normalizeVault(vault).then((vault) => {
-        setState((prev) => ({ ...prev, vault }));
+        setState((prev) => ({ ...prev, loaded: true, vault }));
       });
+    } else {
+      setState((prev) => ({ ...prev, loaded: true }));
     }
 
     setUnauthorizedHandler(clear);
@@ -295,7 +298,7 @@ export const AppProvider: FC<{ children: ReactNode }> = ({ children }) => {
         vault,
       }}
     >
-      {children}
+      {loaded && children}
 
       <StatusModal
         onClose={() =>
@@ -479,12 +482,9 @@ export const AppProvider: FC<{ children: ReactNode }> = ({ children }) => {
               (connectStatus &&
                 match(connectStatus, {
                   connected: () => "Connection established",
-                  connecting: () =>
-                    "Waiting for approval...",
-                  retrying: () =>
-                    "Connection failed. Please try again",
-                  signing: () =>
-                    "Approve the request in Vultisig Extension",
+                  connecting: () => "Waiting for approval...",
+                  retrying: () => "Connection failed. Please try again",
+                  signing: () => "Approve the request in Vultisig Extension",
                 }))}
           </Stack>
         </VStack>
