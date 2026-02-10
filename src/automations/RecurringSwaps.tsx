@@ -418,7 +418,7 @@ export const RecurringSwapsForm: FC<AutomationFormProps> = ({
               cloneDeep({
                 ...values,
                 fromAmount: parseUnits(
-                  Number(values.fromAmount).toFixed(values.from.decimals),
+                  values.fromAmount,
                   values.from.decimals,
                 ).toString(),
               }),
