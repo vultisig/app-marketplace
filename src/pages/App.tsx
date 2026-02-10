@@ -272,9 +272,10 @@ export const AppPage = () => {
                     ) : (
                       <Button
                         onClick={() =>
-                          startReshare(id).then((isInstalled) =>
-                            setState((prev) => ({ ...prev, isInstalled })),
-                          )
+                          startReshare(id).then((isInstalled) => {
+                            setState((prev) => ({ ...prev, isInstalled }));
+                            navigate(modalHash.success);
+                          })
                         }
                       >
                         Get
