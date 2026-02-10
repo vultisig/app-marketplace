@@ -424,7 +424,7 @@ export const RecurringSendsForm: FC<AutomationFormProps> = ({
           recipients: recipients.map((recipient) => ({
             ...recipient,
             amount: parseUnits(
-              Number(recipient.amount).toFixed(values.asset.decimals),
+              recipient.amount,
               values.asset.decimals,
             ).toString(),
           })),
