@@ -1,5 +1,4 @@
 import { Empty, Table, TableProps, Tooltip } from "antd";
-import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import { useTheme } from "styled-components";
 
@@ -15,7 +14,7 @@ import { ZapIcon } from "@/icons/ZapIcon";
 import { Button } from "@/toolkits/Button";
 import { HStack, Stack, VStack } from "@/toolkits/Stack";
 import { defaultPageSize } from "@/utils/constants";
-import { camelCaseToTitle, getExplorerUrl } from "@/utils/functions";
+import { camelCaseToTitle, formatDateWithTimezone, getExplorerUrl } from "@/utils/functions";
 import { routeTree } from "@/utils/routes";
 import { App, Transaction } from "@/utils/types";
 
@@ -89,23 +88,29 @@ export const TransactionsPage = () => {
       dataIndex: "createdAt",
       key: "createdAt",
       title: "Created At",
-      render: (_, { createdAt }) => (
-        <VStack $style={{ gap: "4px" }}>
-          <Stack as="span" $style={{ lineHeight: "18px" }}>
-            {dayjs(createdAt).format("MMMM DD YYYY")}
-          </Stack>
-          <Stack
-            as="span"
-            $style={{
-              color: colors.textTertiary.toHex(),
-              fontSize: "12px",
-              lineHeight: "12px",
-            }}
-          >
-            {dayjs(createdAt).format("HH:mm:ss")}
-          </Stack>
-        </VStack>
-      ),
+      render: (_, { createdAt }) => {
+        if (!createdAt) return "-";
+
+        const parsedDate = formatDateWithTimezone(createdAt);
+
+        return (
+          <VStack $style={{ gap: "4px" }}>
+            <Stack as="span" $style={{ lineHeight: "18px" }}>
+              {`${parsedDate.date} ${parsedDate.time}`}
+            </Stack>
+            <Stack
+              as="span"
+              $style={{
+                color: colors.textTertiary.toHex(),
+                fontSize: "12px",
+                lineHeight: "12px",
+              }}
+            >
+              {parsedDate.timezone}
+            </Stack>
+          </VStack>
+        );
+      },
     },
     {
       align: "center",
@@ -127,9 +132,9 @@ export const TransactionsPage = () => {
         const getIconForStatus = () => {
           switch (statusOnchain) {
             case "SUCCESS":
-              return <CheckmarkIcon fontSize={14}  />;
+              return <CheckmarkIcon fontSize={14} />;
             case "PENDING":
-              return <ZapIcon fontSize={14}  />;
+              return <ZapIcon fontSize={14} />;
             case "FAIL":
               return <CrossIcon fontSize={14} />;
             default:

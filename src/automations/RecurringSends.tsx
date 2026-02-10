@@ -13,7 +13,7 @@ import {
 } from "antd";
 import dayjs from "dayjs";
 import { cloneDeep } from "lodash-es";
-import { FC, useCallback, useEffect, useState } from "react";
+import { FC, useCallback, useEffect, useMemo, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import { useTheme } from "styled-components";
 import { v4 as uuidv4 } from "uuid";
@@ -753,6 +753,18 @@ const Overview: FC<DataProps> = ({
 }) => {
   const colors = useTheme();
 
+  const parsedEndDate = useMemo(() => {
+    if (!endDate) return;
+
+    return formatDateWithTimezone(endDate);
+  }, [endDate]);
+
+  const parsedStartDate = useMemo(() => {
+    if (!startDate) return;
+
+    return formatDateWithTimezone(startDate);
+  }, [startDate]);
+
   return (
     <VStack $style={{ gap: "16px" }}>
       <VStack
@@ -783,7 +795,7 @@ const Overview: FC<DataProps> = ({
           </Form.Item>
         </HStack>
         <Divider light />
-        {!!startDate && (
+        {!!parsedStartDate && (
           <>
             <HStack
               $style={{
@@ -796,7 +808,7 @@ const Overview: FC<DataProps> = ({
               </Stack>
               <VStack $style={{ gap: "2px", alignItems: "flex-end" }}>
                 <Stack as="span">
-                  {dayjs(startDate).format("YYYY-MM-DD HH:mm")}
+                  {`${parsedStartDate.date} ${parsedStartDate.time}`}
                 </Stack>
                 <Stack
                   as="span"
@@ -805,14 +817,14 @@ const Overview: FC<DataProps> = ({
                     fontSize: "12px",
                   }}
                 >
-                  {formatDateWithTimezone(startDate).timezone}
+                  {parsedStartDate.timezone}
                 </Stack>
               </VStack>
             </HStack>
             <Divider light />
           </>
         )}
-        {!!endDate && (
+        {!!parsedEndDate && (
           <>
             <HStack
               $style={{
@@ -825,7 +837,7 @@ const Overview: FC<DataProps> = ({
               </Stack>
               <VStack $style={{ gap: "2px", alignItems: "flex-end" }}>
                 <Stack as="span">
-                  {dayjs(endDate).format("YYYY-MM-DD HH:mm")}
+                  {`${parsedEndDate.date} ${parsedEndDate.time}`}
                 </Stack>
                 <Stack
                   as="span"
@@ -834,7 +846,7 @@ const Overview: FC<DataProps> = ({
                     fontSize: "12px",
                   }}
                 >
-                  {formatDateWithTimezone(endDate).timezone}
+                  {parsedEndDate.timezone}
                 </Stack>
               </VStack>
             </HStack>

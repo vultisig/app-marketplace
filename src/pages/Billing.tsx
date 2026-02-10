@@ -15,7 +15,7 @@ import { Divider } from "@/toolkits/Divider";
 import { Spin } from "@/toolkits/Spin";
 import { HStack, Stack, VStack } from "@/toolkits/Stack";
 import { defaultPageSize, modalHash } from "@/utils/constants";
-import { toValueFormat } from "@/utils/functions";
+import { formatDateWithTimezone, toValueFormat } from "@/utils/functions";
 import { routeTree } from "@/utils/routes";
 import { App, Billing } from "@/utils/types";
 
@@ -76,36 +76,15 @@ export const BillingPage = () => {
       dataIndex: "startDate",
       key: "startDate",
       title: "Start Date",
-      render: (_, { startDate }) => (
-        <VStack $style={{ gap: "4px" }}>
-          <Stack as="span" $style={{ lineHeight: "18px" }}>
-            {dayjs(startDate).format("MMMM DD YYYY")}
-          </Stack>
-          <Stack
-            as="span"
-            $style={{
-              color: colors.textTertiary.toHex(),
-              fontSize: "12px",
-              lineHeight: "12px",
-            }}
-          >
-            {dayjs(startDate).format("HH:mm:ss")}
-          </Stack>
-        </VStack>
-      ),
-    },
-    {
-      align: "center",
-      dataIndex: "nextPayment",
-      key: "nextPayment",
-      title: "Next Payment",
-      render: (_, { nextPayment }) => {
-        if (!nextPayment) return "-";
+      render: (_, { startDate }) => {
+        if (!startDate) return "-";
+
+        const parsedDate = formatDateWithTimezone(startDate);
 
         return (
           <VStack $style={{ gap: "4px" }}>
             <Stack as="span" $style={{ lineHeight: "18px" }}>
-              {dayjs(nextPayment).format("MMMM DD YYYY")}
+              {`${parsedDate.date} ${parsedDate.time}`}
             </Stack>
             <Stack
               as="span"
@@ -115,7 +94,36 @@ export const BillingPage = () => {
                 lineHeight: "12px",
               }}
             >
-              {dayjs(nextPayment).format("HH:mm:ss")}
+              {parsedDate.timezone}
+            </Stack>
+          </VStack>
+        );
+      },
+    },
+    {
+      align: "center",
+      dataIndex: "nextPayment",
+      key: "nextPayment",
+      title: "Next Payment",
+      render: (_, { nextPayment }) => {
+        if (!nextPayment) return "-";
+
+        const parsedDate = formatDateWithTimezone(nextPayment);
+
+        return (
+          <VStack $style={{ gap: "4px" }}>
+            <Stack as="span" $style={{ lineHeight: "18px" }}>
+              {`${parsedDate.date} ${parsedDate.time}`}
+            </Stack>
+            <Stack
+              as="span"
+              $style={{
+                color: colors.textTertiary.toHex(),
+                fontSize: "12px",
+                lineHeight: "12px",
+              }}
+            >
+              {parsedDate.timezone}
             </Stack>
           </VStack>
         );
