@@ -1,4 +1,4 @@
-import { Empty, Table, TableProps } from "antd";
+import { Empty, Table, TableProps, Tooltip } from "antd";
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import { useTheme } from "styled-components";
@@ -8,7 +8,10 @@ import { AutomationAmount } from "@/automations/components/Amount";
 import { AutomationToken } from "@/automations/components/Token";
 import { useGoBack } from "@/hooks/useGoBack";
 import { ChevronLeftIcon } from "@/icons/ChevronLeftIcon";
+import { CheckmarkIcon } from "@/icons/CheckmarkIcon";
+import { CrossIcon } from "@/icons/CrossIcon";
 import { EyeOpenIcon } from "@/icons/EyeOpenIcon";
+import { ZapIcon } from "@/icons/ZapIcon";
 import { Button } from "@/toolkits/Button";
 import { HStack, Stack, VStack } from "@/toolkits/Stack";
 import { defaultPageSize } from "@/utils/constants";
@@ -109,7 +112,7 @@ export const TransactionsPage = () => {
       dataIndex: "statusOnchain",
       key: "statusOnchain",
       title: "Status",
-      render: (_, { statusOnchain }) => {
+      render: (_, { statusOnchain, errorMessage }) => {
         if (!statusOnchain) return "-";
 
         const color =
@@ -119,7 +122,22 @@ export const TransactionsPage = () => {
               ? colors.warning
               : colors.error;
 
-        return (
+        const hasError = errorMessage && errorMessage.trim();
+
+        const getIconForStatus = () => {
+          switch (statusOnchain) {
+            case "SUCCESS":
+              return <CheckmarkIcon fontSize={14}  />;
+            case "PENDING":
+              return <ZapIcon fontSize={14}  />;
+            case "FAIL":
+              return <CrossIcon fontSize={14} />;
+            default:
+              return null;
+          }
+        };
+
+        const statusBadge = (
           <HStack $style={{ justifyContent: "center" }}>
             <Stack
               as="span"
@@ -130,12 +148,26 @@ export const TransactionsPage = () => {
                 fontSize: "12px",
                 lineHeight: "20px",
                 padding: "0 8px",
+                border: `1px solid ${color.toHex()}`,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "6px",
+                minWidth: "86px",
+                cursor: hasError ? "pointer" : "default",
               }}
             >
+              {getIconForStatus()}
               {camelCaseToTitle(statusOnchain.toLowerCase())}
             </Stack>
           </HStack>
         );
+
+        if (hasError) {
+          return <Tooltip title={errorMessage}>{statusBadge}</Tooltip>;
+        }
+
+        return statusBadge;
       },
     },
     {
