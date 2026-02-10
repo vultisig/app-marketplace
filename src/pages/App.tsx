@@ -274,7 +274,7 @@ export const AppPage = () => {
                         onClick={() =>
                           startReshare(id).then((isInstalled) => {
                             setState((prev) => ({ ...prev, isInstalled }));
-                            navigate(modalHash.success);
+                            if (isInstalled) navigate(modalHash.success);
                           })
                         }
                       >
