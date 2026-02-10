@@ -1,5 +1,4 @@
 import { Empty, Table, TableProps } from "antd";
-import dayjs from "dayjs";
 import { useCallback, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useTheme } from "styled-components";
@@ -15,6 +14,7 @@ import { HStack, Stack, VStack } from "@/toolkits/Stack";
 import { defaultPageSize } from "@/utils/constants";
 import {
   camelCaseToTitle,
+  formatDateWithTimezone,
   snakeCaseToTitle,
   toValueFormat,
 } from "@/utils/functions";
@@ -45,33 +45,39 @@ export const FeeTransactionsPage = () => {
 
   const columns: TableProps<FeeTransaction>["columns"] = [
     {
-      dataIndex: "createdAt",
-      key: "createdAt",
-      title: "Date",
-      render: (_, { createdAt }) => (
-        <VStack $style={{ gap: "4px" }}>
-          <Stack as="span" $style={{ lineHeight: "18px" }}>
-            {dayjs(createdAt).format("MMMM DD YYYY")}
-          </Stack>
-          <Stack
-            as="span"
-            $style={{
-              color: colors.textTertiary.toHex(),
-              fontSize: "12px",
-              lineHeight: "12px",
-            }}
-          >
-            {dayjs(createdAt).format("HH:mm:ss")}
-          </Stack>
-        </VStack>
-      ),
-    },
-    {
-      align: "center",
       dataIndex: "transactionType",
       key: "transactionType",
       title: "Type",
       render: (_, { transactionType }) => snakeCaseToTitle(transactionType),
+    },
+    {
+      align: "center",
+      dataIndex: "createdAt",
+      key: "createdAt",
+      title: "Date",
+      render: (_, { createdAt }) => {
+        if (!createdAt) return "-";
+
+        const parsedDate = formatDateWithTimezone(createdAt);
+
+        return (
+          <VStack $style={{ gap: "4px" }}>
+            <Stack as="span" $style={{ lineHeight: "18px" }}>
+              {`${parsedDate.date} ${parsedDate.time}`}
+            </Stack>
+            <Stack
+              as="span"
+              $style={{
+                color: colors.textTertiary.toHex(),
+                fontSize: "12px",
+                lineHeight: "12px",
+              }}
+            >
+              {parsedDate.timezone}
+            </Stack>
+          </VStack>
+        );
+      },
     },
     {
       align: "center",

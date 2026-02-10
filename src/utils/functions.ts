@@ -432,10 +432,10 @@ export const tinyId = (prefix = "id") => {
 
 export const formatDateWithTimezone = (date: string | number) => {
   const d = dayjs(date);
-  const offset = d.format("Z");
+
   return {
     date: d.format("YYYY-MM-DD"),
     time: d.format("HH:mm"),
-    timezone: `UTC${offset}`,
+    timezone: `UTC${d.format("Z")}`,
   };
 };
