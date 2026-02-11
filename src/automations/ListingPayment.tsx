@@ -50,12 +50,12 @@ type CustomAppAutomation = AppAutomation & {
 
 type DataProps = {
   asset: AssetProps;
+  feeAmount: string;
+  frequency: string;
   targetPluginId: string;
 };
 
-type OverviewProps = DataProps & {
-  feeAmount: string;
-};
+type OverviewProps = Pick<DataProps, "asset" | "feeAmount" | "targetPluginId">;
 
 type StateProps = {
   automations: CustomAppAutomation[];
