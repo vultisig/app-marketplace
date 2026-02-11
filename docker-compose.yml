@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  vultisig-marketplace:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        # Override these with your actual values
+        VITE_APP_STORE_URL: ${VITE_APP_STORE_URL:-http://localhost:8080}
+        VITE_FEE_APP_ID: ${VITE_FEE_APP_ID:-app-slug}
+        VITE_RECURRING_SENDS_APP_ID: ${VITE_RECURRING_SENDS_APP_ID:-app-slug}
+        VITE_RECURRING_SWAPS_APP_ID: ${VITE_RECURRING_SWAPS_APP_ID:-app-slug}
+        VITE_VULTISIG_SERVER: ${VITE_VULTISIG_SERVER:-http://localhost:3000}
+    ports:
+      - "3000:80"
+    container_name: vultisig-marketplace
+    restart: unless-stopped

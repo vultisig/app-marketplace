@@ -24,6 +24,7 @@
 - [Architecture](#-architecture)
 - [Prerequisites](#-prerequisites)
 - [Getting Started](#-getting-started)
+- [Docker Deployment](#docker-deployment)
 - [Project Structure](#-project-structure)
 - [Development Workflow](#development-workflow)
 ---
@@ -138,7 +139,7 @@ This marketplace enables users to:
 
 ## 🚀 Getting Started
 
-### Quick Start 
+### Quick Start
 
 ```bash
 # 1. Clone the repository
@@ -158,6 +159,52 @@ cp .env.example .env
 # 5. Run development server
 npm run dev
 ```
+
+### Docker Deployment
+
+#### Using docker-compose (Recommended)
+
+```bash
+# Build and run with environment variables
+docker-compose up
+
+# Or build with custom environment variables
+VITE_APP_STORE_URL=https://your-api.com \
+VITE_VULTISIG_SERVER=https://vultisig.com \
+docker-compose up
+```
+
+The application will be available at `http://localhost:3000`
+
+#### Using Docker CLI
+
+```bash
+# Build the image
+docker build -t vultisig-marketplace:latest .
+
+# Run the container
+docker run -p 3000:80 vultisig-marketplace:latest
+
+# Build with custom environment variables
+docker build \
+  --build-arg VITE_APP_STORE_URL=https://your-api.com \
+  --build-arg VITE_VULTISIG_SERVER=https://vultisig.com \
+  -t vultisig-marketplace:latest .
+```
+
+#### Environment Variables (Build-time)
+
+These variables are compiled into the static build at Docker build time:
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `VITE_APP_STORE_URL` | `http://localhost:8080` | Backend API endpoint |
+| `VITE_FEE_APP_ID` | `app-slug` | Fee application ID |
+| `VITE_RECURRING_SENDS_APP_ID` | `app-slug` | Recurring sends app ID |
+| `VITE_RECURRING_SWAPS_APP_ID` | `app-slug` | Recurring swaps app ID |
+| `VITE_VULTISIG_SERVER` | `http://localhost:3000` | Vultisig server endpoint |
+
+**Note**: These are Vite environment variables (prefixed with `VITE_`) and are baked into the static build. For different environments, build separate Docker images with different values.
 
 ---
 
