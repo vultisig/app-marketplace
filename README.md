@@ -186,7 +186,7 @@ The application will be available at `http://localhost:3000`
 docker build -t vultisig-marketplace:latest .
 
 # Run the container
-docker run -p 3000:80 vultisig-marketplace:latest
+docker run -p 3000:8080 vultisig-marketplace:latest
 
 # Build with custom environment variables
 docker build \
