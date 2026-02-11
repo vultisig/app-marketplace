@@ -26,8 +26,8 @@ RUN npm ci
 # Copy source code
 COPY . .
 
-# Build the application
-RUN npm run build
+# Build the application (with increased Node heap size to prevent OOM)
+RUN NODE_OPTIONS=--max-old-space-size=4096 npm run build
 
 # Production stage - serve with nginx
 FROM nginx:alpine
@@ -38,10 +38,10 @@ COPY --from=builder /app/dist /usr/share/nginx/html
 # Copy nginx configuration
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Create nginx cache directory with proper permissions
-RUN mkdir -p /var/cache/nginx && \
-    chown -R nginx:nginx /var/cache/nginx /usr/share/nginx/html /etc/nginx/conf.d/default.conf && \
-    chmod -R 755 /var/cache/nginx /usr/share/nginx/html
+# Create nginx required directories with proper permissions
+RUN mkdir -p /var/cache/nginx /run/nginx && \
+    chown -R nginx:nginx /var/cache/nginx /usr/share/nginx/html /etc/nginx/conf.d/default.conf /run/nginx && \
+    chmod -R 755 /var/cache/nginx /usr/share/nginx/html /run/nginx
 
 # Switch to non-root user
 USER nginx
