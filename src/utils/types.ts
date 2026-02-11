@@ -126,9 +126,11 @@ export type FeeTransaction = {
 };
 
 export type FieldProps = {
+  default?: string;
   description?: string;
   enum?: string[];
   format?: string;
+  readOnly?: boolean;
   type?: string;
   $ref?: Widget;
 };

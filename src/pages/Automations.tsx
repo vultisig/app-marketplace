@@ -5,6 +5,7 @@ import { useTheme } from "styled-components";
 
 import { getRecipeSpecification, uninstallApp } from "@/api/store";
 import { AutomationForm } from "@/automations/Default";
+import { ListingPaymentForm } from "@/automations/ListingPayment";
 import { RecurringSendsForm } from "@/automations/RecurringSends";
 import { RecurringSwapsForm } from "@/automations/RecurringSwaps";
 import { AppReportModal } from "@/components/AppReportModal";
@@ -21,6 +22,7 @@ import { Divider } from "@/toolkits/Divider";
 import { Spin } from "@/toolkits/Spin";
 import { HStack, Stack, VStack } from "@/toolkits/Stack";
 import {
+  listingPaymentAppId,
   modalHash,
   recurringSendsAppId,
   recurringSwapsAppId,
@@ -190,6 +192,8 @@ export const AutomationsPage = () => {
             <RecurringSwapsForm app={app} schema={schema} />
           ) : id === recurringSendsAppId ? (
             <RecurringSendsForm app={app} schema={schema} />
+          ) : id === listingPaymentAppId ? (
+            <ListingPaymentForm app={app} schema={schema} />
           ) : (
             <AutomationForm app={app} schema={schema} />
           )}
