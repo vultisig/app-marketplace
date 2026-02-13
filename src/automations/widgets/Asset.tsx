@@ -15,7 +15,7 @@ import {
   scrollSelectDropdownToTop,
   tinyId,
 } from "@/utils/functions";
-import { Token } from "@/utils/types";
+import { Configuration, Token } from "@/utils/types";
 
 export type AssetProps = {
   address: string;
@@ -27,6 +27,7 @@ export type AssetProps = {
 
 type AssetWidgetProps = {
   chains: Chain[];
+  definition?: Configuration;
   keys: string[];
   noStyle?: boolean;
   prefixKeys?: string[];
@@ -39,6 +40,7 @@ type StateProps = {
 
 export const AssetWidget: FC<AssetWidgetProps> = ({
   chains,
+  definition,
   keys,
   noStyle = false,
   prefixKeys = [],
@@ -49,6 +51,10 @@ export const AssetWidget: FC<AssetWidgetProps> = ({
   const { getTokenData, getTokenList } = useQueries();
   const { isValidAddress } = useWalletCore();
   const colors = useTheme();
+  const chainEnum = definition?.properties?.chain?.enum;
+  const isChainFixed = !!chainEnum && chainEnum.length === 1;
+  const tokenEnum = definition?.properties?.token?.enum;
+  const isTokenFixed = !!tokenEnum && tokenEnum.length > 0;
   const key = keys[keys.length - 1];
   const addressField = [...prefixKeys, ...keys, "address"];
   const chainField = [...prefixKeys, ...keys, "chain"];
@@ -102,8 +108,8 @@ export const AssetWidget: FC<AssetWidgetProps> = ({
     string,
     { label: string; logo: string; name: string; value: string }
   > = {
-    allowClear: true,
-    disabled: !chain,
+    allowClear: !isTokenFixed,
+    disabled: !chain || isTokenFixed,
     loading,
     classNames: { popup: { root: tokenSelectDropdownId } },
     notFoundContent: loading ? (
@@ -153,7 +159,10 @@ export const AssetWidget: FC<AssetWidgetProps> = ({
         </VStack>
       </HStack>
     ),
-    options: [...(chain ? [nativeTokens[chain]] : []), ...tokens].map(
+    options: (isTokenFixed
+      ? tokens
+      : [...(chain ? [nativeTokens[chain]] : []), ...tokens]
+    ).map(
       (token) => ({
         label: token.ticker,
         logo: token.logo,
@@ -252,19 +261,49 @@ export const AssetWidget: FC<AssetWidgetProps> = ({
   };
 
   useEffect(() => {
-    if (chain) {
-      setState((prev) => ({ ...prev, loading: true, tokens: [] }));
+    if (!isChainFixed || !vault || chain) return;
 
-      getTokenList(chain)
-        .catch(() => [])
-        .then((tokens) => {
-          setState((prev) => ({ ...prev, loading: false, tokens }));
-        });
-    } else {
+    const fixedChain = chainEnum![0] as Chain;
+    form.setFieldValue(chainField, fixedChain);
+    vault.address(fixedChain).then((address) => {
+      form.setFieldValue(addressField, address);
+      form.setFieldValue(decimalsField, nativeTokens[fixedChain].decimals);
+      form.setFieldValue(symbolField, nativeTokens[fixedChain].ticker);
+      form.setFieldValue(tokenField, "");
+    });
+  }, [isChainFixed, vault]);
+
+  useEffect(() => {
+    if (!chain) {
       form.setFieldValue(addressField, undefined);
       form.setFieldValue(decimalsField, undefined);
       form.setFieldValue(symbolField, undefined);
       form.setFieldValue(tokenField, undefined);
+      return;
+    }
+
+    setState((prev) => ({ ...prev, loading: true, tokens: [] }));
+
+    if (isTokenFixed) {
+      Promise.all(tokenEnum!.map((addr) => getTokenData(chain, addr)))
+        .then((loadedTokens) => {
+          setState((prev) => ({ ...prev, loading: false, tokens: loadedTokens }));
+
+          if (loadedTokens.length === 1) {
+            form.setFieldValue(tokenField, loadedTokens[0].id);
+            form.setFieldValue(decimalsField, loadedTokens[0].decimals);
+            form.setFieldValue(symbolField, loadedTokens[0].ticker);
+          }
+        })
+        .catch(() => {
+          setState((prev) => ({ ...prev, loading: false }));
+        });
+    } else {
+      getTokenList(chain)
+        .catch(() => [])
+        .then((loadedTokens) => {
+          setState((prev) => ({ ...prev, loading: false, tokens: loadedTokens }));
+        });
     }
   }, [chain]);
 
@@ -283,7 +322,7 @@ export const AssetWidget: FC<AssetWidgetProps> = ({
           name={[...keys, "chain"]}
           rules={[{ required: true, message: "Please select a chain" }]}
         >
-          <Select {...chainSelectProps} />
+          <Select disabled={isChainFixed} {...chainSelectProps} />
         </Form.Item>
         <Form.Item label="Token" name={[...keys, "token"]}>
           <Select {...tokenSelectProps} />

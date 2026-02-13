@@ -12,6 +12,8 @@ export const modalHash = {
 } as const;
 
 export const feeAppId: string = import.meta.env.VITE_FEE_APP_ID;
+export const listingPaymentAppId: string = import.meta.env
+  .VITE_LISTING_PAYMENT_APP_ID;
 export const recurringSendsAppId: string = import.meta.env
   .VITE_RECURRING_SENDS_APP_ID;
 export const recurringSwapsAppId: string = import.meta.env
