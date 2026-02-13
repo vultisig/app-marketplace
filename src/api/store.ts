@@ -286,17 +286,6 @@ export const isAppInstalled = async (id: string): Promise<boolean> => {
   }
 };
 
-export const validateProposedPlugin = async (
-  pluginId: string,
-): Promise<boolean> => {
-  try {
-    await apiClient.get(`/plugins/proposed/validate/${pluginId}`);
-    return true;
-  } catch {
-    return false;
-  }
-};
-
 export const reshareVault = async (data: ReshareForm): Promise<void> => {
   return apiClient.post<void>("/vault/reshare", toSnakeCase(data));
 };

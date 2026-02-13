@@ -271,21 +271,6 @@ export const ListingPaymentForm: FC<AutomationFormProps> = ({
             return;
           }
 
-          // TODO: re-enable once /plugins/proposed/validate endpoint is implemented
-          // const targetPluginId = form.getFieldValue("targetPluginId");
-          // const isValid = await validateProposedPlugin(targetPluginId);
-          // if (!isValid) {
-          //   form.setFields([
-          //     {
-          //       name: "targetPluginId",
-          //       errors: [
-          //         "This plugin ID is not valid or has not been approved",
-          //       ],
-          //     },
-          //   ]);
-          //   return;
-          // }
-
           setState((prev) => ({ ...prev, step: 2 }));
         })
         .catch(() => {});
