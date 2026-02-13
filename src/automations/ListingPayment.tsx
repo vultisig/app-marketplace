@@ -12,7 +12,6 @@ import {
   delAutomation,
   getAutomations,
   getRecipeSuggestion,
-  validateProposedPlugin,
 } from "@/api/store";
 import { AutomationFormSidebar } from "@/automations/components/FormSidebar";
 import { AutomationFormSuccess } from "@/automations/components/FormSuccess";
@@ -272,19 +271,20 @@ export const ListingPaymentForm: FC<AutomationFormProps> = ({
             return;
           }
 
-          const targetPluginId = form.getFieldValue("targetPluginId");
-          const isValid = await validateProposedPlugin(targetPluginId);
-          if (!isValid) {
-            form.setFields([
-              {
-                name: "targetPluginId",
-                errors: [
-                  "This plugin ID is not valid or has not been approved",
-                ],
-              },
-            ]);
-            return;
-          }
+          // TODO: re-enable once /plugins/proposed/validate endpoint is implemented
+          // const targetPluginId = form.getFieldValue("targetPluginId");
+          // const isValid = await validateProposedPlugin(targetPluginId);
+          // if (!isValid) {
+          //   form.setFields([
+          //     {
+          //       name: "targetPluginId",
+          //       errors: [
+          //         "This plugin ID is not valid or has not been approved",
+          //       ],
+          //     },
+          //   ]);
+          //   return;
+          // }
 
           setState((prev) => ({ ...prev, step: 2 }));
         })
