@@ -1,7 +1,7 @@
 import { create, fromBinary, toBinary } from "@bufbuild/protobuf";
 import { base64Decode, base64Encode } from "@bufbuild/protobuf/wire";
 import { Form, Input, Modal, Table, TableProps, Tabs } from "antd";
-import { FC, useCallback, useEffect, useState } from "react";
+import { FC, useCallback, useEffect, useRef, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import { useTheme } from "styled-components";
 import { v4 as uuidv4 } from "uuid";
@@ -119,6 +119,9 @@ export const ListingPaymentForm: FC<AutomationFormProps> = ({
   const colors = useTheme();
   const visible = hash === modalHash.automation;
   const { getTokenData } = useQueries();
+  const getTokenDataRef = useRef(getTokenData);
+  getTokenDataRef.current = getTokenData;
+  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
 
   const columns: TableProps<CustomAppAutomation>["columns"] = [
     {
@@ -361,7 +364,7 @@ export const ListingPaymentForm: FC<AutomationFormProps> = ({
 
     Promise.all([
       vault.address(chain),
-      getTokenData(chain, tokenAddress).catch(() => null),
+      getTokenDataRef.current(chain, tokenAddress).catch(() => null),
       vault.balance(chain, tokenAddress),
     ]).then(([addr, tokenData, balanceResult]) => {
       const decimals = tokenData?.decimals ?? 18;
@@ -385,7 +388,7 @@ export const ListingPaymentForm: FC<AutomationFormProps> = ({
         feeAmount: schemaFeeAmount,
       }));
     });
-  }, [form, visible]);
+  }, [configuration, form, supportedChains, vault, visible]);
 
   useEffect(() => {
     if (!configuration || !visible) return;
@@ -395,46 +398,52 @@ export const ListingPaymentForm: FC<AutomationFormProps> = ({
 
     if (!asset?.address || !targetPluginId) return;
 
-    const configurationData = getConfiguration(
-      configuration,
-      form.getFieldsValue(),
-      configuration.definitions,
-    );
+    clearTimeout(debounceRef.current);
 
-    getRecipeSuggestion(appId, configurationData)
-      .then(
-        ({
-          maxTxsPerWindow: suggestMaxTxs,
-          rateLimitWindow: suggestRateLimit,
-          rules: suggestRules = [],
-        }) => {
-          const amountConstraint =
-            suggestRules[0]?.parameterConstraints.find(
-              (pc) => pc.parameterName === "amount",
-            );
-          const extractedFee =
-            amountConstraint?.constraint?.value.case === "fixedValue"
-              ? amountConstraint.constraint.value.value
-              : "";
+    debounceRef.current = setTimeout(() => {
+      const configurationData = getConfiguration(
+        configuration,
+        form.getFieldsValue(),
+        configuration.definitions,
+      );
 
-          setState((prev) => ({
-            ...prev,
-            feeAmount: extractedFee,
+      getRecipeSuggestion(appId, configurationData)
+        .then(
+          ({
             maxTxsPerWindow: suggestMaxTxs,
             rateLimitWindow: suggestRateLimit,
-            rules: suggestRules,
-          }));
-        },
-      )
-      .catch(() => {
-        setState((prev) => ({
-          ...prev,
-          error: {
-            text: "Failed to get listing payment configuration. Please try again.",
-            title: "Listing Payment Failed",
+            rules: suggestRules = [],
+          }) => {
+            const amountConstraint =
+              suggestRules[0]?.parameterConstraints.find(
+                (pc) => pc.parameterName === "amount",
+              );
+            const extractedFee =
+              amountConstraint?.constraint?.value.case === "fixedValue"
+                ? amountConstraint.constraint.value.value
+                : "";
+
+            setState((prev) => ({
+              ...prev,
+              feeAmount: extractedFee,
+              maxTxsPerWindow: suggestMaxTxs,
+              rateLimitWindow: suggestRateLimit,
+              rules: suggestRules,
+            }));
           },
-        }));
-      });
+        )
+        .catch(() => {
+          setState((prev) => ({
+            ...prev,
+            error: {
+              text: "Failed to get listing payment configuration. Please try again.",
+              title: "Listing Payment Failed",
+            },
+          }));
+        });
+    }, 400);
+
+    return () => clearTimeout(debounceRef.current);
   }, [appId, configuration, form, values?.asset, values?.targetPluginId, visible]);
 
   useEffect(() => {
