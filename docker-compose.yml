@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile
       args:
         # Override these with your actual values
-        VITE_APP_STORE_URL: ${VITE_APP_STORE_URL:-https://verifier.vultisig.com}
+        VITE_APP_STORE_URL: ${VITE_APP_STORE_URL:-https://verifier.vultisig.com/}
         VITE_FEE_APP_ID: ${VITE_FEE_APP_ID:-vultisig-fees-feee}
         VITE_RECURRING_SENDS_APP_ID: ${VITE_RECURRING_SENDS_APP_ID:-vultisig-recurring-sends-0000}
         VITE_RECURRING_SWAPS_APP_ID: ${VITE_RECURRING_SWAPS_APP_ID:-vultisig-dca-0000}

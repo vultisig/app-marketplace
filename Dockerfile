@@ -4,7 +4,7 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 
 # Build arguments for environment variables (optional, can be overridden at build time)
-ARG VITE_APP_STORE_URL=https://verifier.vultisig.com
+ARG VITE_APP_STORE_URL=https://verifier.vultisig.com/
 ARG VITE_FEE_APP_ID=vultisig-fees-feee
 ARG VITE_RECURRING_SENDS_APP_ID=vultisig-recurring-sends-0000
 ARG VITE_RECURRING_SWAPS_APP_ID=vultisig-dca-0000

@@ -169,11 +169,11 @@ npm run dev
 docker-compose up
 
 # Or build with custom environment variables
-VITE_APP_STORE_URL=https://verifier.vultisig.com \
+VITE_APP_STORE_URL=https://verifier.vultisig.com/ \
 VITE_FEE_APP_ID=vultisig-fees-feee \
 VITE_RECURRING_SENDS_APP_ID=vultisig-recurring-sends-0000 \
 VITE_RECURRING_SWAPS_APP_ID=vultisig-dca-0000 \
-VITE_VULTISIG_SERVER=https://api.vultisig.com \
+VITE_VULTISIG_SERVER=https://api.vultisig.com/ \
 docker-compose up
 ```
 
@@ -190,11 +190,11 @@ docker run -p 3000:8080 vultisig-marketplace:latest
 
 # Build with custom environment variables
 docker build \
-  --build-arg VITE_APP_STORE_URL=https://verifier.vultisig.com \
+  --build-arg VITE_APP_STORE_URL=https://verifier.vultisig.com/ \
   --build-arg VITE_FEE_APP_ID=vultisig-fees-feee \
   --build-arg VITE_RECURRING_SENDS_APP_ID=vultisig-recurring-sends-0000 \
   --build-arg VITE_RECURRING_SWAPS_APP_ID=vultisig-dca-0000 \
-  --build-arg VITE_VULTISIG_SERVER=https://api.vultisig.com \
+  --build-arg VITE_VULTISIG_SERVER=https://api.vultisig.com/ \
   -t vultisig-marketplace:latest .
 ```
 
@@ -204,7 +204,7 @@ These variables are compiled into the static build at Docker build time:
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `VITE_APP_STORE_URL` | `https://verifier.vultisig.com` | Backend API endpoint |
+| `VITE_APP_STORE_URL` | `https://verifier.vultisig.com/` | Backend API endpoint |
 | `VITE_FEE_APP_ID` | `vultisig-fees-feee` | Fee application ID |
 | `VITE_RECURRING_SENDS_APP_ID` | `vultisig-recurring-sends-0000` | Recurring sends app ID |
 | `VITE_RECURRING_SWAPS_APP_ID` | `vultisig-dca-0000` | Recurring swaps app ID |
