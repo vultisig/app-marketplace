@@ -52,9 +52,9 @@ export const appReport = async (
   return apiClient.post<void>(`/plugins/${appId}/report`, toSnakeCase(data));
 };
 
-export const delAuthToken = async (token: string): Promise<void> => {
-  const { token_id } = jwtDecode<{ token_id: string }>(token);
-  
+export const delAuthToken = async (refreshToken: string): Promise<void> => {
+  const { token_id } = jwtDecode<{ token_id: string }>(refreshToken);
+
   return apiClient.del(`/auth/tokens/${token_id}`);
 };
 
