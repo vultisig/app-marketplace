@@ -28,7 +28,14 @@ export const AutomationFormConfiguration: FC<
     if (fieldRef) {
       switch (field.$ref) {
         case "#/definitions/asset": {
-          return <AssetWidget chains={chains} key={key} keys={keys} />;
+          return (
+            <AssetWidget
+              chains={chains}
+              definition={fieldRef}
+              key={key}
+              keys={keys}
+            />
+          );
         }
         default: {
           return (
@@ -68,11 +75,21 @@ export const AutomationFormConfiguration: FC<
 };
 
 const DynamicFormItem: FC<FieldProps & FormItemProps> = ({
+  default: defaultValue,
   enum: enumerable,
   format,
+  readOnly,
   type,
   ...rest
 }) => {
+  if (readOnly && defaultValue !== undefined) {
+    return (
+      <Form.Item {...rest} initialValue={defaultValue}>
+        <Input disabled />
+      </Form.Item>
+    );
+  }
+
   switch (type) {
     case "int": {
       return (
