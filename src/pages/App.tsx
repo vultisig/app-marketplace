@@ -55,16 +55,6 @@ export const AppPage = () => {
     feeAppStatus?.isInstalled || feeAppStatus?.isTrialActive;
   const permissions = schema?.permissions || [];
 
-  const checkStatus = useCallback(async () => {
-    if (isFree === undefined || isFeeAppInstalled === undefined) return;
-
-    let isInstalled = false;
-
-    if (isFree || isFeeAppInstalled) isInstalled = await isAppInstalled(id);
-
-    setState((prev) => ({ ...prev, isInstalled }));
-  }, [id, isFeeAppInstalled, isFree]);
-
   const fetchApp = useCallback(async () => {
     getAppData(id, true)
       .then((app) => {
@@ -84,18 +74,16 @@ export const AppPage = () => {
   useEffect(() => {
     if (!vault) {
       setState((prev) => ({ ...prev, isInstalled: undefined }));
-    } else {
-      checkStatus();
+    } else if (isFree !== undefined && isFeeAppInstalled !== undefined) {
+      isAppInstalled(id).then((isInstalled) => {
+        setState((prev) => ({ ...prev, isInstalled }));
+      });
     }
-  }, [checkStatus, vault]);
+  }, [id, isFeeAppInstalled, isFree, vault]);
 
   useEffect(() => {
-    if (id === feeAppId) {
-      goBack(routeTree.root.path);
-      return;
-    }
-
-    fetchApp();
+    if (id === feeAppId) goBack(routeTree.root.path);
+    else fetchApp();
   }, [id]);
 
   if (!app) return <Spin centered />;
@@ -246,6 +234,14 @@ export const AppPage = () => {
                       <Button disabled loading>
                         Checking
                       </Button>
+                    ) : isInstalled ? (
+                      <Button
+                        disabled={!schema}
+                        href={routeTree.automations.link(id)}
+                        state={true}
+                      >
+                        Automations
+                      </Button>
                     ) : !isFree && !isFeeAppInstalled ? (
                       // TODO: Replace hard‑coded "Get · Free" with dynamic pricing
                       <Button href={modalHash.payment}>
@@ -260,14 +256,6 @@ export const AppPage = () => {
                           }}
                         />
                         Free
-                      </Button>
-                    ) : isInstalled ? (
-                      <Button
-                        disabled={!schema}
-                        href={routeTree.automations.link(id)}
-                        state={true}
-                      >
-                        Automations
                       </Button>
                     ) : (
                       <Button

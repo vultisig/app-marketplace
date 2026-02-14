@@ -9,7 +9,9 @@ import { ListingPaymentForm } from "@/automations/ListingPayment";
 import { RecurringSendsForm } from "@/automations/RecurringSends";
 import { RecurringSwapsForm } from "@/automations/RecurringSwaps";
 import { AppReportModal } from "@/components/AppReportModal";
+import { FreeTrialBanner } from "@/components/FreeTrialBanner";
 import { useAntd } from "@/hooks/useAntd";
+import { useApp } from "@/hooks/useApp";
 import { useGoBack } from "@/hooks/useGoBack";
 import { useQueries } from "@/hooks/useQueries";
 import { ChevronLeftIcon } from "@/icons/ChevronLeftIcon";
@@ -40,11 +42,15 @@ export const AutomationsPage = () => {
   const [state, setState] = useState<StateProps>({});
   const { app, loading, schema } = state;
   const { messageAPI, modalAPI } = useAntd();
+  const { feeApp, feeAppStatus } = useApp();
   const { id = "" } = useParams();
   const { getAppData } = useQueries();
   const navigate = useNavigate();
   const goBack = useGoBack();
   const colors = useTheme();
+  const isFree = app && !app.pricing.length;
+  const isFeeAppInstalled =
+    feeAppStatus?.isInstalled || feeAppStatus?.isTrialActive;
 
   const items: MenuProps["items"] = [
     {
@@ -112,6 +118,7 @@ export const AutomationsPage = () => {
             width: "100%",
           }}
         >
+          {!isFree && !isFeeAppInstalled && <FreeTrialBanner />}
           <HStack
             as="span"
             $style={{
@@ -167,15 +174,23 @@ export const AutomationsPage = () => {
               Quick actions
             </Stack>
             <HStack $style={{ gap: "16px" }}>
-              <Button
-                disabled={loading}
-                href={modalHash.automation}
-                icon={<CirclePlusIcon />}
-                loading={loading}
-                state={true}
-              >
-                Add Automation
-              </Button>
+              {isFeeAppInstalled === undefined ? (
+                <Button disabled loading>
+                  Checking
+                </Button>
+              ) : !isFree && !isFeeAppInstalled ? (
+                <Button href={modalHash.payment}>{`Install ${feeApp?.title} Plugin`}</Button>
+              ) : (
+                <Button
+                  disabled={loading}
+                  href={modalHash.automation}
+                  icon={<CirclePlusIcon />}
+                  loading={loading}
+                  state={true}
+                >
+                  Add Automation
+                </Button>
+              )}
               <Button
                 disabled={loading}
                 icon={<TrashIcon />}
