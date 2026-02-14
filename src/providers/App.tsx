@@ -514,9 +514,16 @@ export const AppProvider: FC<{ children: ReactNode }> = ({ children }) => {
           disconnectStatus &&
           match(disconnectStatus, {
             confirm: () => (
-              <Button kind="warning" onClick={disconnect}>
-                Disconnect
-              </Button>
+              <Stack $style={{ display: "flex", gap: "12px", justifyContent: "center" }}>
+                <Button kind="secondary" onClick={() =>
+                  setState((prev) => ({ ...prev, disconnectStatus: undefined }))
+                }>
+                  Cancel
+                </Button>
+                <Button kind="warning" onClick={disconnect}>
+                  Sign Out
+                </Button>
+              </Stack>
             ),
             pending: () => (
               <VStack
@@ -534,7 +541,7 @@ export const AppProvider: FC<{ children: ReactNode }> = ({ children }) => {
                 as="span"
                 $style={{ color: colors.success.toHex(), lineHeight: "44px" }}
               >
-                Disconnected
+                Signed Out
               </Stack>
             ),
           })
@@ -562,7 +569,19 @@ export const AppProvider: FC<{ children: ReactNode }> = ({ children }) => {
           as="span"
           $style={{ fontSize: "18px", fontWeight: "700", lineHeight: "24px" }}
         >
-          Disconnect from Vultisig Extension?
+          Sign Out
+        </Stack>
+        <Stack
+          as="span"
+          $style={{
+            color: colors.textTertiary.toHex(),
+            fontSize: "14px",
+            fontWeight: "500",
+            lineHeight: "18px",
+            textAlign: "center",
+          }}
+        >
+          You will be signed out of Vultisig Plugin Marketplace
         </Stack>
       </Modal>
     </AppContext.Provider>
