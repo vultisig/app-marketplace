@@ -40,8 +40,8 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Create nginx required directories with proper permissions
 RUN mkdir -p /var/cache/nginx /run/nginx && \
-    chown -R nginx:nginx /var/cache/nginx /usr/share/nginx/html /etc/nginx/conf.d/default.conf /run/nginx && \
-    chmod -R 755 /var/cache/nginx /usr/share/nginx/html /run/nginx
+    chown -R nginx:nginx /var/cache/nginx /usr/share/nginx/html /etc/nginx/conf.d/default.conf /run /run/nginx && \
+    chmod -R 755 /var/cache/nginx /usr/share/nginx/html /run /run/nginx
 
 # Switch to non-root user
 USER nginx
