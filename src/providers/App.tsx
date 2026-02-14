@@ -152,7 +152,7 @@ export const AppProvider: FC<{ children: ReactNode }> = ({ children }) => {
 
     const [vault] = getVaults();
 
-    if (vault) await delAuthToken(vault.accessToken).catch(() => {});
+    if (vault) await delAuthToken(vault.refreshToken).catch(() => {});
 
     await extensionAPI.disconnect().catch(() => {});
 
