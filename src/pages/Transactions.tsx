@@ -11,6 +11,7 @@ import { ChevronLeftIcon } from "@/icons/ChevronLeftIcon";
 import { CrossIcon } from "@/icons/CrossIcon";
 import { EyeOpenIcon } from "@/icons/EyeOpenIcon";
 import { ZapIcon } from "@/icons/ZapIcon";
+import { tableClassNames } from "@/styles";
 import { Button } from "@/toolkits/Button";
 import { HStack, Stack, VStack } from "@/toolkits/Stack";
 import { defaultPageSize } from "@/utils/constants";
@@ -261,6 +262,7 @@ export const TransactionsPage = () => {
           Transaction History
         </Stack>
         <Table<Transaction>
+          classNames={tableClassNames}
           columns={columns}
           dataSource={transactions}
           loading={loading}
@@ -273,7 +275,6 @@ export const TransactionsPage = () => {
             total,
           }}
           rowKey="id"
-          size="small"
         />
       </VStack>
     </VStack>

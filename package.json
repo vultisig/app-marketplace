@@ -23,6 +23,7 @@
     "@trustwallet/wallet-core": "^4.5.0",
     "@vultisig/sdk": "^0.3.0",
     "antd": "^6.2.2",
+    "antd-style": "^4.1.0",
     "axios": "^1.13.4",
     "csstype": "^3.2.3",
     "dayjs": "^1.11.19",

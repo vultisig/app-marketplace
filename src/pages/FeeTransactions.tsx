@@ -9,6 +9,7 @@ import { useCore } from "@/hooks/useCore";
 import { useGoBack } from "@/hooks/useGoBack";
 import { useQueries } from "@/hooks/useQueries";
 import { ChevronLeftIcon } from "@/icons/ChevronLeftIcon";
+import { tableClassNames } from "@/styles";
 import { Spin } from "@/toolkits/Spin";
 import { HStack, Stack, VStack } from "@/toolkits/Stack";
 import { defaultPageSize } from "@/utils/constants";
@@ -185,6 +186,7 @@ export const FeeTransactionsPage = () => {
             </Stack>
           </HStack>
           <Table<FeeTransaction>
+            classNames={tableClassNames}
             columns={columns}
             dataSource={transactions}
             loading={loading}
@@ -198,7 +200,6 @@ export const FeeTransactionsPage = () => {
               total,
             }}
             rowKey="id"
-            size="small"
           />
         </VStack>
       </VStack>

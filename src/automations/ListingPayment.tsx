@@ -30,6 +30,7 @@ import { CrossIcon } from "@/icons/CrossIcon";
 import { TrashIcon } from "@/icons/TrashIcon";
 import { PolicySchema } from "@/proto/policy_pb";
 import { Rule } from "@/proto/rule_pb";
+import { tableClassNames } from "@/styles";
 import { Button } from "@/toolkits/Button";
 import { Divider } from "@/toolkits/Divider";
 import { HStack, Stack, VStack } from "@/toolkits/Stack";
@@ -384,7 +385,9 @@ export const ListingPaymentForm: FC<AutomationFormProps> = ({
 
       setState((prev) => ({
         ...prev,
-        balance: toNumberFormat(formatUnits(BigInt(balanceResult.amount), decimals)),
+        balance: toNumberFormat(
+          formatUnits(BigInt(balanceResult.amount), decimals),
+        ),
         feeAmount: schemaFeeAmount,
       }));
     });
@@ -414,10 +417,9 @@ export const ListingPaymentForm: FC<AutomationFormProps> = ({
             rateLimitWindow: suggestRateLimit,
             rules: suggestRules = [],
           }) => {
-            const amountConstraint =
-              suggestRules[0]?.parameterConstraints.find(
-                (pc) => pc.parameterName === "amount",
-              );
+            const amountConstraint = suggestRules[0]?.parameterConstraints.find(
+              (pc) => pc.parameterName === "amount",
+            );
             const extractedFee =
               amountConstraint?.constraint?.value.case === "fixedValue"
                 ? amountConstraint.constraint.value.value
@@ -444,7 +446,14 @@ export const ListingPaymentForm: FC<AutomationFormProps> = ({
     }, 400);
 
     return () => clearTimeout(debounceRef.current);
-  }, [appId, configuration, form, values?.asset, values?.targetPluginId, visible]);
+  }, [
+    appId,
+    configuration,
+    form,
+    values?.asset,
+    values?.targetPluginId,
+    visible,
+  ]);
 
   useEffect(() => {
     const asset = values?.asset;
@@ -478,6 +487,7 @@ export const ListingPaymentForm: FC<AutomationFormProps> = ({
         />
 
         <Table
+          classNames={tableClassNames}
           columns={columns}
           dataSource={automations}
           loading={loading}
@@ -490,7 +500,6 @@ export const ListingPaymentForm: FC<AutomationFormProps> = ({
             total,
           }}
           rowKey="id"
-          size="small"
         />
       </VStack>
 
@@ -752,10 +761,7 @@ const Overview: FC<OverviewProps> = ({
             }}
           >
             <Stack as="span">Amount</Stack>
-            <Stack
-              as="span"
-              $style={{ color: colors.textTertiary.toHex() }}
-            >
+            <Stack as="span" $style={{ color: colors.textTertiary.toHex() }}>
               {formattedAmount} {asset.symbol}
             </Stack>
           </HStack>

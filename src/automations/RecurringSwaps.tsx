@@ -46,6 +46,7 @@ import { ChevronRightIcon } from "@/icons/ChevronRightIcon";
 import { CrossIcon } from "@/icons/CrossIcon";
 import { TrashIcon } from "@/icons/TrashIcon";
 import { PolicySchema } from "@/proto/policy_pb";
+import { tableClassNames } from "@/styles";
 import { Button } from "@/toolkits/Button";
 import { Divider } from "@/toolkits/Divider";
 import { Spin } from "@/toolkits/Spin";
@@ -532,6 +533,7 @@ export const RecurringSwapsForm: FC<AutomationFormProps> = ({
         />
 
         <Table
+          classNames={tableClassNames}
           columns={columns}
           dataSource={automations}
           loading={loading}
@@ -544,7 +546,6 @@ export const RecurringSwapsForm: FC<AutomationFormProps> = ({
             total,
           }}
           rowKey="id"
-          size="small"
         />
       </VStack>
 
