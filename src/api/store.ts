@@ -286,9 +286,9 @@ export const isAppInstalled = async (id: string): Promise<boolean> => {
   }
 };
 
-export const reshareVault = async (data: ReshareForm): Promise<void> => {
+/*export const reshareVault = async (data: ReshareForm): Promise<void> => {
   return apiClient.post<void>("/vault/reshare", toSnakeCase(data));
-};
+};*/
 
 export const uninstallApp = async (appId: string): Promise<void> => {
   return apiClient.del<void>(`/plugin/${appId}`);
