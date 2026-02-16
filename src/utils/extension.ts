@@ -122,6 +122,7 @@ export const startReshare = async (appId: string, vault: VaultBase) => {
 
       return { type: "extension" as const, success: false };
     });
+  return;
 
   // Poll the router endpoint until peers are available
   const pollForPeers = async () => {
