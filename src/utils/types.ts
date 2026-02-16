@@ -171,7 +171,7 @@ export type ReportForm = {
   details?: string;
 };
 
-export type ReshareForm = {
+/*export type ReshareForm = {
   email: string;
   hexChainCode: string;
   hexEncryptionKey: string;
@@ -181,7 +181,7 @@ export type ReshareForm = {
   pluginId: string;
   publicKey: string;
   sessionId: string;
-};
+};*/
 
 export type Review = {
   address: string;
