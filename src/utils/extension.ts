@@ -122,7 +122,6 @@ export const startReshare = async (appId: string, vault: VaultBase) => {
 
       return { type: "extension" as const, success: false };
     });
-  return;
 
   // Poll the router endpoint until peers are available
   const pollForPeers = async () => {
@@ -152,6 +151,8 @@ export const startReshare = async (appId: string, vault: VaultBase) => {
 
     return { type: "peers" as const, hasPeers: false };
   };
+
+  return true; // TODO: Remove for testing
 
   const raceResult = await Promise.race([extensionPromise, pollForPeers()]);
 
