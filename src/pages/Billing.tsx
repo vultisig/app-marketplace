@@ -195,7 +195,13 @@ export const BillingPage = () => {
                   fontWeight: "600",
                 }}
               >
-                {toValueFormat(feeAppStatus.balance * baseValue * -1, currency)}
+                {toValueFormat(
+                  formatUnits(
+                    BigInt(Math.floor(feeAppStatus.balance * baseValue * -1)),
+                    6,
+                  ),
+                  currency,
+                )}
               </Stack>
             </VStack>
             <Stack as="span">
