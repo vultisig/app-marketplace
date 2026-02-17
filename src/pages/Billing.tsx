@@ -24,6 +24,7 @@ import { App, Billing } from "@/utils/types";
 
 type StateProps = {
   apps: App[];
+  appsLoaded: boolean;
   billings: Billing[];
   current: number;
   loading: boolean;
@@ -33,12 +34,13 @@ type StateProps = {
 export const BillingPage = () => {
   const [state, setState] = useState<StateProps>({
     apps: [],
+    appsLoaded: false,
     billings: [],
     current: 1,
     loading: true,
     total: 0,
   });
-  const { apps, billings, current, loading, total } = state;
+  const { apps, appsLoaded, billings, current, loading, total } = state;
   const { messageAPI, modalAPI } = useAntd();
   const { feeApp, feeAppStatus, updateFeeAppStatus } = useApp();
   const { baseValue, currency } = useCore();
@@ -304,9 +306,13 @@ export const BillingPage = () => {
 
   useEffect(() => {
     // TODO: Update billings API to include app icon and remove getApps API call
-    getMyApps({}).then(({ apps }) => {
-      setState((prev) => ({ ...prev, apps }));
-    });
+    getMyApps({})
+      .then(({ apps }) => {
+        setState((prev) => ({ ...prev, apps }));
+      })
+      .finally(() => {
+        setState((prev) => ({ ...prev, appsLoaded: true }));
+      });
 
     fetchBillings();
   }, []);
@@ -380,9 +386,9 @@ export const BillingPage = () => {
               </Button>
             ) : feeAppStatus.isInstalled ? (
               <Button
-                disabled={loading}
+                disabled={loading || !appsLoaded}
                 icon={<TrashIcon />}
-                loading={loading}
+                loading={loading || !appsLoaded}
                 kind="danger"
                 onClick={handleUninstall}
               >
