@@ -255,7 +255,8 @@ export const BillingPage = () => {
           type: "error",
           content: "Plugin uninstallation failed",
         });
-
+      })
+      .finally(() => {
         setState((prev) => ({ ...prev, loading: false }));
       });
   };
