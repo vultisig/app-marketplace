@@ -210,7 +210,7 @@ export const BillingPage = () => {
           </VStack>
         ),
         maskClosable: true,
-        title: `Cannot uninstall ${feeApp.title} plugin`,
+        title: `Unable to uninstall ${feeApp.title} plugin`,
         width: token.screenSM,
       });
     } else {
