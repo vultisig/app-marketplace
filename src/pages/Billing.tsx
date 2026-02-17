@@ -184,7 +184,10 @@ export const BillingPage = () => {
                 padding: "12px",
               }}
             >
-              <Stack as="span" $style={{ fontSize: "12px" }}>
+              <Stack
+                as="span"
+                $style={{ fontSize: "12px", lineHeight: "18px" }}
+              >
                 Unpaid balance
               </Stack>
               <Stack
@@ -193,6 +196,7 @@ export const BillingPage = () => {
                   color: colors.textPrimary.toHex(),
                   fontSize: "20px",
                   fontWeight: "600",
+                  lineHeight: "22px",
                 }}
               >
                 {toValueFormat(
@@ -214,12 +218,14 @@ export const BillingPage = () => {
         width: token.screenSM,
       });
     } else {
-      const paidApps = apps.filter(({ pricing }) => pricing.length > 0 );
+      const paidApps = apps.filter(({ pricing }) => pricing.length > 0);
 
-      if (paidApps.length > 0 ) {
+      if (paidApps.length > 0) {
         modalAPI.confirm({
           content: (
-            <VStack $style={{ color: colors.textTertiary.toHex(), gap: "12px" }}>
+            <VStack
+              $style={{ color: colors.textTertiary.toHex(), gap: "12px" }}
+            >
               <Stack as="span">
                 {`Uninstalling the ${feeApp.title} plugin will disable billing services required by the following installed plugins:`}
               </Stack>
