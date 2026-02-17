@@ -175,64 +175,99 @@ export const BillingPage = () => {
     if (feeAppStatus.balance < 0) {
       modalAPI.error({
         content: (
-          <VStack $style={{ color: colors.textTertiary.toHex(), gap: "4px" }}>
-            <Stack as="span">
-              <Stack as="span">You have an unpaid balance of </Stack>
-              <Stack as="span" $style={{ color: colors.textPrimary.toHex() }}>
+          <VStack $style={{ color: colors.textTertiary.toHex(), gap: "12px" }}>
+            <VStack
+              $style={{
+                backgroundColor: colors.bgTertiary.toHex(),
+                borderRadius: "12px",
+                gap: "4px",
+                padding: "12px",
+              }}
+            >
+              <Stack as="span" $style={{ fontSize: "12px" }}>
+                Unpaid balance
+              </Stack>
+              <Stack
+                as="span"
+                $style={{
+                  color: colors.textPrimary.toHex(),
+                  fontSize: "20px",
+                  fontWeight: "600",
+                }}
+              >
                 {toValueFormat(feeAppStatus.balance * baseValue * -1, currency)}
               </Stack>
-            </Stack>
+            </VStack>
             <Stack as="span">
-              {`Please settle your balance before uninstalling the ${feeApp.title} plugin.`}
-            </Stack>
-            <Stack as="span">
-              Plugins that depend on billing cannot function with unpaid dues.
+              {`Please settle your balance before uninstalling the ${feeApp.title} plugin — installed plugins that depend on billing will stop working until it is resolved.`}
             </Stack>
           </VStack>
         ),
-        footer: null,
         maskClosable: true,
         title: `Cannot uninstall ${feeApp.title} plugin`,
         width: token.screenSM,
       });
     } else {
-      const paidApps = apps.filter(({ pricing }) => pricing.length > 0);
+      const paidApps = apps.filter(({ pricing }) => pricing.length > 0 );
 
-      if (paidApps.length > 0) {
+      if (paidApps.length > 0 ) {
         modalAPI.confirm({
           content: (
-            <VStack $style={{ color: colors.textTertiary.toHex(), gap: "4px" }}>
+            <VStack $style={{ color: colors.textTertiary.toHex(), gap: "12px" }}>
               <Stack as="span">
                 {`Uninstalling the ${feeApp.title} plugin will disable billing services required by the following installed plugins:`}
               </Stack>
-              {paidApps.map(({ id, title }) => (
-                <Stack
-                  key={id}
-                  as="span"
-                  $style={{ color: colors.textPrimary.toHex() }}
-                >
-                  {`• ${title}`}
-                </Stack>
-              ))}
+              <VStack
+                $style={{
+                  backgroundColor: colors.bgTertiary.toHex(),
+                  borderRadius: "12px",
+                  gap: "8px",
+                  padding: "12px",
+                }}
+              >
+                {paidApps.map(({ id, logoUrl, title }) => (
+                  <HStack
+                    key={id}
+                    $style={{ alignItems: "center", gap: "8px" }}
+                  >
+                    <Stack
+                      as="img"
+                      alt={title}
+                      src={logoUrl}
+                      $style={{
+                        borderRadius: "6px",
+                        height: "24px",
+                        width: "24px",
+                      }}
+                    />
+                    <Stack
+                      as="span"
+                      $style={{ color: colors.textPrimary.toHex() }}
+                    >
+                      {title}
+                    </Stack>
+                  </HStack>
+                ))}
+              </VStack>
               <Stack as="span">
                 {`These plugins may stop working until the ${feeApp.title} plugin is reinstalled.`}
               </Stack>
-              <Stack as="span" $style={{ color: colors.textSecondary.toHex() }}>
-                Are you sure you want to continue?
-              </Stack>
             </VStack>
           ),
+          cancelText: "Cancel",
           okText: "Uninstall Anyway",
+          okType: "danger",
           onOk: uninstallFeeApp,
           title: `Uninstall ${feeApp.title} plugin?`,
           width: token.screenSM,
         });
       } else {
         modalAPI.confirm({
-          okText: "Uninstall",
+          cancelText: "No",
+          okText: "Yes",
+          okType: "danger",
           onOk: uninstallFeeApp,
           title: `Are you sure you want to uninstall ${feeApp.title} plugin?`,
-          width: token.screenSM,
         });
       }
     }
