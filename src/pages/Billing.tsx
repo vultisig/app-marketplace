@@ -1,27 +1,30 @@
-import { Table, TableProps } from "antd";
+import { Table, TableProps, theme as antTheme } from "antd";
 import dayjs from "dayjs";
 import { Fragment, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "styled-components";
 import { formatUnits } from "viem";
 
-import { getApps, getBillings } from "@/api/store";
+import { getBillings, getMyApps, uninstallApp } from "@/api/store";
+import { useAntd } from "@/hooks/useAntd";
 import { useApp } from "@/hooks/useApp";
 import { useCore } from "@/hooks/useCore";
 import { useGoBack } from "@/hooks/useGoBack";
 import { ChevronLeftIcon } from "@/icons/ChevronLeftIcon";
+import { TrashIcon } from "@/icons/TrashIcon";
 import { tableClassNames } from "@/styles";
 import { Button } from "@/toolkits/Button";
 import { Divider } from "@/toolkits/Divider";
 import { Spin } from "@/toolkits/Spin";
 import { HStack, Stack, VStack } from "@/toolkits/Stack";
-import { defaultPageSize, modalHash } from "@/utils/constants";
+import { defaultPageSize, feeAppId, modalHash } from "@/utils/constants";
 import { formatDateWithTimezone, toValueFormat } from "@/utils/functions";
 import { routeTree } from "@/utils/routes";
 import { App, Billing } from "@/utils/types";
 
 type StateProps = {
   apps: App[];
+  appsLoaded: boolean;
   billings: Billing[];
   current: number;
   loading: boolean;
@@ -31,17 +34,20 @@ type StateProps = {
 export const BillingPage = () => {
   const [state, setState] = useState<StateProps>({
     apps: [],
+    appsLoaded: false,
     billings: [],
     current: 1,
     loading: true,
     total: 0,
   });
-  const { apps, billings, current, loading, total } = state;
-  const { feeApp, feeAppStatus } = useApp();
+  const { apps, appsLoaded, billings, current, loading, total } = state;
+  const { messageAPI, modalAPI } = useAntd();
+  const { feeApp, feeAppStatus, updateFeeAppStatus } = useApp();
   const { baseValue, currency } = useCore();
   const goBack = useGoBack();
   const navigate = useNavigate();
   const colors = useTheme();
+  const { token } = antTheme.useToken();
 
   const columns: TableProps<Billing>["columns"] = [
     {
@@ -165,11 +171,154 @@ export const BillingPage = () => {
       });
   };
 
+  const handleUninstall = () => {
+    if (!feeApp || !feeAppStatus) return;
+
+    if (feeAppStatus.balance < 0) {
+      modalAPI.error({
+        content: (
+          <VStack $style={{ color: colors.textTertiary.toHex(), gap: "12px" }}>
+            <VStack
+              $style={{
+                backgroundColor: colors.bgTertiary.toHex(),
+                borderRadius: "12px",
+                gap: "4px",
+                padding: "12px",
+              }}
+            >
+              <Stack
+                as="span"
+                $style={{ fontSize: "12px", lineHeight: "18px" }}
+              >
+                Unpaid balance
+              </Stack>
+              <Stack
+                as="span"
+                $style={{
+                  color: colors.textPrimary.toHex(),
+                  fontSize: "20px",
+                  fontWeight: "600",
+                  lineHeight: "22px",
+                }}
+              >
+                {toValueFormat(
+                  formatUnits(
+                    BigInt(Math.floor(feeAppStatus.balance * baseValue * -1)),
+                    6,
+                  ),
+                  currency,
+                )}
+              </Stack>
+            </VStack>
+            <Stack as="span">
+              {`Please settle your balance before uninstalling the ${feeApp.title} plugin — installed plugins that depend on billing will stop working until it is resolved.`}
+            </Stack>
+          </VStack>
+        ),
+        maskClosable: true,
+        title: `Unable to uninstall ${feeApp.title} plugin`,
+        width: token.screenSM,
+      });
+    } else {
+      const paidApps = apps.filter(({ pricing }) => pricing.length > 0);
+
+      if (paidApps.length > 0) {
+        modalAPI.confirm({
+          content: (
+            <VStack
+              $style={{ color: colors.textTertiary.toHex(), gap: "12px" }}
+            >
+              <Stack as="span">
+                {`Uninstalling the ${feeApp.title} plugin will disable billing services required by the following installed plugins:`}
+              </Stack>
+              <VStack
+                $style={{
+                  backgroundColor: colors.bgTertiary.toHex(),
+                  borderRadius: "12px",
+                  gap: "8px",
+                  padding: "12px",
+                }}
+              >
+                {paidApps.map(({ id, logoUrl, title }) => (
+                  <HStack
+                    key={id}
+                    $style={{ alignItems: "center", gap: "8px" }}
+                  >
+                    <Stack
+                      as="img"
+                      alt={title}
+                      src={logoUrl}
+                      $style={{
+                        borderRadius: "6px",
+                        height: "24px",
+                        width: "24px",
+                      }}
+                    />
+                    <Stack
+                      as="span"
+                      $style={{ color: colors.textPrimary.toHex() }}
+                    >
+                      {title}
+                    </Stack>
+                  </HStack>
+                ))}
+              </VStack>
+              <Stack as="span">
+                {`These plugins may stop working until the ${feeApp.title} plugin is reinstalled.`}
+              </Stack>
+            </VStack>
+          ),
+          cancelText: "Cancel",
+          okText: "Uninstall Anyway",
+          okType: "danger",
+          onOk: uninstallFeeApp,
+          title: `Uninstall ${feeApp.title} plugin?`,
+          width: token.screenSM,
+        });
+      } else {
+        modalAPI.confirm({
+          cancelText: "No",
+          okText: "Yes",
+          okType: "danger",
+          onOk: uninstallFeeApp,
+          title: `Are you sure you want to uninstall ${feeApp.title} plugin?`,
+        });
+      }
+    }
+  };
+
+  const uninstallFeeApp = () => {
+    setState((prev) => ({ ...prev, loading: true }));
+
+    uninstallApp(feeAppId)
+      .then(() => {
+        messageAPI.open({
+          type: "success",
+          content: "Plugin successfully uninstalled",
+        });
+
+        updateFeeAppStatus();
+      })
+      .catch(() => {
+        messageAPI.open({
+          type: "error",
+          content: "Plugin uninstallation failed",
+        });
+      })
+      .finally(() => {
+        setState((prev) => ({ ...prev, loading: false }));
+      });
+  };
+
   useEffect(() => {
     // TODO: Update billings API to include app icon and remove getApps API call
-    getApps({}).then(({ apps }) => {
-      setState((prev) => ({ ...prev, apps }));
-    });
+    getMyApps({})
+      .then(({ apps }) => {
+        setState((prev) => ({ ...prev, apps }));
+      })
+      .finally(() => {
+        setState((prev) => ({ ...prev, appsLoaded: true }));
+      });
 
     fetchBillings();
   }, []);
@@ -241,24 +390,32 @@ export const BillingPage = () => {
               <Button disabled loading>
                 Checking
               </Button>
+            ) : feeAppStatus.isInstalled ? (
+              <Button
+                disabled={loading || !appsLoaded}
+                icon={<TrashIcon />}
+                loading={loading || !appsLoaded}
+                kind="danger"
+                onClick={handleUninstall}
+              >
+                Uninstall
+              </Button>
             ) : (
-              !feeAppStatus.isInstalled && (
-                <Button
-                  onClick={() => navigate(modalHash.payment, { state: true })}
-                >
-                  Get
-                  <Stack
-                    as="span"
-                    $style={{
-                      backgroundColor: colors.textPrimary.toHex(),
-                      borderRadius: "50%",
-                      height: "2px",
-                      width: "2px",
-                    }}
-                  />
-                  Free
-                </Button>
-              )
+              <Button
+                onClick={() => navigate(modalHash.payment, { state: true })}
+              >
+                Get
+                <Stack
+                  as="span"
+                  $style={{
+                    backgroundColor: colors.textPrimary.toHex(),
+                    borderRadius: "50%",
+                    height: "2px",
+                    width: "2px",
+                  }}
+                />
+                Free
+              </Button>
             )}
           </HStack>
           <HStack $style={{ justifyContent: "center" }}>
