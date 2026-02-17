@@ -39,6 +39,7 @@ import {
 import { ParameterConstraintSchema } from "@/proto/parameter_constraint_pb";
 import { Policy, PolicySchema } from "@/proto/policy_pb";
 import { Effect, RuleSchema, TargetSchema, TargetType } from "@/proto/rule_pb";
+import { tableClassNames } from "@/styles";
 import { Button } from "@/toolkits/Button";
 import { Divider } from "@/toolkits/Divider";
 import { HStack, Stack, VStack } from "@/toolkits/Stack";
@@ -426,6 +427,7 @@ export const AutomationForm: FC<AutomationFormProps> = ({ app, schema }) => {
         />
 
         <Table
+          classNames={tableClassNames}
           columns={columns}
           dataSource={automations}
           expandable={{
@@ -646,7 +648,6 @@ export const AutomationForm: FC<AutomationFormProps> = ({ app, schema }) => {
             total,
           }}
           rowKey="id"
-          size="small"
         />
       </VStack>
 

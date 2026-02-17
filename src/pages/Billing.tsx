@@ -10,6 +10,7 @@ import { useApp } from "@/hooks/useApp";
 import { useCore } from "@/hooks/useCore";
 import { useGoBack } from "@/hooks/useGoBack";
 import { ChevronLeftIcon } from "@/icons/ChevronLeftIcon";
+import { tableClassNames } from "@/styles";
 import { Button } from "@/toolkits/Button";
 import { Divider } from "@/toolkits/Divider";
 import { Spin } from "@/toolkits/Spin";
@@ -313,6 +314,7 @@ export const BillingPage = () => {
           Billing
         </Stack>
         <Table<Billing>
+          classNames={tableClassNames}
           columns={columns}
           dataSource={billings}
           loading={loading}
@@ -331,7 +333,6 @@ export const BillingPage = () => {
             total,
           }}
           rowKey="pluginId"
-          size="small"
         />
       </VStack>
     </VStack>

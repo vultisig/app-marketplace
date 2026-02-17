@@ -47,6 +47,7 @@ import { CrossIcon } from "@/icons/CrossIcon";
 import { PencilLineIcon } from "@/icons/PencilLineIcon";
 import { TrashIcon } from "@/icons/TrashIcon";
 import { PolicySchema } from "@/proto/policy_pb";
+import { tableClassNames } from "@/styles";
 import { Button } from "@/toolkits/Button";
 import { Divider } from "@/toolkits/Divider";
 import { Spin } from "@/toolkits/Spin";
@@ -533,6 +534,7 @@ export const RecurringSendsForm: FC<AutomationFormProps> = ({
         />
 
         <Table
+          classNames={tableClassNames}
           columns={columns}
           dataSource={automations}
           loading={loading}
@@ -545,7 +547,6 @@ export const RecurringSendsForm: FC<AutomationFormProps> = ({
             total,
           }}
           rowKey="id"
-          size="small"
         />
       </VStack>
 
