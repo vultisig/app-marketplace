@@ -124,33 +124,6 @@ jobs:
           path: dist/
           retention-days: 7
 
-  deploy-preview:
-    needs: build-preview
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    environment: preview
-    runs-on: ubuntu-22.04
-    steps:
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: preview-dist-files
-          path: dist/
-      - name: Deploy to preview
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_KEY }}
-          SERVER_USERNAME: ${{ secrets.SSH_USER }}
-          SERVER_HOST: ${{ secrets.SSH_SERVER }}
-          DEPLOY_DIR: ${{ secrets.SSH_PATH }}
-        run: |
-          mkdir -p ~/.ssh
-          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan $SERVER_HOST >> ~/.ssh/known_hosts
-          # Sync built files to server
-          rsync -avz --delete \
-            ./dist/ \
-            $SERVER_USERNAME@$SERVER_HOST:$DEPLOY_DIR/
-
   deploy-production:
     needs: build-production
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
