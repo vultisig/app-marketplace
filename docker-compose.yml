@@ -9,6 +9,7 @@ services:
         # Override these with your actual values
         VITE_APP_STORE_URL: ${VITE_APP_STORE_URL:-https://verifier.vultisig.com/}
         VITE_FEE_APP_ID: ${VITE_FEE_APP_ID:-vultisig-fees-feee}
+        VITE_LISTING_PAYMENT_APP_ID: ${VITE_LISTING_PAYMENT_APP_ID:-vultisig-developer-0000}
         VITE_RECURRING_SENDS_APP_ID: ${VITE_RECURRING_SENDS_APP_ID:-vultisig-recurring-sends-0000}
         VITE_RECURRING_SWAPS_APP_ID: ${VITE_RECURRING_SWAPS_APP_ID:-vultisig-dca-0000}
         VITE_VULTISIG_SERVER: ${VITE_VULTISIG_SERVER:-https://api.vultisig.com/}

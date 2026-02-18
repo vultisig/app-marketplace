@@ -20,3 +20,4 @@ export const recurringSwapsAppId: string = import.meta.env
   .VITE_RECURRING_SWAPS_APP_ID;
 export const storeApiUrl: string = import.meta.env.VITE_APP_STORE_URL;
 export const vultiApiUrl: string = import.meta.env.VITE_VULTISIG_SERVER;
+export const hiddenAppIds = new Set([feeAppId, listingPaymentAppId]);

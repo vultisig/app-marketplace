@@ -24,7 +24,7 @@ import { Button } from "@/toolkits/Button";
 import { Divider } from "@/toolkits/Divider";
 import { Spin } from "@/toolkits/Spin";
 import { HStack, Stack, VStack } from "@/toolkits/Stack";
-import { feeAppId, modalHash } from "@/utils/constants";
+import { feeAppId, listingPaymentAppId, modalHash } from "@/utils/constants";
 import {
   pricingText,
   snakeCaseToTitle,
@@ -82,7 +82,7 @@ export const AppPage = () => {
   }, [id, isFeeAppInstalled, isFree, vault]);
 
   useEffect(() => {
-    if (id === feeAppId) goBack(routeTree.root.path);
+    if (id === feeAppId || id === listingPaymentAppId) goBack(routeTree.root.path);
     else fetchApp();
   }, [id]);
 

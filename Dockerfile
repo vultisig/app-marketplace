@@ -6,6 +6,7 @@ WORKDIR /app
 # Build arguments for environment variables (optional, can be overridden at build time)
 ARG VITE_APP_STORE_URL=https://verifier.vultisig.com/
 ARG VITE_FEE_APP_ID=vultisig-fees-feee
+ARG VITE_LISTING_PAYMENT_APP_ID=vultisig-developer-0000
 ARG VITE_RECURRING_SENDS_APP_ID=vultisig-recurring-sends-0000
 ARG VITE_RECURRING_SWAPS_APP_ID=vultisig-dca-0000
 ARG VITE_VULTISIG_SERVER=https://api.vultisig.com/
@@ -13,6 +14,7 @@ ARG VITE_VULTISIG_SERVER=https://api.vultisig.com/
 # Set environment variables for the build
 ENV VITE_APP_STORE_URL=${VITE_APP_STORE_URL}
 ENV VITE_FEE_APP_ID=${VITE_FEE_APP_ID}
+ENV VITE_LISTING_PAYMENT_APP_ID=${VITE_LISTING_PAYMENT_APP_ID}
 ENV VITE_RECURRING_SENDS_APP_ID=${VITE_RECURRING_SENDS_APP_ID}
 ENV VITE_RECURRING_SWAPS_APP_ID=${VITE_RECURRING_SWAPS_APP_ID}
 ENV VITE_VULTISIG_SERVER=${VITE_VULTISIG_SERVER}
