@@ -77,6 +77,7 @@ jobs:
         env:
           VITE_APP_STORE_URL: ${{ secrets.VITE_APP_STORE_URL }}
           VITE_FEE_APP_ID: ${{ secrets.VITE_FEE_APP_ID }}
+          VITE_LISTING_PAYMENT_APP_ID: ${{ secrets.VITE_LISTING_PAYMENT_APP_ID }}
           VITE_VULTISIG_SERVER: ${{ secrets.VITE_VULTISIG_SERVER }}
           VITE_RECURRING_SENDS_APP_ID: ${{ secrets.VITE_RECURRING_SENDS_APP_ID }}
           VITE_RECURRING_SWAPS_APP_ID: ${{ secrets.VITE_RECURRING_SWAPS_APP_ID }}
@@ -111,6 +112,7 @@ jobs:
         env:
           VITE_APP_STORE_URL: ${{ secrets.VITE_APP_STORE_URL }}
           VITE_FEE_APP_ID: ${{ secrets.VITE_FEE_APP_ID }}
+          VITE_LISTING_PAYMENT_APP_ID: ${{ secrets.VITE_LISTING_PAYMENT_APP_ID }}
           VITE_VULTISIG_SERVER: ${{ secrets.VITE_VULTISIG_SERVER }}
           VITE_RECURRING_SENDS_APP_ID: ${{ secrets.VITE_RECURRING_SENDS_APP_ID }}
           VITE_RECURRING_SWAPS_APP_ID: ${{ secrets.VITE_RECURRING_SWAPS_APP_ID }}
