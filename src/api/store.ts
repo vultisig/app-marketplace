@@ -12,11 +12,9 @@ import { getVaults } from "@/storage/vaults";
 import {
   defaultPageSize,
   feeAppId,
-  listingPaymentAppId,
+  hiddenAppIds,
   recurringSwapsAppId,
 } from "@/utils/constants";
-
-const hiddenAppIds = new Set([feeAppId, listingPaymentAppId]);
 import { normalizeApp } from "@/utils/functions";
 import { toSnakeCase } from "@/utils/functions";
 import {
@@ -107,7 +105,9 @@ export const getApps = async ({
     if (!totalCount) return { apps: [], totalCount: 0 };
 
     // Todo: Remove feeAppId/listingPaymentAppId filter when filtering is handled server-side
-    const apps = plugins.filter(({ id }) => !hiddenAppIds.has(id)).map(normalizeApp);
+    const apps = plugins
+      .filter(({ id }) => !hiddenAppIds.has(id))
+      .map(normalizeApp);
 
     return { apps, totalCount };
   } catch {
@@ -179,7 +179,9 @@ export const getMyApps = async ({
     if (!totalCount) return { apps: [], totalCount: 0 };
 
     // Todo: Remove feeAppId/listingPaymentAppId filter when filtering is handled server-side
-    const apps = plugins.filter(({ id }) => !hiddenAppIds.has(id)).map(normalizeApp);
+    const apps = plugins
+      .filter(({ id }) => !hiddenAppIds.has(id))
+      .map(normalizeApp);
 
     return { apps, totalCount };
   } catch {
