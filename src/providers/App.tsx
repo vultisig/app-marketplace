@@ -105,6 +105,16 @@ export const AppProvider: FC<{ children: ReactNode }> = ({ children }) => {
       const baseVault = await extensionAPI.getVault();
       const vault = await normalizeVault(baseVault);
 
+      const derivedAddress = await vault.address(chains.Ethereum);
+
+      if (address.toLowerCase() !== derivedAddress.toLowerCase()) {
+        await extensionAPI.disconnect().catch(() => {});
+
+        throw new Error(
+          "Seed-phrase imported vaults are not supported. Please use a TSS vault to connect to the marketplace.",
+        );
+      }
+
       setState((prev) => ({
         ...prev,
         connectError: undefined,
