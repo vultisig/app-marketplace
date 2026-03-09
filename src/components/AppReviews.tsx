@@ -19,7 +19,8 @@ import { modalHash } from "@/utils/constants";
 import { App, Review, ReviewForm } from "@/utils/types";
 
 type StateProps = {
-  loading: boolean;
+  loaded?: boolean;
+  loading?: boolean;
   reviews: Review[];
   submitting?: boolean;
   totalCount: number;
@@ -30,11 +31,10 @@ export const AppReviews: FC<{ app: App; onReload: () => void }> = ({
   onReload,
 }) => {
   const [state, setState] = useState<StateProps>({
-    loading: true,
     reviews: [],
     totalCount: 0,
   });
-  const { loading, reviews, submitting } = state;
+  const { loaded, loading, reviews, submitting, totalCount } = state;
   const { avgRating, id: appId, ratesCount, ratings } = app;
   const { connect, vault } = useApp();
   const { hash } = useLocation();
@@ -52,13 +52,14 @@ export const AppReviews: FC<{ app: App; onReload: () => void }> = ({
         .then(({ reviews, totalCount }) => {
           setState((prev) => ({
             ...prev,
+            loaded: true,
             loading: false,
-            reviews,
+            reviews: !skip ? reviews : [...prev.reviews, ...reviews],
             totalCount,
           }));
         })
         .catch(() => {
-          setState((prev) => ({ ...prev, loading: false }));
+          setState((prev) => ({ ...prev, loaded: true, loading: false }));
         });
     },
     [appId],
@@ -179,9 +180,7 @@ export const AppReviews: FC<{ app: App; onReload: () => void }> = ({
           </HStack>
         </VStack>
 
-        {loading ? (
-          <Spin centered />
-        ) : (
+        {loaded ? (
           reviews.length > 0 && (
             <>
               <Divider light />
@@ -244,8 +243,21 @@ export const AppReviews: FC<{ app: App; onReload: () => void }> = ({
                   </Stack>
                 </VStack>
               ))}
+              {totalCount > reviews.length && (
+                <HStack $style={{ justifyContent: "center" }}>
+                  <Button
+                    disabled={loading}
+                    loading={loading}
+                    onClick={() => fetchReviews(reviews.length)}
+                  >
+                    Load More
+                  </Button>
+                </HStack>
+              )}
             </>
           )
+        ) : (
+          <Spin centered />
         )}
       </VStack>
       <Modal
