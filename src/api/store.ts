@@ -241,8 +241,9 @@ export const getRecipeSuggestion = async (
 export const getReviews = async ({
   appId,
   skip,
+  sort = "-created_at",
   take = defaultPageSize,
-}: ListFilters & { appId: string }): Promise<{
+}: ListFilters & { appId: string; sort?: string }): Promise<{
   reviews: Review[];
   totalCount: number;
 }> => {
@@ -250,7 +251,7 @@ export const getReviews = async ({
     const { reviews, totalCount } = await apiClient.get<{
       reviews: Review[];
       totalCount: number;
-    }>(`/plugins/${appId}/reviews`, { params: { skip, take } });
+    }>(`/plugins/${appId}/reviews`, { params: { skip, sort, take } });
     if (!totalCount) return { reviews: [], totalCount: 0 };
 
     return { reviews, totalCount };
